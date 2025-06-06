@@ -39,7 +39,7 @@ export default function Topbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer"
-                  onClick={() => signOut({ callbackUrl: '/' })}
+                  onClick={() => signOut({ callbackUrl: '/login' })}
                 >
                   Log out
                   <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import './globals.css';
+import '../globals.css';
 import SessionProvider from '@/components/SessionProvider';
 import { getServerSession } from 'next-auth';
 import Sidebar from '@/components/Sidebar';
@@ -28,7 +28,6 @@ export default async function RootLayout({
 }>) {
   const session = await getServerSession();
 
-  console.log('session', session?.user?.name);
   return (
     <html lang="en">
       <body

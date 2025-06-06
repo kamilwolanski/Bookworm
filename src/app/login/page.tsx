@@ -3,9 +3,13 @@ import GoogleLoginButton from '@/components/GoogleLoginButton';
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center flex-col gap-4">
-      <h1 className="text-2xl font-bold">Zaloguj się</h1>
-      <GoogleLoginButton />
+    <div className="mt-20">
+      <div className="container mx-auto flex justify-center">
+        <div className="flex justify-center flex-col text-center max-w-sm flex-1">
+          <h1 className="text-2xl font-bold mb-10">Log in</h1>
+          <GoogleLoginButton />
+        </div>
+      </div>
     </div>
   );
 }
