@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
 

@@ -1,3 +1,5 @@
+import prisma from '@/lib/prisma';
+import { session } from '@/lib/session';
 import { NextAuthOptions } from 'next-auth';
 import NextAuth from 'next-auth/next';
 import GoogleProvider from 'next-auth/providers/google';
@@ -17,6 +19,46 @@ const authOptions: NextAuthOptions = {
       clientSecret: GOOGLE_CLIENT_SECRET,
     }),
   ],
+  callbacks: {
+    async signIn({ profile }) {
+      if (!profile?.email) {
+        throw new Error('No profile');
+      }
+
+      await prisma.user.upsert({
+        where: {
+          email: profile.email,
+        },
+        create: {
+          email: profile.email,
+          name: profile.name,
+        },
+        update: {
+          name: profile.name,
+        },
+      });
+      return true;
+    },
+    session,
+    async jwt({ token, profile }) {
+      if (profile) {
+        const user = await prisma.user.findUnique({
+          where: {
+            email: profile.email,
+          },
+        });
+
+        console.log('user', user);
+
+        if (!user) {
+          throw new Error('No user found');
+        }
+        token.id = user.id;
+      }
+
+      return token;
+    },
+  },
   pages: {
     signIn: '/login', // opcjonalna własna strona logowania
   },
