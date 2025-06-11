@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   DefaultValues,
   FieldValues,
@@ -22,10 +23,12 @@ export function useActionForm<TFormInput extends FieldValues>({
   action,
   schema,
   defaultValues,
+  onSuccess,
 }: {
   action: (currentState: unknown, formData: FormData) => Promise<ActionResult>;
   schema: ZodTypeAny;
   defaultValues: DefaultValues<TFormInput>;
+  onSuccess?: () => void;
 }): UseActionStateReturn<TFormInput> {
   const form = useForm<TFormInput>({
     resolver: zodResolver(schema),
@@ -40,8 +43,9 @@ export function useActionForm<TFormInput extends FieldValues>({
   useEffect(() => {
     if (!isPending && state?.isError) {
       applyServerErrorsToForm(form, state);
-    } else if (!isPending && state && !state.isError) {
+    } else if (!isPending && state && state.status === 'success') {
       form.reset();
+      if (onSuccess) onSuccess();
     }
   }, [state, isPending, form]);
 
