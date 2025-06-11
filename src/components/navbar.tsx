@@ -9,8 +9,6 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const session = useSession();
 
-  console.log('client session', session);
-
   const menuItems = (
     <>
       <Link

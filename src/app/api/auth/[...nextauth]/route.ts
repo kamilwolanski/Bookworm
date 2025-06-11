@@ -48,8 +48,6 @@ const authOptions: NextAuthOptions = {
           },
         });
 
-        console.log('user', user);
-
         if (!user) {
           throw new Error('No user found');
         }

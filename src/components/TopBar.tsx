@@ -15,7 +15,7 @@ import {
 
 export default function Topbar() {
   const { data: session, status } = useSession();
-  console.log('topbar session', session)
+
   return (
     <header className="flex justify-end items-center gap-6 p-6 text-white">
       {status === 'loading' ? null : session ? (
