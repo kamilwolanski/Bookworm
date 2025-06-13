@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@theme {
+  --breakpoint-3xl: 120rem;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -120,3 +124,5 @@
     @apply bg-background text-foreground;
   }
 }
+
+

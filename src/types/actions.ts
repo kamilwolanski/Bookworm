@@ -25,5 +25,8 @@ export interface ActionError {
   fieldErrors?: FieldError[];
 }
 
-// Sumaryczny typ odpowiedzi
 export type ActionResult = ActionSuccess | ActionError;
+
+export interface Action {
+  (currentState: unknown, formData: FormData): Promise<ActionResult>;
+}

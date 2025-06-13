@@ -1,5 +1,5 @@
 import { FieldValues, Path, UseFormReturn } from 'react-hook-form';
-import { ActionError } from './actions';
+import { ActionError } from '../types/actions';
 
 export function applyServerErrorsToForm<T extends FieldValues>(
   form: UseFormReturn<T>,

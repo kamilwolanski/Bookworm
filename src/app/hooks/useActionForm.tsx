@@ -8,7 +8,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useActionState, useEffect } from 'react';
 import { startTransition } from 'react';
-import { ActionResult } from '@/lib/actions';
+import { ActionResult } from '@/types/actions';
 import { ZodTypeAny } from 'zod';
 import { applyServerErrorsToForm } from '@/lib/formErrors';
 
@@ -50,12 +50,19 @@ export function useActionForm<TFormInput extends FieldValues>({
   }, [state, isPending, form]);
 
   const handleSubmit = (data: TFormInput) => {
+    console.log('handle submit data', data);
     const formData = new FormData();
+
     for (const [key, value] of Object.entries(data)) {
       if (value !== undefined && value !== null) {
-        formData.append(key, String(value));
+        if (key === 'file' && value instanceof File) {
+          formData.append(key, value);
+        } else {
+          formData.append(key, String(value));
+        }
       }
     }
+
     startTransition(() => {
       doAction(formData);
     });

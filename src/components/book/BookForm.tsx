@@ -54,6 +54,25 @@ export default function BookForm() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <FormField
               control={form.control}
+              name="file"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dodaj obrazek</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      multiple={false}
+                      onChange={(e) => field.onChange(e.target.files?.[0])}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="title"
               render={({ field }) => (
                 <FormItem>
