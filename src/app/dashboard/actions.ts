@@ -6,6 +6,7 @@ import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
 import type { Action } from '@/types/actions';
 import { v2 as cloudinary } from 'cloudinary';
+import { Prisma } from '@prisma/client';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -33,6 +34,7 @@ export const addBook: Action<[unknown, FormData]> = async (
   const file = formData.get('file') as File | null;
 
   let imageUrl: string | null = null;
+  let imagePublicId: string | null = null;
 
   // validation
   const parseResult = bookSchema.safeParse({ title, author, file });
@@ -58,6 +60,7 @@ export const addBook: Action<[unknown, FormData]> = async (
     });
 
     imageUrl = result.secure_url;
+    imagePublicId = result.public_id;
   }
 
   const data: CreateBookData = {
@@ -65,6 +68,7 @@ export const addBook: Action<[unknown, FormData]> = async (
     author: parseResult.data.author,
     userId: session.user.id,
     imageUrl: imageUrl,
+    imagePublicId: imagePublicId,
   };
 
   try {
@@ -119,11 +123,58 @@ export const removeBook: Action<[unknown, string]> = async (
       isError: true,
       status: 'forbidden',
       httpStatus: 403,
-      message: `Brak uprawnień do pobrania książki o id: ${bookId}`,
+      message: `Brak uprawnień do usunięcia książki o id: ${bookId}`,
     };
   }
 
-  await deleteBook(bookId);
+  try {
+    if (book.imagePublicId) {
+      try {
+        await cloudinary.uploader.destroy(book.imagePublicId);
+      } catch (cloudinaryError) {
+        console.error('Błąd Cloudinary:', cloudinaryError);
+        return {
+          isError: true,
+          status: 'cloudinary_error',
+          httpStatus: 500,
+          message: 'Nie udało się usunąć pliku z Cloudinary.',
+        };
+      }
+    }
+
+    await deleteBook(bookId);
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === 'P2025') {
+        return {
+          isError: true,
+          status: 'not_found',
+          httpStatus: 404,
+          message: `Książka o id: ${bookId} już nie istnieje`,
+        };
+      }
+      return {
+        isError: true,
+        status: 'validation_error',
+        httpStatus: 422,
+        message: 'Nieprawidłowe dane',
+      };
+    } else if (e instanceof Prisma.PrismaClientUnknownRequestError) {
+      return {
+        isError: true,
+        status: 'server_error',
+        httpStatus: 500,
+        message: 'Nieznany błąd serwera',
+      };
+    } else {
+      return {
+        isError: true,
+        status: 'unknown_error',
+        httpStatus: 500,
+        message: 'Wystąpił nieoczekiwany błąd',
+      };
+    }
+  }
 
   return {
     isError: false,

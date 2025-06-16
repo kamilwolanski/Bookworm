@@ -22,12 +22,13 @@ model User {
 }
 
 model Book {
-  id        String   @id @default(uuid())
-  title     String
-  author    String
-  imageUrl  String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
+  id             String   @id @default(uuid())
+  title          String
+  author         String
+  imageUrl       String?
+  imagePublicId  String?  
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
 }
+
 

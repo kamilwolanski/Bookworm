@@ -19,7 +19,8 @@ export interface ActionError {
     | 'not_found'
     | 'server_error'
     | 'forbidden'
-    | 'unknown_error';
+    | 'unknown_error'
+    | 'cloudinary_error';
   httpStatus?: number; // np. 401, 422, 409, 500, itd.
   message?: string;
   fieldErrors?: FieldError[];
