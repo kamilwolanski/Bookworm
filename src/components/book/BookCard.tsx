@@ -3,10 +3,7 @@
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { removeBook } from '@/app/(dashboard)/actions';
-import { startTransition, useActionState, useEffect } from 'react';
-import { ActionResult } from '@/types/actions';
-import { useRouter } from 'next/navigation';
+import DeleteBtn from './DeleteBtn';
 
 type Book = {
   id: string;
@@ -16,18 +13,6 @@ type Book = {
 };
 
 export function BookCard({ book }: { book: Book }) {
-  const [state, doAction, isPending] = useActionState<ActionResult, string>(
-    removeBook,
-    { isError: false }
-  );
-  const router = useRouter();
-
-  useEffect(() => {
-    if (state.status === 'success' && !state.isError) {
-      router.refresh();
-    }
-  }, [state, router]);
-
   return (
     <Card className="w-[280px] rounded-2xl shadow-md overflow-hidden pt-0">
       <div className="relative aspect-[3/4] w-full">
@@ -44,19 +29,14 @@ export function BookCard({ book }: { book: Book }) {
           </div>
         )}
       </div>
-      <CardContent className="p-4">
-        <button
-          className="bg-red-600 text-white p-2"
-          onClick={() => {
-            startTransition(() => {
-              doAction(book.id);
-            });
-          }}
-        >
-          {isPending ? 'Usuwanie...' : 'Usuń'}
-        </button>
-        <h3 className="font-semibold text-lg">{book.title}</h3>
-        <p className="text-sm text-muted-foreground">{book.author}</p>
+      <CardContent className="p-4 pt-0">
+        <div className="flex justify-between">
+          <div>
+            <h3 className="font-semibold text-lg">{book.title}</h3>
+            <p className="text-sm text-muted-foreground">{book.author}</p>
+          </div>
+          <DeleteBtn bookTitle={book.title} bookId={book.id} />
+        </div>
         <Button variant="outline" className="mt-4 w-full">
           Szczegóły
         </Button>

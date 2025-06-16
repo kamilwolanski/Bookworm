@@ -1,5 +1,4 @@
 import { Home, Settings, BarChart2, LifeBuoy, Book } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import NavLink from './NavLink';
 
@@ -39,13 +38,6 @@ export default function Sidebar() {
             </div>
           ))}
         </nav>
-      </div>
-
-      <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-4 text-sm">
-        <p className="mb-2">Want to grow your Instagram?</p>
-        <Button variant="secondary" className="w-full text-white">
-          START
-        </Button>
       </div>
     </aside>
   );
