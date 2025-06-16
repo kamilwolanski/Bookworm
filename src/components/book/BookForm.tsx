@@ -1,7 +1,7 @@
 'use client';
 
 import { bookSchema, BookInput } from '@/lib/validation';
-import { addBook } from '@/app/dashboard/actions';
+import { addBook } from '@/app/(dashboard)/actions';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import {
   Form,

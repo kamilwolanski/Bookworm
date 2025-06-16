@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { removeBook } from '@/app/dashboard/actions';
+import { removeBook } from '@/app/(dashboard)/actions';
 import { startTransition, useActionState, useEffect } from 'react';
 import { ActionResult } from '@/types/actions';
 import { useRouter } from 'next/navigation';

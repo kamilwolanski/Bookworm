@@ -1,11 +1,11 @@
-import { Home, Archive, Settings, BarChart2, LifeBuoy } from 'lucide-react';
+import { Home, Settings, BarChart2, LifeBuoy, Book } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import NavLink from './NavLink';
 
 const menu = [
-  { name: 'Dashboard', icon: <Home size={20} />, href: '/' },
-  { name: 'Archive', icon: <Archive size={20} />, href: '/archive' },
+  { name: 'Dashboard', icon: <Home size={20} />, href: '/dashboard' },
+  { name: 'Books', icon: <Book size={20} />, href: '/books' },
   { name: 'Settings', icon: <Settings size={20} />, href: '/settings' },
   { name: 'Analytics', icon: <BarChart2 size={20} />, href: '/analytics' },
   { name: 'Support', icon: <LifeBuoy size={20} />, href: '/support', badge: 7 },
