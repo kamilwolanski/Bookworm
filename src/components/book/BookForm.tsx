@@ -60,6 +60,7 @@ export default function BookForm() {
                   <FormLabel>Dodaj obrazek</FormLabel>
                   <FormControl>
                     <Input
+                      required={false}
                       type="file"
                       accept="image/*"
                       multiple={false}

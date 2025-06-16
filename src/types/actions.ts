@@ -27,6 +27,6 @@ export interface ActionError {
 
 export type ActionResult = ActionSuccess | ActionError;
 
-export interface Action {
-  (currentState: unknown, formData: FormData): Promise<ActionResult>;
+export interface Action<TArgs extends unknown[] = []> {
+  (...args: TArgs): Promise<ActionResult>;
 }

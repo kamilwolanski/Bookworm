@@ -4,7 +4,7 @@ import { getBooks } from '@/lib/books';
 
 export default async function Home() {
   const books = await getBooks();
-  // console.log('books', books);
+
   return (
     <div>
       <BookForm />

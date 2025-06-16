@@ -1,7 +1,7 @@
 'use server';
 
 import { bookSchema } from '@/lib/validation';
-import { createBook, CreateBookData } from '@/lib/books';
+import { createBook, CreateBookData, deleteBook, getBook } from '@/lib/books';
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
 import type { Action } from '@/types/actions';
@@ -13,7 +13,10 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
-export const addBook: Action = async (currentState, formData) => {
+export const addBook: Action<[unknown, FormData]> = async (
+  currentState,
+  formData
+) => {
   const session = await getUserSession();
 
   if (!session?.user?.id) {
@@ -82,5 +85,50 @@ export const addBook: Action = async (currentState, formData) => {
     status: 'success',
     httpStatus: 200,
     message: 'Książka została dodana',
+  };
+};
+
+export const removeBook: Action<[unknown, string]> = async (
+  currentState,
+  bookId
+) => {
+  const session = await getUserSession();
+
+  if (!session?.user?.id) {
+    return {
+      isError: true,
+      status: 'unauthorized',
+      httpStatus: 401,
+      message: 'Musisz być zalogowany',
+    };
+  }
+
+  const book = await getBook(bookId);
+
+  if (!book) {
+    return {
+      isError: true,
+      status: 'not_found',
+      httpStatus: 404,
+      message: `Nie znaleziono książki o id: ${bookId}`,
+    };
+  }
+
+  if (book.userId !== session.user.id) {
+    return {
+      isError: true,
+      status: 'forbidden',
+      httpStatus: 403,
+      message: `Brak uprawnień do pobrania książki o id: ${bookId}`,
+    };
+  }
+
+  await deleteBook(bookId);
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    message: 'Książka została usunięta',
   };
 };

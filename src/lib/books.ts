@@ -17,3 +17,23 @@ export async function getBooks() {
 
   return books;
 }
+
+export async function deleteBook(bookId: string) {
+  const book = await prisma.book.delete({
+    where: {
+      id: bookId,
+    },
+  });
+
+  return book;
+}
+
+export async function getBook(bookId: string) {
+  const book = await prisma.book.findFirst({
+    where: {
+      id: bookId,
+    },
+  });
+
+  return book;
+}
