@@ -2,7 +2,7 @@ import { BookList } from '@/components/book/BookList';
 import BookForm from '@/components/book/BookForm';
 import { getBooks } from '@/lib/books';
 
-export default async function Home() {
+export default async function Books() {
   const books = await getBooks();
 
   return (

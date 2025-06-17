@@ -6,7 +6,7 @@ import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
 import type { Action } from '@/types/actions';
 import { v2 as cloudinary } from 'cloudinary';
-import { Prisma } from '@prisma/client';
+import { Book, Prisma } from '@prisma/client';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -14,7 +14,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
-export const addBook: Action<[unknown, FormData]> = async (
+export const addBookAction: Action<[unknown, FormData]> = async (
   currentState,
   formData
 ) => {
@@ -92,7 +92,7 @@ export const addBook: Action<[unknown, FormData]> = async (
   };
 };
 
-export const removeBook: Action<[unknown, string]> = async (
+export const removeBookAction: Action<[unknown, string]> = async (
   currentState,
   bookId
 ) => {
@@ -181,5 +181,45 @@ export const removeBook: Action<[unknown, string]> = async (
     status: 'success',
     httpStatus: 200,
     message: 'Książka została usunięta',
+  };
+};
+
+export const getBookAction: Action<[string], Book> = async (bookId) => {
+  const session = await getUserSession();
+
+  if (!session?.user?.id) {
+    return {
+      isError: true,
+      status: 'unauthorized',
+      httpStatus: 401,
+      message: 'Musisz być zalogowany',
+    };
+  }
+
+  const book = await getBook(bookId);
+
+  if (!book) {
+    return {
+      isError: true,
+      status: 'not_found',
+      httpStatus: 404,
+      message: `Nie znaleziono książki o id: ${bookId}`,
+    };
+  }
+
+  if (book.userId !== session.user.id) {
+    return {
+      isError: true,
+      status: 'forbidden',
+      httpStatus: 403,
+      message: 'Brak dostępu do tej książki',
+    };
+  }
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    data: book,
   };
 };

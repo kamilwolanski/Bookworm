@@ -3,11 +3,12 @@ export interface FieldError {
   message: string;
 }
 
-export interface ActionSuccess {
+export interface ActionSuccess<TDataType> {
   isError: false;
   status?: 'success';
   httpStatus?: 200;
   message?: string;
+  data?: TDataType;
 }
 
 export interface ActionError {
@@ -26,8 +27,10 @@ export interface ActionError {
   fieldErrors?: FieldError[];
 }
 
-export type ActionResult = ActionSuccess | ActionError;
+export type ActionResult<TDataType = void> =
+  | ActionSuccess<TDataType>
+  | ActionError;
 
-export interface Action<TArgs extends unknown[] = []> {
-  (...args: TArgs): Promise<ActionResult>;
+export interface Action<TArgs extends unknown[] = [], TDataType = void> {
+  (...args: TArgs): Promise<ActionResult<TDataType>>;
 }

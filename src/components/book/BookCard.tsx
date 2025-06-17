@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import DeleteBtn from './DeleteBtn';
+import Link from 'next/link';
+import { Trash2 } from 'lucide-react';
 
 type Book = {
   id: string;
@@ -35,10 +37,14 @@ export function BookCard({ book }: { book: Book }) {
             <h3 className="font-semibold text-lg">{book.title}</h3>
             <p className="text-sm text-muted-foreground">{book.author}</p>
           </div>
-          <DeleteBtn bookTitle={book.title} bookId={book.id} />
+          <DeleteBtn bookTitle={book.title} bookId={book.id}>
+            <Button variant="outline" className="text-black cursor-pointer">
+              <Trash2 color="red" />
+            </Button>
+          </DeleteBtn>
         </div>
-        <Button variant="outline" className="mt-4 w-full">
-          Szczegóły
+        <Button variant="outline" className="mt-4 w-full cursor-pointer">
+          <Link href={`/books/${book.id}`}>Szczegóły</Link>
         </Button>
       </CardContent>
     </Card>

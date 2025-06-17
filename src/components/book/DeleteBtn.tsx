@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Dialog,
   DialogClose,
@@ -9,39 +11,46 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
-import { startTransition, useActionState, useEffect, useState } from 'react';
+import {
+  ReactNode,
+  startTransition,
+  useActionState,
+  useEffect,
+  useState,
+} from 'react';
 import { ActionResult } from '@/types/actions';
 import { useRouter } from 'next/navigation';
-import { removeBook } from '@/app/(dashboard)/actions';
+import { removeBookAction } from '@/app/(dashboard)/actions';
+import { usePathname } from 'next/navigation';
 
 const DeleteBtn = ({
   bookTitle,
   bookId,
+  children,
 }: {
   bookTitle: string;
   bookId: string;
+  children: ReactNode;
 }) => {
   const [state, doAction, isPending] = useActionState<ActionResult, string>(
-    removeBook,
+    removeBookAction,
     { isError: false }
   );
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (state.status === 'success' && !state.isError) {
       router.refresh();
+      if (pathname !== '/books') router.push('/books');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, router]);
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="text-black cursor-pointer">
-          <Trash2 color="red" />
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>

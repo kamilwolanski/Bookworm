@@ -1,7 +1,7 @@
 'use client';
 
 import { bookSchema, BookInput } from '@/lib/validation';
-import { addBook } from '@/app/(dashboard)/actions';
+import { addBookAction } from '@/app/(dashboard)/actions';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import {
   Form,
@@ -28,7 +28,7 @@ import { useState } from 'react';
 export default function BookForm() {
   const closeDialog = () => setOpen(false);
   const { form, isPending, handleSubmit, state } = useActionForm<BookInput>({
-    action: addBook,
+    action: addBookAction,
     schema: bookSchema,
     defaultValues: { title: '', author: '' },
     onSuccess: closeDialog,
