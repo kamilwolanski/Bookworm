@@ -13,22 +13,62 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ReadingStatus {
+  WANT_TO_READ
+  READING
+  READ
+  ABANDONED
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String?
-  books     Book[]   // relacja: jeden user → wiele książek
+  books     Book[] // relacja: jeden user → wiele książek
   createdAt DateTime @default(now())
 }
 
-model Book {
-  id             String   @id @default(uuid())
-  title          String
-  author         String
-  imageUrl       String?
-  imagePublicId  String?  
-  userId         String
-  user           User     @relation(fields: [userId], references: [id])
+model GenreTranslation {
+  id      String @id @default(uuid())
+  genreId String
+  genre   Genre  @relation(fields: [genreId], references: [id])
+
+  language String // np. "pl", "en", "de"
+  name     String // tłumaczenie nazwy gatunku
+
+  @@unique([genreId, language]) // unikalność tłumaczenia na dany język
 }
 
+model Genre {
+  id           String             @id @default(uuid())
+  slug         String             @unique
+  books        BookGenre[]         
+  translations GenreTranslation[]
+}
 
+model Book {
+  id            String        @id @default(uuid())
+  title         String
+  author        String
+  addedAt       DateTime      @default(now())
+  readingStatus ReadingStatus @default(WANT_TO_READ)
+  rating        Int?          @db.SmallInt
+  pageCount     Int?
+  imageUrl      String?
+  imagePublicId String?
+  description   String?
+  publicationYear Int? 
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  genres        BookGenre[]      
+}
+
+model BookGenre {
+  bookId  String
+  genreId String
+
+  book  Book  @relation(fields: [bookId], references: [id])
+  genre Genre @relation(fields: [genreId], references: [id])
+
+  @@id([bookId, genreId])
+}
