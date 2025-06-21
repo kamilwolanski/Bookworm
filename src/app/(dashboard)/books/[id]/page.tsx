@@ -14,12 +14,21 @@ export default async function Book({ params }: BookPageProps) {
 
   const book = await getBookAction(id);
 
+  console.log('book', book);
+
+  if (book.isError) {
+    return <p>Błąd</p>;
+  }
+
   return (
     <>
-      {book.isError === false && book.data ? (
+      {book.data ? (
         <div>
           <BackTopBar />
-          <BookDetails {...book.data} />
+          <div className="grid grid-cols-3 gap-10 mt-20 max-w-[1480px] mx-auto">
+            <BookDetails {...book.data} />
+            <div className="col-span-1 bg-white shadow rounded-xl"></div>
+          </div>
         </div>
       ) : (
         <p>dupa</p>

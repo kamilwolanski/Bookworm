@@ -40,7 +40,7 @@ import { GenreDTO } from '@/lib/books';
 export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const closeDialog = () => setOpen(false);
-  const { form, isPending, handleSubmit } = useActionForm<BookInput>({
+  const { form, isPending, handleSubmit, state } = useActionForm<BookInput>({
     action: addBookAction,
     schema: bookSchema,
     defaultValues: {
@@ -54,7 +54,7 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
   const readingStatus = form.watch('readingStatus');
   const [open, setOpen] = useState(false);
   const genresList = bookGenres.map((genre) => ({
-    value: genre.slug,
+    value: genre.id,
     label: genre.name,
   }));
 
@@ -66,8 +66,11 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
 
   useEffect(() => {
     form.setValue('genres', selectedGenres);
-    console.log('form', form.getValues());
+    // console.log('form', form.getValues());
   }, [selectedGenres]);
+
+  console.log('form', form.formState.errors);
+  console.log('state', state);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -115,7 +118,9 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
                   name="title"
                   render={({ field }) => (
                     <FormItem className="mt-3">
-                      <FormLabel>Tytuł książki</FormLabel>
+                      <FormLabel>
+                        Tytuł książki<span className="text-red-500 ">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="Tytuł książki" {...field} />
                       </FormControl>
@@ -129,7 +134,9 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
                   name="author"
                   render={({ field }) => (
                     <FormItem className="mt-3">
-                      <FormLabel>Autor</FormLabel>
+                      <FormLabel>
+                        Autor<span className="text-red-500 ">*</span>
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="Autor" {...field} />
                       </FormControl>
@@ -170,6 +177,11 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
                     variant="inverted"
                     animation={0}
                   />
+                  {form.formState.errors.genres && (
+                    <FormMessage>
+                      {form.formState.errors.genres.message}
+                    </FormMessage>
+                  )}
                 </div>
 
                 <FormField

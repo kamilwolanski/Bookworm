@@ -1,12 +1,18 @@
 'use server';
 
 import { bookSchema } from '@/lib/validation';
-import { createBook, CreateBookData, deleteBook, getBook } from '@/lib/books';
+import {
+  BookDTO,
+  createBook,
+  CreateBookData,
+  deleteBook,
+  getBook,
+} from '@/lib/books';
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
 import type { Action } from '@/types/actions';
 import { v2 as cloudinary } from 'cloudinary';
-import { Book, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -32,12 +38,39 @@ export const addBookAction: Action<[unknown, FormData]> = async (
   const title = formData.get('title');
   const author = formData.get('author');
   const file = formData.get('file') as File | null;
+  const pageCount = formData.get('pageCount') || undefined;
+  const rawGenres = formData.get('genres');
+  const genres =
+    typeof rawGenres === 'string' && rawGenres.trim() !== ''
+      ? rawGenres.split(',').map((g) => g.trim())
+      : [];
+  const publicationYear = formData.get('publicationYear');
+  const readingStatus = formData.get('readingStatus');
+  const rating = formData.get('rating') || undefined;
+  const description = formData.get('description') || undefined;
+
+  console.log('pageCount', pageCount);
+  console.log('genres', genres);
+  console.log('publicationYear', publicationYear);
+  console.log('readingStatus', readingStatus);
+  console.log('rating', rating);
+  console.log('description', description);
 
   let imageUrl: string | null = null;
   let imagePublicId: string | null = null;
 
   // validation
-  const parseResult = bookSchema.safeParse({ title, author, file });
+  const parseResult = bookSchema.safeParse({
+    title,
+    author,
+    file,
+    pageCount,
+    genres,
+    publicationYear,
+    readingStatus,
+    rating,
+    description,
+  });
   if (!parseResult.success) {
     return {
       isError: true,
@@ -69,11 +102,15 @@ export const addBookAction: Action<[unknown, FormData]> = async (
     userId: session.user.id,
     imageUrl: imageUrl,
     imagePublicId: imagePublicId,
-    
+    description: parseResult.data.description ?? null,
+    pageCount: parseResult.data.pageCount ?? null,
+    publicationYear: parseResult.data.publicationYear ?? null,
+    readingStatus: parseResult.data.readingStatus,
+    rating: parseResult.data.rating ?? null,
   };
 
   try {
-    await createBook(data);
+    await createBook(data, genres);
   } catch {
     return {
       isError: true,
@@ -185,7 +222,7 @@ export const removeBookAction: Action<[unknown, string]> = async (
   };
 };
 
-export const getBookAction: Action<[string], Book> = async (bookId) => {
+export const getBookAction: Action<[string], BookDTO> = async (bookId) => {
   const session = await getUserSession();
 
   if (!session?.user?.id) {

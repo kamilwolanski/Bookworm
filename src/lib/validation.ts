@@ -18,15 +18,15 @@ export const bookSchema = z.object({
     }),
   description: z.string().max(1000).optional(),
   genres: z.array(z.string()).default([]),
-  pageCount: z.number().int().positive().optional(),
-  publicationYear: z
+  readingStatus: z.enum(['WANT_TO_READ', 'READING', 'READ', 'ABANDONED']),
+  pageCount: z.coerce.number().int().positive().optional(),
+  publicationYear: z.coerce
     .number()
     .int()
     .min(0)
     .max(new Date().getFullYear())
     .optional(),
-  readingStatus: z.enum(['WANT_TO_READ', 'READING', 'READ', 'ABANDONED']),
-  rating: z.number().min(1).max(5).optional(),
+  rating: z.coerce.number().min(1).max(5).optional(),
 });
 
 export type BookInput = z.infer<typeof bookSchema>;
