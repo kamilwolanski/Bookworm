@@ -20,6 +20,59 @@ enum ReadingStatus {
   ABANDONED
 }
 
+enum GenreSlug {
+  FANTASY
+  SCIENCE_FICTION
+  THRILLER
+  ROMANCE
+  NON_FICTION
+  HORROR
+  MYSTERY
+  HISTORY
+  BIOGRAPHY
+  POETRY
+  DRAMA
+  ADVENTURE
+  CLASSICS
+  CHILDREN
+  YOUNG_ADULT
+  SELF_HELP
+  HEALTH
+  TECHNOLOGY
+  PHILOSOPHY
+  RELIGION
+  ART
+  TRAVEL
+  SATIRE
+  GOTHIC
+  DYSTOPIA
+  MEMOIR
+  CRIME
+  DETECTIVE
+  ESSAY
+  HUMOR
+  COOKING
+  BUSINESS
+  EDUCATION
+  PSYCHOLOGY
+  POLITICS
+  SPORT
+  TRUE_CRIME
+  FAIRY_TALES
+  WESTERN
+  LGBTQ
+  CULTURE
+  COMICS
+  GRAPHIC_NOVEL
+  ESSAYS
+  LITERARY_FICTION
+  SPIRITUALITY
+  ENVIRONMENT
+  MUSIC
+  CLASSIC_FICTION
+  CONTEMPORARY_FICTION
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -41,26 +94,26 @@ model GenreTranslation {
 
 model Genre {
   id           String             @id @default(uuid())
-  slug         String             @unique
-  books        BookGenre[]         
+  slug         GenreSlug          @unique
+  books        BookGenre[]
   translations GenreTranslation[]
 }
 
 model Book {
-  id            String        @id @default(uuid())
-  title         String
-  author        String
-  addedAt       DateTime      @default(now())
-  readingStatus ReadingStatus @default(WANT_TO_READ)
-  rating        Int?          @db.SmallInt
-  pageCount     Int?
-  imageUrl      String?
-  imagePublicId String?
-  description   String?
-  publicationYear Int? 
-  userId        String
-  user          User          @relation(fields: [userId], references: [id])
-  genres        BookGenre[]      
+  id              String        @id @default(uuid())
+  title           String
+  author          String
+  addedAt         DateTime      @default(now())
+  readingStatus   ReadingStatus @default(WANT_TO_READ)
+  rating          Int?          @db.SmallInt
+  pageCount       Int?
+  imageUrl        String?
+  imagePublicId   String?
+  description     String?
+  publicationYear Int?
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  genres          BookGenre[]
 }
 
 model BookGenre {

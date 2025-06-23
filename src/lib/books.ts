@@ -1,11 +1,11 @@
-import { Book } from '@prisma/client';
+import { Book, GenreSlug } from '@prisma/client';
 import prisma from './prisma';
 import { getUserSession } from './session';
 
 export type CreateBookData = Omit<Book, 'id' | 'addedAt'>;
 export type GenreDTO = {
   id: string;
-  slug: string;
+  slug: GenreSlug;
   language: string;
   name: string;
 };
