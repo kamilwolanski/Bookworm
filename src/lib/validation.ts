@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const bookSchema = z.object({
+  id: z.string().optional(),
   title: z.string().min(1, 'Tytuł jest wymagany'),
   author: z.string().min(1, 'Autor jest wymagany'),
   file: z
@@ -27,6 +28,7 @@ export const bookSchema = z.object({
     .max(new Date().getFullYear())
     .optional(),
   rating: z.coerce.number().min(1).max(5).optional(),
+  imagePublicId: z.string().optional(),
 });
 
 export type BookInput = z.infer<typeof bookSchema>;

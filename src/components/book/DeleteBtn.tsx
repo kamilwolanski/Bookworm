@@ -20,7 +20,7 @@ import {
 } from 'react';
 import { ActionResult } from '@/types/actions';
 import { useRouter } from 'next/navigation';
-import { removeBookAction } from '@/app/(dashboard)/actions';
+import { removeBookAction } from '@/app/(dashboard)/books/actions';
 import { usePathname } from 'next/navigation';
 
 const DeleteBtn = ({

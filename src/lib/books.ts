@@ -3,6 +3,14 @@ import prisma from './prisma';
 import { getUserSession } from './session';
 
 export type CreateBookData = Omit<Book, 'id' | 'addedAt'>;
+export type EditBookData = Omit<
+  CreateBookData,
+  'imageUrl' | 'imagePublicId'
+> & {
+  imageUrl?: string | null;
+  imagePublicId?: string | null;
+};
+
 export type GenreDTO = {
   id: string;
   slug: GenreSlug;
@@ -146,4 +154,41 @@ export async function getBookGenres(
       name: translation.name,
     };
   });
+}
+
+export async function updateBookWithTransaction(
+  bookId: string,
+  data: EditBookData,
+  genreIds: string[]
+) {
+  const updatedBook = await prisma.$transaction(async (tx) => {
+    // 1. Usuń stare przypisania gatunków
+    await tx.bookGenre.deleteMany({
+      where: { bookId },
+    });
+
+    // 2. Zaktualizuj książkę i dodaj nowe gatunki
+    return await tx.book.update({
+      where: { id: bookId },
+      data: {
+        ...data,
+        genres: {
+          create: genreIds.map((genreId) => ({
+            genre: {
+              connect: { id: genreId },
+            },
+          })),
+        },
+      },
+      include: {
+        genres: {
+          include: {
+            genre: true,
+          },
+        },
+      },
+    });
+  });
+
+  return updatedBook;
 }

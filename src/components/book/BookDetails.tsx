@@ -1,26 +1,32 @@
 import Image from 'next/image';
 import { format } from 'date-fns';
-import { BookDTO } from '@/lib/books';
+import { BookDTO, getBookGenres } from '@/lib/books';
 import { Badge } from '../ui/badge';
 import { Star, Trash2 } from 'lucide-react';
 import { genreColorMap } from '@/lib/genreColorMap';
 import { BookStatus } from './BookStatus';
 import DeleteBtn from './DeleteBtn';
 import { Button } from '../ui/button';
+import EditBtn from './EditBtn';
+import { Pencil } from 'lucide-react';
 
-const BookDetails = ({
-  id,
-  title,
-  author,
-  imageUrl,
-  publicationYear,
-  readingStatus,
-  rating,
-  genres,
-  description,
-  pageCount,
-  addedAt,
-}: BookDTO) => {
+const BookDetails = async ({ bookData }: { bookData: BookDTO }) => {
+  const bookGenres = await getBookGenres('pl');
+
+  const {
+    id,
+    title,
+    author,
+    imageUrl,
+    publicationYear,
+    readingStatus,
+    rating,
+    genres,
+    description,
+    pageCount,
+    addedAt,
+  } = bookData;
+
   return (
     <div className="p-6 bg-white shadow rounded-xl col-span-2">
       <div className="flex justify-between items-center mb-5">
@@ -109,7 +115,7 @@ const BookDetails = ({
               <div className="ml-auto">
                 <BookStatus status={readingStatus} />
               </div>
-              <div>
+              <div className="ml-auto">
                 <DeleteBtn bookId={id} bookTitle={title}>
                   <Button
                     variant="destructive"
@@ -121,6 +127,17 @@ const BookDetails = ({
                     </span>
                   </Button>
                 </DeleteBtn>
+                <EditBtn bookGenres={bookGenres} bookData={bookData}>
+                  <Button
+                    variant="default"
+                    className="cursor-pointer text-white px-5 ms-5"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Pencil size={16} />
+                      Edytuj
+                    </span>
+                  </Button>
+                </EditBtn>
               </div>
             </div>
           </div>
