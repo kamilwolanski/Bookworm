@@ -9,12 +9,14 @@ export function unauthorizedResponse(): ActionError {
   };
 }
 
-export function serverErrorResponse(): ActionError {
+export function serverErrorResponse(
+  message = 'Wystąpił błąd serwera przy zapisie danych.'
+): ActionError {
   return {
     isError: true,
     status: 'server_error',
     httpStatus: 500,
-    message: 'Wystąpił błąd serwera przy zapisie danych.',
+    message,
   };
 }
 

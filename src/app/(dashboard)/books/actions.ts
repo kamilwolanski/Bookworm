@@ -7,6 +7,7 @@ import {
   deleteBook,
   EditBookData,
   getBook,
+  getBooks,
   updateBookWithTransaction,
 } from '@/lib/books';
 import { getUserSession } from '@/lib/session';
@@ -155,6 +156,24 @@ export const removeBookAction: Action<[unknown, string]> = async (
     httpStatus: 200,
     message: 'Książka została usunięta',
   };
+};
+
+export const getBooksAction: Action<[], BookDTO[]> = async () => {
+  const session = await getUserSession();
+
+  if (!session?.user?.id) return unauthorizedResponse();
+
+  try {
+    const books = await getBooks(session?.user?.id);
+    return {
+      isError: false,
+      status: 'success',
+      httpStatus: 200,
+      data: books,
+    };
+  } catch {
+    return serverErrorResponse('Problem przy odczycie danych');
+  }
 };
 
 export const getBookAction: Action<[string], BookDTO> = async (bookId) => {

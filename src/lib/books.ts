@@ -1,6 +1,5 @@
 import { Book, GenreSlug } from '@prisma/client';
 import prisma from './prisma';
-import { getUserSession } from './session';
 
 export type CreateBookData = Omit<Book, 'id' | 'addedAt'>;
 export type EditBookData = Omit<
@@ -38,11 +37,10 @@ export async function createBook(data: CreateBookData, genreIds: string[]) {
     return await prisma.book.create({ data });
   }
 }
-export async function getBooks() {
-  const session = await getUserSession();
+export async function getBooks(userId: string): Promise<BookDTO[]> {
   const books = await prisma.book.findMany({
     where: {
-      userId: session.user.id,
+      userId: userId,
     },
     include: {
       genres: {
