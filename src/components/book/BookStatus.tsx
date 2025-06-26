@@ -5,7 +5,7 @@ const readingStatusVisualMap = {
   [ReadingStatus.WANT_TO_READ]: {
     label: 'Chcę przeczytać',
     icon: Bookmark,
-    color: 'text-gray-500',
+    color: 'text-gray-100',
   },
   [ReadingStatus.READING]: {
     label: 'Czytam',
@@ -26,15 +26,23 @@ const readingStatusVisualMap = {
 
 interface BookStatusProps {
   status: ReadingStatus;
+  onlyIcon?: boolean;
+  iconSize?: number;
 }
 
-export function BookStatus({ status }: BookStatusProps) {
+export function BookStatus({
+  status,
+  onlyIcon = false,
+  iconSize = 8,
+}: BookStatusProps) {
   const { label, icon: Icon, color } = readingStatusVisualMap[status];
 
   return (
     <div className="flex items-center gap-2">
-      <Icon className={`w-8 h-8 ${color}`} />
-      <span className={`text-lg font-semibold ${color}`}>{label}</span>
+      <Icon className={`w-${iconSize} h-${iconSize} ${color}`} />
+      {!onlyIcon && (
+        <span className={`text-lg font-semibold ${color}`}>{label}</span>
+      )}
     </div>
   );
 }
