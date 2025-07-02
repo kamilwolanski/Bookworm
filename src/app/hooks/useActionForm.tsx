@@ -28,7 +28,7 @@ export function useActionForm<TFormInput extends FieldValues>({
   action: (currentState: unknown, formData: FormData) => Promise<ActionResult>;
   schema: ZodTypeAny;
   defaultValues: DefaultValues<TFormInput>;
-  onSuccess?: () => void;
+  onSuccess?: (form: UseFormReturn<TFormInput>) => void;
 }): UseActionStateReturn<TFormInput> {
   const form = useForm<TFormInput>({
     resolver: zodResolver(schema),
@@ -44,8 +44,7 @@ export function useActionForm<TFormInput extends FieldValues>({
     if (!isPending && state?.isError) {
       applyServerErrorsToForm(form, state);
     } else if (!isPending && state && state.status === 'success') {
-      form.reset();
-      if (onSuccess) onSuccess();
+      if (onSuccess) onSuccess(form);
     }
   }, [state, isPending, form]);
 

@@ -36,10 +36,18 @@ import {
 import { Star } from 'lucide-react';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { GenreDTO } from '@/lib/books';
+import { UseFormReturn } from 'react-hook-form';
 
 export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-  const closeDialog = () => setOpen(false);
+
+  const afterSuccess = (form: UseFormReturn<BookInput>) => {
+    setOpen(false);
+    setSelectedGenres([]);
+    setTimeout(() => {
+      form.reset();
+    }, 500);
+  };
   const { form, isPending, handleSubmit, state } = useActionForm<BookInput>({
     action: addBookAction,
     schema: bookSchema,
@@ -49,7 +57,7 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
       readingStatus: 'WANT_TO_READ',
       genres: [],
     },
-    onSuccess: closeDialog,
+    onSuccess: afterSuccess,
   });
   const readingStatus = form.watch('readingStatus');
   const [open, setOpen] = useState(false);
@@ -66,7 +74,6 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
 
   useEffect(() => {
     form.setValue('genres', selectedGenres);
-    // console.log('form', form.getValues());
   }, [selectedGenres]);
 
   console.log('form', form.formState.errors);
@@ -75,7 +82,10 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="text-black cursor-pointer">
+        <Button
+          variant="outline"
+          className="text-black cursor-pointer self-start"
+        >
           Dodaj książkę
         </Button>
       </DialogTrigger>
@@ -176,6 +186,7 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
                     placeholder="Wybierz gatunek"
                     variant="inverted"
                     animation={0}
+                    modalPopover
                   />
                   {form.formState.errors.genres && (
                     <FormMessage>

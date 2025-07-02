@@ -20,13 +20,20 @@ export const bookSchema = z.object({
   description: z.string().max(1000).optional(),
   genres: z.array(z.string()).default([]),
   readingStatus: z.enum(['WANT_TO_READ', 'READING', 'READ', 'ABANDONED']),
-  pageCount: z.coerce.number().int().positive().optional(),
-  publicationYear: z.coerce
-    .number()
-    .int()
-    .min(0)
-    .max(new Date().getFullYear())
-    .optional(),
+  pageCount: z.preprocess((arg) => {
+    if (typeof arg === 'string' && arg === '') {
+      return undefined;
+    } else {
+      return arg;
+    }
+  }, z.coerce.number().int().positive().optional()),
+  publicationYear: z.preprocess((arg) => {
+    if (typeof arg === 'string' && arg === '') {
+      return undefined;
+    } else {
+      return arg;
+    }
+  }, z.coerce.number().min(0).positive().optional()),
   rating: z.coerce.number().min(1).max(5).optional(),
   imagePublicId: z.string().optional(),
 });

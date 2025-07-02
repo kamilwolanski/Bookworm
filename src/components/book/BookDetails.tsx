@@ -27,6 +27,7 @@ const BookDetails = async ({ bookData }: { bookData: BookDTO }) => {
     addedAt,
   } = bookData;
 
+  console.log('publicationYear', publicationYear);
   return (
     <div className="p-6 bg-white shadow rounded-xl col-span-2">
       <div className="flex justify-between items-center mb-5">
@@ -78,11 +79,13 @@ const BookDetails = async ({ bookData }: { bookData: BookDTO }) => {
                 <b>Autor: </b>
                 {author}
               </p>
-              <div className="mt-2">
-                <p className="text-lg">
-                  <b>Rok wydania:</b> <span>{publicationYear ?? '—'}</span>
-                </p>
-              </div>
+              {publicationYear && (
+                <div className="mt-2">
+                  <p className="text-lg">
+                    <b>Rok wydania:</b> <span>{publicationYear}</span>
+                  </p>
+                </div>
+              )}
               {pageCount && (
                 <div className="mt-2">
                   <p className="text-lg">

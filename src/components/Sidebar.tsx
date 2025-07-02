@@ -12,7 +12,7 @@ const menu = [
 
 export default function Sidebar() {
   return (
-    <aside className="bg-[#262632] text-white w-64 h-screen p-6 flex flex-col justify-between">
+    <aside className="bg-[#262632] text-white w-64 p-6 flex flex-col justify-between">
       <div>
         <Link href="/" className="text-xl font-bold block mb-6">
           📚 BookWorm

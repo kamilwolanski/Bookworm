@@ -57,6 +57,7 @@ const EditBookForm = ({
     onSuccess: closeDialog,
   });
   const readingStatus = form.watch('readingStatus');
+
   const genresList = bookGenres.map((genre) => ({
     value: genre.id,
     label: genre.name,
@@ -158,6 +159,7 @@ const EditBookForm = ({
                 placeholder="Wybierz gatunek"
                 variant="inverted"
                 animation={0}
+                modalPopover
               />
               {form.formState.errors.genres && (
                 <FormMessage>

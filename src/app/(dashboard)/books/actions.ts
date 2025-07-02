@@ -38,7 +38,6 @@ export const addBookAction: Action<[unknown, FormData]> = async (
   if (!session?.user?.id) {
     return unauthorizedResponse();
   }
-
   const parsed = parseFormData(formData);
   if (!parsed.success) {
     return parsed.errorResponse;
@@ -148,7 +147,7 @@ export const removeBookAction: Action<[unknown, string]> = async (
     };
   }
 
-  revalidatePath('/dashboard');
+  // revalidatePath('/books');
 
   return {
     isError: false,
@@ -158,13 +157,19 @@ export const removeBookAction: Action<[unknown, string]> = async (
   };
 };
 
-export const getBooksAction: Action<[], BookDTO[]> = async () => {
+export const getBooksAction: Action<
+  [{ currentPage: number; booksPerPage?: number }],
+  {
+    books: BookDTO[];
+    totalCount: number;
+  }
+> = async ({ currentPage, booksPerPage = 10 }) => {
   const session = await getUserSession();
 
   if (!session?.user?.id) return unauthorizedResponse();
 
   try {
-    const books = await getBooks(session?.user?.id);
+    const books = await getBooks(session?.user?.id, currentPage, booksPerPage);
     return {
       isError: false,
       status: 'success',

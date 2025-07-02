@@ -19,7 +19,6 @@ export function parseFormData(formData: FormData):
       : [];
 
   const file = formData.get('file') as File | null;
-
   const result = bookSchema.safeParse({
     id: formData.get('id') ?? undefined,
     title: formData.get('title'),
@@ -27,7 +26,7 @@ export function parseFormData(formData: FormData):
     file,
     pageCount: formData.get('pageCount') ?? undefined,
     genres,
-    publicationYear: formData.get('publicationYear'),
+    publicationYear: formData.get('publicationYear') ?? undefined,
     readingStatus: formData.get('readingStatus'),
     rating: formData.get('rating') ?? undefined,
     description: formData.get('description') ?? undefined,

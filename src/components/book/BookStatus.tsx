@@ -27,21 +27,27 @@ const readingStatusVisualMap = {
 interface BookStatusProps {
   status: ReadingStatus;
   onlyIcon?: boolean;
+  onlyText?: boolean;
+  textSize?: 'xs' | 'sm' | 'md' | 'lg';
   iconSize?: number;
 }
 
 export function BookStatus({
   status,
   onlyIcon = false,
+  onlyText = false,
+  textSize = 'lg',
   iconSize = 8,
 }: BookStatusProps) {
   const { label, icon: Icon, color } = readingStatusVisualMap[status];
 
   return (
     <div className="flex items-center gap-2">
-      <Icon className={`w-${iconSize} h-${iconSize} ${color}`} />
+      {!onlyText && <Icon className={`w-${iconSize} h-${iconSize} ${color}`} />}
       {!onlyIcon && (
-        <span className={`text-lg font-semibold ${color}`}>{label}</span>
+        <span className={`text-${textSize} font-semibold ${color}`}>
+          {label}
+        </span>
       )}
     </div>
   );
