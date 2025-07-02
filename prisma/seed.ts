@@ -209,6 +209,118 @@ async function main() {
       slug: GenreSlug.CONTEMPORARY_FICTION,
       translations: [{ language: 'pl', name: 'Współczesna literatura' }],
     },
+    {
+      slug: GenreSlug.URBAN_FANTASY,
+      translations: [{ language: 'pl', name: 'Miejska fantastyka' }],
+    },
+    {
+      slug: GenreSlug.HISTORICAL_FICTION,
+      translations: [{ language: 'pl', name: 'Fikcja historyczna' }],
+    },
+    {
+      slug: GenreSlug.MAGICAL_REALISM,
+      translations: [{ language: 'pl', name: 'Realizm magiczny' }],
+    },
+    {
+      slug: GenreSlug.SHORT_STORIES,
+      translations: [{ language: 'pl', name: 'Opowiadania' }],
+    },
+    {
+      slug: GenreSlug.FANFICTION,
+      translations: [{ language: 'pl', name: 'Fanfiction' }],
+    },
+    {
+      slug: GenreSlug.SCIENCE,
+      translations: [{ language: 'pl', name: 'Nauka' }],
+    },
+    {
+      slug: GenreSlug.ASTRONOMY,
+      translations: [{ language: 'pl', name: 'Astronomia' }],
+    },
+    {
+      slug: GenreSlug.MATHEMATICS,
+      translations: [{ language: 'pl', name: 'Matematyka' }],
+    },
+    {
+      slug: GenreSlug.ECONOMICS,
+      translations: [{ language: 'pl', name: 'Ekonomia' }],
+    },
+    {
+      slug: GenreSlug.PARENTING,
+      translations: [{ language: 'pl', name: 'Rodzicielstwo' }],
+    },
+    {
+      slug: GenreSlug.MINDFULNESS,
+      translations: [{ language: 'pl', name: 'Uważność' }],
+    },
+    {
+      slug: GenreSlug.PRODUCTIVITY,
+      translations: [{ language: 'pl', name: 'Produktywność' }],
+    },
+    {
+      slug: GenreSlug.PERSONAL_DEVELOPMENT,
+      translations: [{ language: 'pl', name: 'Rozwój osobisty' }],
+    },
+    {
+      slug: GenreSlug.ANTHROPOLOGY,
+      translations: [{ language: 'pl', name: 'Antropologia' }],
+    },
+    {
+      slug: GenreSlug.SOCIOLOGY,
+      translations: [{ language: 'pl', name: 'Socjologia' }],
+    },
+    {
+      slug: GenreSlug.GENDER_STUDIES,
+      translations: [{ language: 'pl', name: 'Studia nad płcią' }],
+    },
+    {
+      slug: GenreSlug.RACE_AND_ETHNICITY,
+      translations: [{ language: 'pl', name: 'Rasa i tożsamość etniczna' }],
+    },
+    {
+      slug: GenreSlug.DESIGN,
+      translations: [{ language: 'pl', name: 'Design' }],
+    },
+    {
+      slug: GenreSlug.PHOTOGRAPHY,
+      translations: [{ language: 'pl', name: 'Fotografia' }],
+    },
+    {
+      slug: GenreSlug.ARCHITECTURE,
+      translations: [{ language: 'pl', name: 'Architektura' }],
+    },
+    {
+      slug: GenreSlug.FASHION,
+      translations: [{ language: 'pl', name: 'Moda' }],
+    },
+    {
+      slug: GenreSlug.GAMEBOOK,
+      translations: [{ language: 'pl', name: 'Książka paragrafowa' }],
+    },
+    {
+      slug: GenreSlug.ZINES,
+      translations: [{ language: 'pl', name: 'Ziny' }],
+    },
+    {
+      slug: GenreSlug.MYTHOLOGY,
+      translations: [{ language: 'pl', name: 'Mitologia' }],
+    },
+    {
+      slug: GenreSlug.FOLKLORE,
+      translations: [{ language: 'pl', name: 'Folklor' }],
+    },
+    {
+      slug: GenreSlug.AUTOBIOGRAPHY,
+      translations: [{ language: 'pl', name: 'Autobiografia' }],
+    },
+    {
+      slug: GenreSlug.ANIMALS,
+      translations: [{ language: 'pl', name: 'Zwierzęta' }],
+    },
+    {
+      slug: GenreSlug.LANGUAGE,
+      translations: [{ language: 'pl', name: 'Języki i językoznawstwo' }],
+    },
   ];
 
   for (const genreData of genres) {
