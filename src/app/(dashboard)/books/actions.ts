@@ -158,18 +158,24 @@ export const removeBookAction: Action<[unknown, string]> = async (
 };
 
 export const getBooksAction: Action<
-  [{ currentPage: number; booksPerPage?: number }],
+  [{ currentPage: number; booksPerPage?: number; search?: string }],
   {
     books: BookDTO[];
     totalCount: number;
   }
-> = async ({ currentPage, booksPerPage = 10 }) => {
+> = async ({ currentPage, booksPerPage = 10, search }) => {
   const session = await getUserSession();
 
   if (!session?.user?.id) return unauthorizedResponse();
 
   try {
-    const books = await getBooks(session?.user?.id, currentPage, booksPerPage);
+    const books = await getBooks(
+      session.user.id,
+      currentPage,
+      booksPerPage,
+      search
+    );
+
     return {
       isError: false,
       status: 'success',

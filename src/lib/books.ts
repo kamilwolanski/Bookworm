@@ -40,19 +40,58 @@ export async function createBook(data: CreateBookData, genreIds: string[]) {
 export async function getBooks(
   userId: string,
   currentPage: number,
-  booksPerPage: number
+  booksPerPage: number,
+  search?: string // 👈 Nowy opcjonalny parametr
 ): Promise<{
   books: BookDTO[];
   totalCount: number;
 }> {
   const skip = (currentPage - 1) * booksPerPage;
 
+  // 🔍 Jeśli nie ma frazy, nie dodajemy warunku OR
+  const searchConditions = search
+    ? {
+        OR: [
+          {
+            title: {
+              contains: search,
+              mode: 'insensitive' as const,
+            },
+          },
+          {
+            author: {
+              contains: search,
+              mode: 'insensitive' as const,
+            },
+          },
+          {
+            genres: {
+              some: {
+                genre: {
+                  translations: {
+                    some: {
+                      language: 'pl',
+                      name: {
+                        contains: search,
+                        mode: 'insensitive' as const,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      }
+    : {};
+
   const [books, totalCount] = await Promise.all([
     prisma.book.findMany({
       skip,
       take: booksPerPage,
       where: {
-        userId: userId,
+        userId,
+        ...searchConditions, // 👈 dodajemy warunki wyszukiwania tylko gdy są
       },
       orderBy: {
         addedAt: 'desc',
@@ -73,10 +112,15 @@ export async function getBooks(
         },
       },
     }),
-    prisma.book.count(),
+
+    prisma.book.count({
+      where: {
+        userId,
+        ...searchConditions, // 👈 count musi mieć ten sam filtr!
+      },
+    }),
   ]);
 
-  console.log('totalCount', totalCount);
   const booksDto = books.map((book) => {
     const genresDto = book.genres.map((genre) => {
       const translation = genre.genre.translations[0];
