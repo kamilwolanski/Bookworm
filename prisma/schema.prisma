@@ -101,13 +101,13 @@ enum GenreSlug {
   LANGUAGE
 }
 
-
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String    @id @default(uuid())
+  email     String    @unique
   name      String?
   books     Book[] // relacja: jeden user → wiele książek
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
+  comments   Comment[]
 }
 
 model GenreTranslation {
@@ -143,6 +143,7 @@ model Book {
   userId          String
   user            User          @relation(fields: [userId], references: [id])
   genres          BookGenre[]
+  comments        Comment[]
 }
 
 model BookGenre {
@@ -155,3 +156,14 @@ model BookGenre {
   @@id([bookId, genreId])
 }
 
+model Comment {
+  id      String   @id @default(uuid())
+  content String
+  addedAt DateTime @default(now())
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  bookId String
+  book   Book   @relation(fields: [bookId], references: [id])
+}

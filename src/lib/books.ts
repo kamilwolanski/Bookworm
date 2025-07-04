@@ -174,6 +174,11 @@ export async function getBook(bookId: string): Promise<BookDTO> {
           },
         },
       },
+      comments: {
+        include: {
+          author: true,
+        },
+      },
     },
   });
 

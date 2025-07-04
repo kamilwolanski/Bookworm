@@ -38,15 +38,12 @@ const DeleteBtn = ({
   );
   const router = useRouter();
   const pathname = usePathname();
-    console.log('state', state)
 
   useEffect(() => {
-    console.log('state', state)
     if (state.status === 'success' && !state.isError) {
       router.refresh();
       if (pathname !== '/books') router.push('/books');
     }
-
   }, [state, router, pathname]);
   const [open, setOpen] = useState(false);
 

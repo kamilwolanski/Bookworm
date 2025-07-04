@@ -76,9 +76,6 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
     form.setValue('genres', selectedGenres);
   }, [selectedGenres]);
 
-  console.log('form', form.formState.errors);
-  console.log('state', state);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>

@@ -10,7 +10,7 @@ export default async function Book({ params }: BookPageProps) {
   const { id } = await params;
 
   const book = await getBookAction(id);
-
+  console.log('book', book)
   if (book.isError) {
     return <p>Błąd</p>;
   }
