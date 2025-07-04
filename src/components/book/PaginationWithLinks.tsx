@@ -77,8 +77,8 @@ export function PaginationWithLinks({
             <PaginationLink
               href={buildLink(i)}
               isActive={page === i}
-              className={cn('hover:text-black', {
-                'text-black font-semibold': page === i,
+              className={cn('hover:white', {
+                'text-white font-semibold bg-[#30313E]': page === i,
               })}
             >
               {i}

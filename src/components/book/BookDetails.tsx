@@ -29,10 +29,10 @@ const BookDetails = async ({ bookData }: { bookData: BookDTO }) => {
 
   console.log('publicationYear', publicationYear);
   return (
-    <div className="p-6 bg-white shadow rounded-xl col-span-2">
+    <div className="p-6 bg-[#1A1D24] shadow rounded-xl col-span-2">
       <div className="flex justify-between items-center mb-5">
         <div className="flex items-center">
-          <h1 className="text-3xl font-bold text-gray-700">{title}</h1>
+          <h1 className="text-3xl font-bold text-white">{title}</h1>
         </div>
         <div className="flex items-center gap-1">
           {rating ? (
@@ -73,9 +73,9 @@ const BookDetails = async ({ bookData }: { bookData: BookDTO }) => {
         )}
 
         <div className="flex-1 space-y-4">
-          <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 text-sm text-gray-700 h-full">
+          <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 text-sm text-white h-full">
             <div>
-              <p className="text-lg text-gray-700">
+              <p className="text-lg text-white">
                 <b>Autor: </b>
                 {author}
               </p>
@@ -148,7 +148,7 @@ const BookDetails = async ({ bookData }: { bookData: BookDTO }) => {
       </div>
       {description && (
         <div className="mt-20 pl-10">
-          <p className="text-sm text-gray-800 leading-relaxed">{description}</p>
+          <p className="text-sm text-white leading-relaxed">{description}</p>
         </div>
       )}
     </div>

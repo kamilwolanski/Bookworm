@@ -17,7 +17,7 @@ import {
 export function BookCard({ book }: { book: Book }) {
   return (
     <Link href={`/books/${book.id}`} className="h-full">
-      <Card className="h-full flex flex-col rounded-2xl shadow-md overflow-hidden py-0">
+      <Card className="h-full flex flex-col rounded-2xl border-[#30313E] shadow-md overflow-hidden py-0 bg-[#1A1D24] ">
         <div className="relative aspect-[3/4] w-full">
           {book.imageUrl ? (
             <Image
@@ -64,11 +64,11 @@ export function BookCard({ book }: { book: Book }) {
         <CardContent className="p-4 pt-0">
           <div className="flex justify-between">
             <div>
-              <h3 className="font-semibold text-md">{book.title}</h3>
-              <p className="text-sm text-muted-foreground">{book.author}</p>
+              <h3 className="font-semibold text-md text-white">{book.title}</h3>
+              <p className="text-sm text-gray-300">{book.author}</p>
             </div>
             <DeleteBtn bookTitle={book.title} bookId={book.id}>
-              <Button variant="outline" className="text-black cursor-pointer">
+              <Button variant="outline" className="text-black cursor-pointer bg-[#30313E] border-0">
                 <Trash2 color="red" />
               </Button>
             </DeleteBtn>

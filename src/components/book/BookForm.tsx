@@ -48,7 +48,7 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
       form.reset();
     }, 500);
   };
-  const { form, isPending, handleSubmit, state } = useActionForm<BookInput>({
+  const { form, isPending, handleSubmit } = useActionForm<BookInput>({
     action: addBookAction,
     schema: bookSchema,
     defaultValues: {

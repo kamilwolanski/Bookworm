@@ -102,12 +102,13 @@ enum GenreSlug {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  name      String?
-  books     Book[] // relacja: jeden user → wiele książek
-  createdAt DateTime  @default(now())
-  comments   Comment[]
+  id            String          @id @default(uuid())
+  email         String          @unique
+  name          String?
+  books         Book[] // relacja: jeden user → wiele książek
+  createdAt     DateTime        @default(now())
+  comments      Comment[]
+  CommentRating CommentRating[]
 }
 
 model GenreTranslation {
@@ -157,13 +158,28 @@ model BookGenre {
 }
 
 model Comment {
-  id      String   @id @default(uuid())
-  content String
-  addedAt DateTime @default(now())
-
+  id       String          @id @default(uuid())
+  content  String
+  addedAt  DateTime        @default(now())
   authorId String
-  author   User   @relation(fields: [authorId], references: [id])
+  author   User            @relation(fields: [authorId], references: [id])
+  parentId String?
+  parent   Comment?        @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[]       @relation("CommentReplies")
+  ratings  CommentRating[]
+  Book     Book?           @relation(fields: [bookId], references: [id])
+  bookId   String?
+}
 
-  bookId String
-  book   Book   @relation(fields: [bookId], references: [id])
+model CommentRating {
+  id        String  @id @default(uuid())
+  commentId String
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  value Int // +1 = upvote, -1 = downvote
+
+  @@unique([commentId, userId]) // jeden głos użytkownika na komentarz
 }
