@@ -2,7 +2,6 @@
 
 import {
   addComment,
-  addRating,
   BookDetailsDTO,
   BookListDTO,
   createBook,
@@ -11,7 +10,6 @@ import {
   EditBookData,
   getBook,
   getBooks,
-  removeRating,
   updateBookWithTransaction,
   addOrUpdateRating,
 } from '@/lib/books';
@@ -112,7 +110,7 @@ export const removeBookAction: Action<[unknown, string]> = async (
     return unauthorizedResponse();
   }
 
-  const book = await getBook(bookId);
+  const book = await getBook(bookId, session.user.id);
 
   if (!book) return notFoundResponse(`Nie znaleziono książki o id: ${bookId}`);
 

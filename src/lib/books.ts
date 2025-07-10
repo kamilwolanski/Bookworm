@@ -48,10 +48,6 @@ interface AddRatingInput {
   value: number;
 }
 
-interface RemoveRatingInput {
-  commentId: string;
-  userId: string;
-}
 export async function createBook(data: CreateBookData, genreIds: string[]) {
   if (genreIds?.length > 0) {
     return await prisma.book.create({
@@ -346,20 +342,6 @@ export async function addRating(input: AddRatingInput) {
   });
 
   return rating;
-}
-
-export async function removeRating(input: RemoveRatingInput) {
-  console.log('weszlo tutaj');
-  const deletedRating = await prisma.commentRating.delete({
-    where: {
-      commentId_userId: {
-        commentId: input.commentId,
-        userId: input.userId,
-      },
-    },
-  });
-  console.log('deletedRating', deletedRating);
-  return deletedRating;
 }
 
 export async function addOrUpdateRating(input: AddRatingInput) {
