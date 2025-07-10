@@ -19,7 +19,7 @@ export type GenreDTO = {
 
 export type BookDetailsDTO = Book & {
   genres?: GenreDTO[];
-  comments: (CommentDto & { author: User })[];
+  comments: CommentDto[];
 };
 
 export type BookListDTO = Book & {
@@ -27,12 +27,14 @@ export type BookListDTO = Book & {
 };
 
 export type CommentDto = Comment & {
+  author: User;
   totalScore: number;
   userRating: number | null;
   ratings: {
     value: number;
     userId: string;
   }[];
+  replies: CommentDto[];
 };
 
 interface AddCommentInput {
@@ -209,6 +211,17 @@ export async function getBook(
               userId: true,
             },
           },
+          replies: {
+            include: {
+              author: true,
+              ratings: {
+                select: {
+                  value: true,
+                  userId: true,
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -220,10 +233,24 @@ export async function getBook(
     const userRating =
       comment.ratings.find((r) => r.userId === loggedUserId)?.value ?? null;
 
+    const replies = comment.replies.map((reply) => {
+      const replyScore = reply.ratings.reduce((sum, r) => sum + r.value, 0);
+      const replyUserRating =
+        reply.ratings.find((r) => r.userId === loggedUserId)?.value ?? null;
+
+      return {
+        ...reply,
+        totalScore: replyScore,
+        userRating: replyUserRating,
+        replies: [],
+      };
+    });
+
     return {
       ...comment,
       totalScore,
       userRating, // <- to będzie np. 1, -1, lub null jeśli brak
+      replies,
     };
   });
 

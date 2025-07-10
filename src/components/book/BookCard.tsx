@@ -68,7 +68,10 @@ export function BookCard({ book }: { book: Book }) {
               <p className="text-sm text-gray-300">{book.author}</p>
             </div>
             <DeleteBtn bookTitle={book.title} bookId={book.id}>
-              <Button variant="outline" className="text-black cursor-pointer bg-[#30313E] border-0">
+              <Button
+                variant="outline"
+                className="text-black cursor-pointer bg-[#30313E] border-0"
+              >
                 <Trash2 color="red" />
               </Button>
             </DeleteBtn>

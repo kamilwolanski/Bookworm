@@ -306,9 +306,10 @@ export const AddCommentAction: Action<
     {
       bookId: string;
       content: string;
+      parentId?: string;
     },
   ]
-> = async (_, { bookId, content }) => {
+> = async (_, { bookId, content, parentId }) => {
   const session = await getUserSession();
 
   if (!session?.user?.id) {
@@ -336,6 +337,7 @@ export const AddCommentAction: Action<
       bookId,
       content,
       authorId: session.user.id,
+      parentId,
     });
   } catch (err) {
     console.error(err);

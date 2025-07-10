@@ -35,25 +35,21 @@ const BookDetails = async ({ bookData }: { bookData: BookDetailsDTO }) => {
           <h1 className="text-3xl font-bold text-white">{title}</h1>
         </div>
         <div className="flex items-center gap-1">
-          {rating ? (
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((num) => (
-                <button
-                  key={num}
-                  type="button"
-                  className={
-                    num <= rating
-                      ? 'text-yellow-400 cursor-pointer'
-                      : 'text-gray-300 cursor-pointer'
-                  }
-                >
-                  <Star className="w-6 h-6 fill-current" />
-                </button>
-              ))}
-            </div>
-          ) : (
-            <span>—</span>
-          )}
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((num) => (
+              <button
+                key={num}
+                type="button"
+                className={
+                  num <= (rating ? rating : 0)
+                    ? 'text-yellow-400 cursor-pointer'
+                    : 'text-gray-300 cursor-pointer'
+                }
+              >
+                <Star className="w-6 h-6 fill-current" />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       <hr className="mb-5" />

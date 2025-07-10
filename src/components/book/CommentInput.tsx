@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { AddCommentAction } from '@/app/(dashboard)/books/actions';
@@ -9,15 +10,17 @@ import { startTransition, useActionState, useEffect, useState } from 'react';
 
 type Props = {
   bookId: string;
+  parentId?: string;
+  onSuccess?: () => void;
 };
 
-export default function CommentInput({ bookId }: Props) {
+export default function CommentInput({ bookId, parentId, onSuccess }: Props) {
   const [content, setContent] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [serverFieldError, setServerFieldError] = useState<string | null>(null);
   const [state, addComment, isPending] = useActionState<
     ActionResult,
-    { content: string; bookId: string }
+    { content: string; bookId: string; parentId?: string }
   >(AddCommentAction, { isError: false });
 
   const validate = (value: string) => {
@@ -45,6 +48,8 @@ export default function CommentInput({ bookId }: Props) {
       // Jeśli wszystko OK – np. czyścimy input
       setContent('');
       setServerFieldError(null);
+
+      if (onSuccess) onSuccess();
     }
   }, [state]);
 
@@ -58,7 +63,7 @@ export default function CommentInput({ bookId }: Props) {
 
   const handleSubmit = async () => {
     startTransition(() => {
-      addComment({ bookId: bookId, content });
+      addComment({ bookId: bookId, content, parentId });
     });
   };
 
