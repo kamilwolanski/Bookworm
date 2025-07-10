@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { format } from 'date-fns';
-import { BookDTO, getBookGenres } from '@/lib/books';
+import { BookDetailsDTO, getBookGenres } from '@/lib/books';
 import { Badge } from '../ui/badge';
 import { Star, Trash2 } from 'lucide-react';
 import { genreColorMap } from '@/lib/genreColorMap';
@@ -10,7 +10,7 @@ import { Button } from '../ui/button';
 import EditBtn from './EditBtn';
 import { Pencil } from 'lucide-react';
 
-const BookDetails = async ({ bookData }: { bookData: BookDTO }) => {
+const BookDetails = async ({ bookData }: { bookData: BookDetailsDTO }) => {
   const bookGenres = await getBookGenres('pl');
 
   const {

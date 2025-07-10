@@ -21,6 +21,7 @@ const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ profile }) {
+      console.log('profile', profile);
       if (!profile?.email) {
         throw new Error('No profile');
       }
@@ -35,6 +36,7 @@ const authOptions: NextAuthOptions = {
         },
         update: {
           name: profile.name,
+          avatarUrl: profile.picture,
         },
       });
       return true;

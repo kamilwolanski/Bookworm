@@ -1,14 +1,19 @@
 'use server';
 
 import {
-  BookDTO,
+  addComment,
+  addRating,
+  BookDetailsDTO,
+  BookListDTO,
   createBook,
   CreateBookData,
   deleteBook,
   EditBookData,
   getBook,
   getBooks,
+  removeRating,
   updateBookWithTransaction,
+  addOrUpdateRating,
 } from '@/lib/books';
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
@@ -22,6 +27,7 @@ import {
   unauthorizedResponse,
 } from '@/lib/responses';
 import { handleImageUpload, parseFormData } from './helpers';
+import { commentSchema } from '@/lib/commentValidation';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -160,7 +166,7 @@ export const removeBookAction: Action<[unknown, string]> = async (
 export const getBooksAction: Action<
   [{ currentPage: number; booksPerPage?: number; search?: string }],
   {
-    books: BookDTO[];
+    books: BookListDTO[];
     totalCount: number;
   }
 > = async ({ currentPage, booksPerPage = 10, search }) => {
@@ -187,12 +193,14 @@ export const getBooksAction: Action<
   }
 };
 
-export const getBookAction: Action<[string], BookDTO> = async (bookId) => {
+export const getBookAction: Action<[string], BookDetailsDTO> = async (
+  bookId
+) => {
   const session = await getUserSession();
 
   if (!session?.user?.id) return unauthorizedResponse();
 
-  const book = await getBook(bookId);
+  const book = await getBook(bookId, session.user.id);
 
   if (!book) return notFoundResponse(`Nie znaleziono książki o id: ${bookId}`);
 
@@ -291,5 +299,94 @@ export const editBookAction: Action<[unknown, FormData]> = async (
     status: 'success',
     httpStatus: 200,
     message: 'Książka została zaktualizowana',
+  };
+};
+
+export const AddCommentAction: Action<
+  [
+    unknown,
+    {
+      bookId: string;
+      content: string;
+    },
+  ]
+> = async (_, { bookId, content }) => {
+  const session = await getUserSession();
+
+  if (!session?.user?.id) {
+    return unauthorizedResponse();
+  }
+
+  const result = commentSchema.safeParse({
+    content,
+  });
+
+  if (!result.success) {
+    return {
+      isError: true,
+      status: 'validation_error',
+      httpStatus: 422,
+      fieldErrors: result.error.errors.map((e) => ({
+        field: e.path.join('.'),
+        message: e.message,
+      })),
+    };
+  }
+
+  try {
+    await addComment({
+      bookId,
+      content,
+      authorId: session.user.id,
+    });
+  } catch (err) {
+    console.error(err);
+    return serverErrorResponse();
+  }
+
+  revalidatePath(`/books/${bookId}`);
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    message: 'Komentarz został dodany',
+  };
+};
+
+export const AddRatingAction: Action<
+  [
+    unknown,
+    {
+      bookId: string;
+      commentId: string;
+      value: number;
+    },
+  ]
+> = async (_, { bookId, commentId, value }) => {
+  const session = await getUserSession();
+
+  if (!session?.user?.id) {
+    return unauthorizedResponse();
+  }
+
+  try {
+    await addOrUpdateRating({
+      commentId,
+      userId: session.user.id,
+      value,
+    });
+  } catch (err) {
+    console.error(err);
+    return serverErrorResponse();
+  }
+
+  revalidatePath(`/books/${bookId}`);
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    message: 'Ocena została zapisana',
   };
 };

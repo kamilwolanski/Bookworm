@@ -1,21 +1,65 @@
 'use client';
 
+import { AddCommentAction } from '@/app/(dashboard)/books/actions';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { useState } from 'react';
+import { commentSchema } from '@/lib/commentValidation';
+import { ActionResult } from '@/types/actions';
+import { startTransition, useActionState, useEffect, useState } from 'react';
 
 type Props = {
-  onSubmit?: (text: string) => void;
-  loading?: boolean;
+  bookId: string;
 };
 
-export default function CommentInput({ onSubmit, loading }: Props) {
-  const [text, setText] = useState('');
+export default function CommentInput({ bookId }: Props) {
+  const [content, setContent] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [serverFieldError, setServerFieldError] = useState<string | null>(null);
+  const [state, addComment, isPending] = useActionState<
+    ActionResult,
+    { content: string; bookId: string }
+  >(AddCommentAction, { isError: false });
 
-  const handleSubmit = () => {
-    if (!text.trim()) return;
-    onSubmit?.(text);
-    setText('');
+  const validate = (value: string) => {
+    const result = commentSchema.safeParse({ content: value });
+    if (!result.success) {
+      setError(result.error.errors[0]?.message ?? 'Nieprawidłowy komentarz');
+    } else {
+      setError(null);
+    }
+  };
+
+  useEffect(() => {
+    if (state?.isError) {
+      console.log('result.fieldErrors', state.fieldErrors);
+      if (state.fieldErrors) {
+        const contentErrorMessage = state.fieldErrors.find(
+          (error) => error.field === 'content'
+        )?.message;
+
+        setServerFieldError(contentErrorMessage ?? null);
+      }
+
+      console.warn(state.message);
+    } else {
+      // Jeśli wszystko OK – np. czyścimy input
+      setContent('');
+      setServerFieldError(null);
+    }
+  }, [state]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setContent(value);
+    if (!content.trim()) {
+      validate(value);
+    }
+  };
+
+  const handleSubmit = async () => {
+    startTransition(() => {
+      addComment({ bookId: bookId, content });
+    });
   };
 
   return (
@@ -23,18 +67,21 @@ export default function CommentInput({ onSubmit, loading }: Props) {
       <Textarea
         placeholder="Dodaj komentarz..."
         className="resize-none min-h-[80px]"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        disabled={loading}
+        value={content}
+        onChange={handleChange}
       />
+      {error && <p className="text-sm text-red-500">{error}</p>}
+      {serverFieldError && (
+        <p className="text-sm text-red-500">{serverFieldError}</p>
+      )}
 
       <div className="flex items-center justify-end">
         <Button
-          disabled={loading || !text.trim()}
+          disabled={isPending || !content.trim() || Boolean(error)}
           onClick={handleSubmit}
-          className="bg-orange-500 hover:bg-orange-600 text-white rounded-full"
+          className="bg-orange-500 hover:bg-orange-600 text-white rounded-full cursor-pointer"
         >
-          {loading ? 'Zapisuje...' : 'Odpowiedz'}
+          {isPending ? 'Zapisuje...' : 'Odpowiedz'}
         </Button>
       </div>
     </div>

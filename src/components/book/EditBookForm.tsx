@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 
 import { BookInput, bookSchema } from '@/lib/validation';
-import { BookDTO, GenreDTO } from '@/lib/books';
+import { BookDetailsDTO, GenreDTO } from '@/lib/books';
 import { MultiSelect } from '../ui/multi-select';
 import {
   Select,
@@ -34,7 +34,7 @@ const EditBookForm = ({
 }: {
   closeDialog: () => void;
   bookGenres: GenreDTO[];
-  bookData: BookDTO;
+  bookData: BookDetailsDTO;
 }) => {
   console.log('bookdata', bookData);
   const [selectedGenres, setSelectedGenres] = useState<string[]>(

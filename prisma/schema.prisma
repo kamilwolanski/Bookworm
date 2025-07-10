@@ -105,6 +105,7 @@ model User {
   id            String          @id @default(uuid())
   email         String          @unique
   name          String?
+  avatarUrl     String?
   books         Book[] // relacja: jeden user → wiele książek
   createdAt     DateTime        @default(now())
   comments      Comment[]
@@ -168,7 +169,7 @@ model Comment {
   replies  Comment[]       @relation("CommentReplies")
   ratings  CommentRating[]
   Book     Book?           @relation(fields: [bookId], references: [id])
-  bookId   String?
+  bookId   String
 }
 
 model CommentRating {

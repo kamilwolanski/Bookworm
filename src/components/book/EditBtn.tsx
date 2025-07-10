@@ -11,7 +11,7 @@ import {
 
 import { ReactNode, useState } from 'react';
 import EditBookForm from './EditBookForm';
-import { BookDTO, GenreDTO } from '@/lib/books';
+import { BookDetailsDTO, GenreDTO } from '@/lib/books';
 
 const EditBtn = ({
   bookGenres,
@@ -19,7 +19,7 @@ const EditBtn = ({
   children,
 }: {
   bookGenres: GenreDTO[];
-  bookData: BookDTO;
+  bookData: BookDetailsDTO;
   children: ReactNode;
 }) => {
   const [open, setOpen] = useState(false);
