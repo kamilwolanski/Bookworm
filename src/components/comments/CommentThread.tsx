@@ -24,15 +24,17 @@ export default function CommentThread({ comments }: Props) {
 
       {comments.map((comment) => (
         <div key={comment.id} className="space-y-4">
-          <CommentCard
-            comment={comment}
-            onReplyClick={() =>
-              setActiveReplyId((prev) =>
-                prev === comment.id ? null : comment.id
-              )
-            }
-            showReplyInput={activeReplyId === comment.id}
-          />
+          {!comment.parentId && (
+            <CommentCard
+              comment={comment}
+              onReplyClick={() =>
+                setActiveReplyId((prev) =>
+                  prev === comment.id ? null : comment.id
+                )
+              }
+              showReplyInput={activeReplyId === comment.id}
+            />
+          )}
 
           {comment.replies && comment.replies.length > 0 && (
             <div className="ml-8 space-y-4 border-l border-muted pl-4">

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-import { AddCommentAction } from '@/app/(dashboard)/books/actions';
+import { AddCommentAction } from '@/app/(dashboard)/books/actions/commentActions';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { commentSchema } from '@/lib/commentValidation';

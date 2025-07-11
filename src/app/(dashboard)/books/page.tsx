@@ -1,9 +1,9 @@
 import { BookList } from '@/components/book/BookList';
 import BookForm from '@/components/book/BookForm';
 import { getBookGenres } from '@/lib/books';
-import { getBooksAction } from './actions';
-import { PaginationWithLinks } from '@/components/book/PaginationWithLinks';
-import { SearchBar } from '@/components/book/SearchBar';
+import { getBooksAction } from '@/app/(dashboard)/books/actions/bookActions';
+import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
+import { SearchBar } from '@/components/shared/SearchBar';
 
 type Props = {
   searchParams?: {

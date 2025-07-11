@@ -1,7 +1,6 @@
 'use server';
 
 import {
-  addComment,
   BookDetailsDTO,
   BookListDTO,
   createBook,
@@ -11,21 +10,19 @@ import {
   getBook,
   getBooks,
   updateBookWithTransaction,
-  addOrUpdateRating,
 } from '@/lib/books';
-import { getUserSession } from '@/lib/session';
-import { revalidatePath } from 'next/cache';
-import type { Action } from '@/types/actions';
-import { v2 as cloudinary } from 'cloudinary';
-import { Prisma } from '@prisma/client';
 import {
   forbiddenResponse,
   notFoundResponse,
   serverErrorResponse,
   unauthorizedResponse,
 } from '@/lib/responses';
-import { handleImageUpload, parseFormData } from './helpers';
-import { commentSchema } from '@/lib/commentValidation';
+import { getUserSession } from '@/lib/session';
+import { revalidatePath } from 'next/cache';
+import type { Action } from '@/types/actions';
+import { handleImageUpload, parseFormData } from '../helpers';
+import { v2 as cloudinary } from 'cloudinary';
+import { Prisma } from '@prisma/client';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -297,96 +294,5 @@ export const editBookAction: Action<[unknown, FormData]> = async (
     status: 'success',
     httpStatus: 200,
     message: 'Książka została zaktualizowana',
-  };
-};
-
-export const AddCommentAction: Action<
-  [
-    unknown,
-    {
-      bookId: string;
-      content: string;
-      parentId?: string;
-    },
-  ]
-> = async (_, { bookId, content, parentId }) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) {
-    return unauthorizedResponse();
-  }
-
-  const result = commentSchema.safeParse({
-    content,
-  });
-
-  if (!result.success) {
-    return {
-      isError: true,
-      status: 'validation_error',
-      httpStatus: 422,
-      fieldErrors: result.error.errors.map((e) => ({
-        field: e.path.join('.'),
-        message: e.message,
-      })),
-    };
-  }
-
-  try {
-    await addComment({
-      bookId,
-      content,
-      authorId: session.user.id,
-      parentId,
-    });
-  } catch (err) {
-    console.error(err);
-    return serverErrorResponse();
-  }
-
-  revalidatePath(`/books/${bookId}`);
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    message: 'Komentarz został dodany',
-  };
-};
-
-export const AddRatingAction: Action<
-  [
-    unknown,
-    {
-      bookId: string;
-      commentId: string;
-      value: number;
-    },
-  ]
-> = async (_, { bookId, commentId, value }) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) {
-    return unauthorizedResponse();
-  }
-
-  try {
-    await addOrUpdateRating({
-      commentId,
-      userId: session.user.id,
-      value,
-    });
-  } catch (err) {
-    console.error(err);
-    return serverErrorResponse();
-  }
-
-  revalidatePath(`/books/${bookId}`);
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    message: 'Ocena została zapisana',
   };
 };

@@ -1,6 +1,6 @@
 import { Home, Settings, BarChart2, LifeBuoy, Book } from 'lucide-react';
 import Link from 'next/link';
-import NavLink from './NavLink';
+import NavLink from '../nav/NavLink';
 
 const menu = [
   { name: 'Dashboard', icon: <Home size={20} />, href: '/dashboard' },

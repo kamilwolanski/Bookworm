@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import DeleteBtn from './DeleteBtn';
+import DeleteBtn from '../forms/DeleteBookBtn';
 import Link from 'next/link';
 import { Star, Trash2 } from 'lucide-react';
 import { Book } from '@prisma/client';

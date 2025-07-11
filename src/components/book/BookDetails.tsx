@@ -5,9 +5,9 @@ import { Badge } from '../ui/badge';
 import { Star, Trash2 } from 'lucide-react';
 import { genreColorMap } from '@/lib/genreColorMap';
 import { BookStatus } from './BookStatus';
-import DeleteBtn from './DeleteBtn';
+import DeleteBtn from '../forms/DeleteBookBtn';
 import { Button } from '../ui/button';
-import EditBtn from './EditBtn';
+import EditBtn from '../shared/EditBtn';
 import { Pencil } from 'lucide-react';
 
 const BookDetails = async ({ bookData }: { bookData: BookDetailsDTO }) => {

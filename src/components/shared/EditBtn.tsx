@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog';
 
 import { ReactNode, useState } from 'react';
-import EditBookForm from './EditBookForm';
+import EditBookForm from '../forms/EditBookForm';
 import { BookDetailsDTO, GenreDTO } from '@/lib/books';
 
 const EditBtn = ({

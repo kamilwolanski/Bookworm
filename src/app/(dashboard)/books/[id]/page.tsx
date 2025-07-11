@@ -1,8 +1,8 @@
-import BackTopBar from '@/components/BackTopBar';
-import { getBookAction } from '@/app/(dashboard)/books/actions';
+import BackTopBar from '@/components/layout/BackTopBar';
+import { getBookAction } from '@/app/(dashboard)/books/actions/bookActions';
 import BookDetails from '@/components/book/BookDetails';
-import CommentThread from '@/components/book/CommentThread';
-import CommentInput from '@/components/book/CommentInput';
+import CommentThread from '@/components/comments/CommentThread';
+import CommentInput from '@/components/comments/CommentInput';
 interface BookPageProps {
   params: Promise<{ id: string }>;
 }
