@@ -26,6 +26,12 @@ export type BookListDTO = Book & {
   genres?: GenreDTO[];
 };
 
+export type RecentBookDto = {
+  id: string;
+  title: string;
+  imageUrl: string | null;
+};
+
 export type CommentDto = Comment & {
   author: User;
   totalScore: number;
@@ -394,5 +400,26 @@ export async function addOrUpdateRating(input: AddRatingInput) {
     },
     update: { value },
     create: { commentId, userId, value },
+  });
+}
+
+export async function getRecentBooksExcludingCurrent(
+  userId: string,
+  currentBookId: string
+): Promise<RecentBookDto[]> {
+  return await prisma.book.findMany({
+    where: {
+      userId,
+      id: { not: currentBookId },
+    },
+    select: {
+      id: true,
+      title: true,
+      imageUrl: true,
+    },
+    orderBy: {
+      addedAt: 'desc',
+    },
+    take: 8,
   });
 }

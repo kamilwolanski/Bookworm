@@ -9,6 +9,8 @@ import {
   EditBookData,
   getBook,
   getBooks,
+  getRecentBooksExcludingCurrent,
+  RecentBookDto,
   updateBookWithTransaction,
 } from '@/lib/books';
 import {
@@ -294,5 +296,25 @@ export const editBookAction: Action<[unknown, FormData]> = async (
     status: 'success',
     httpStatus: 200,
     message: 'Książka została zaktualizowana',
+  };
+};
+
+export const getRecentBooksAction: Action<[string], RecentBookDto[]> = async (
+  currentBookId
+) => {
+  const session = await getUserSession();
+
+  if (!session?.user?.id) return unauthorizedResponse();
+
+  const recentBooks = await getRecentBooksExcludingCurrent(
+    session.user.id,
+    currentBookId
+  );
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    data: recentBooks,
   };
 };
