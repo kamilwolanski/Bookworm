@@ -27,7 +27,6 @@ const BookDetails = async ({ bookData }: { bookData: BookDetailsDTO }) => {
     addedAt,
   } = bookData;
 
-  console.log('publicationYear', publicationYear);
   return (
     <div className="p-6 bg-[#1A1D24] shadow rounded-xl col-span-2">
       <div className="flex justify-between items-center mb-5">

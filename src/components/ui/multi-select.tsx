@@ -117,6 +117,8 @@ interface MultiSelectProps
    * Optional, can be used to add custom styles.
    */
   className?: string;
+  showSelectedValues?: boolean;
+  contentClassName?: string;
 }
 
 export const MultiSelect = React.forwardRef<
@@ -135,12 +137,15 @@ export const MultiSelect = React.forwardRef<
       modalPopover = false,
       asChild = false,
       className,
+      showSelectedValues = true,
+      contentClassName,
       ...props
     },
     ref
   ) => {
     const [selectedValues, setSelectedValues] =
       React.useState<string[]>(defaultValue);
+
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
     const [isAnimating, setIsAnimating] = React.useState(false);
 
@@ -156,6 +161,12 @@ export const MultiSelect = React.forwardRef<
         onValueChange(newSelectedValues);
       }
     };
+
+    React.useEffect(() => {
+      if (props.value) {
+        setSelectedValues(props.value);
+      }
+    }, [props.value]);
 
     const toggleOption = (option: string) => {
       const newSelectedValues = selectedValues.includes(option)
@@ -206,7 +217,7 @@ export const MultiSelect = React.forwardRef<
               className
             )}
           >
-            {selectedValues.length > 0 ? (
+            {showSelectedValues && selectedValues.length > 0 ? (
               <div className="flex justify-between items-center w-full">
                 <div className="flex flex-wrap items-center">
                   {selectedValues.slice(0, maxCount).map((value) => {
@@ -283,7 +294,7 @@ export const MultiSelect = React.forwardRef<
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-auto p-0"
+          className={`p-0 ${contentClassName ? contentClassName : ''}`}
           align="start"
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
         >

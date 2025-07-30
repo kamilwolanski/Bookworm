@@ -36,7 +36,6 @@ const EditBookForm = ({
   bookGenres: GenreDTO[];
   bookData: BookDetailsDTO;
 }) => {
-  console.log('bookdata', bookData);
   const [selectedGenres, setSelectedGenres] = useState<string[]>(
     bookData.genres?.map((genre) => genre.id) ?? []
   );
@@ -65,7 +64,6 @@ const EditBookForm = ({
 
   useEffect(() => {
     form.setValue('genres', selectedGenres);
-    // console.log('form', form.getValues());
   }, [selectedGenres]);
 
   return (

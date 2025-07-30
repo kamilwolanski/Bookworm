@@ -12,7 +12,6 @@ type Props = {
 
 export default function CommentThread({ comments }: Props) {
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
-  console.log('cooment', comments);
   return (
     <div>
       <div className="flex items-center">

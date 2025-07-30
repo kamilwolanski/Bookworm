@@ -78,6 +78,7 @@ export async function getBooks(
   userId: string,
   currentPage: number,
   booksPerPage: number,
+  genres: GenreSlug[],
   search?: string // 👈 Nowy opcjonalny parametr
 ): Promise<{
   books: BookListDTO[];
@@ -128,6 +129,18 @@ export async function getBooks(
       take: booksPerPage,
       where: {
         userId,
+        genres:
+          genres.length > 0
+            ? {
+                some: {
+                  genre: {
+                    slug: {
+                      in: genres,
+                    },
+                  },
+                },
+              }
+            : {},
         ...searchConditions, // 👈 dodajemy warunki wyszukiwania tylko gdy są
       },
       orderBy: {
@@ -153,6 +166,18 @@ export async function getBooks(
     prisma.book.count({
       where: {
         userId,
+        genres:
+          genres.length > 0
+            ? {
+                some: {
+                  genre: {
+                    slug: {
+                      in: genres,
+                    },
+                  },
+                },
+              }
+            : {},
         ...searchConditions, // 👈 count musi mieć ten sam filtr!
       },
     }),

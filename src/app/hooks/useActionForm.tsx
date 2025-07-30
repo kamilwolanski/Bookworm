@@ -49,7 +49,6 @@ export function useActionForm<TFormInput extends FieldValues>({
   }, [state, isPending, form]);
 
   const handleSubmit = (data: TFormInput) => {
-    console.log('handle submit data', data);
     const formData = new FormData();
 
     for (const [key, value] of Object.entries(data)) {

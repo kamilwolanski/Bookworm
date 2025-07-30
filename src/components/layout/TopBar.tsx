@@ -17,7 +17,10 @@ export default function Topbar() {
   const { data: session, status } = useSession();
 
   return (
-    <header className="flex justify-end items-center gap-6 p-6 text-white">
+    <header className="flex justify-between items-center gap-6 p-6 text-white">
+      <Link href="/" className="text-xl font-bold block mb-6">
+        📚 BookWorm
+      </Link>
       {status === 'loading' ? null : session ? (
         <div className="flex items-center gap-4">
           {session.user?.image && (

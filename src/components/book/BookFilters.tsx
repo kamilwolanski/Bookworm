@@ -1,0 +1,109 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+'use client';
+
+import { GenreDTO } from '@/lib/books';
+import { MultiSelect } from '@/components/ui/multi-select';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
+import { useEffect, useState } from 'react';
+import { XCircle } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+const BookFilters = ({
+  bookGenres,
+  genresParams,
+}: {
+  bookGenres: GenreDTO[];
+  genresParams: string[];
+}) => {
+  const searchParams = useSearchParams();
+  const genreIds = genresParams
+    .map((slug) => {
+      const match = bookGenres.find((g) => g.slug === slug);
+      return match?.id;
+    })
+    .filter(Boolean) as string[];
+  const [selectedGenres, setSelectedGenres] = useState<string[]>(genreIds);
+  const router = useRouter();
+  const genresList = bookGenres.map((genre) => ({
+    value: genre.id,
+    label: genre.name,
+  }));
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (selectedGenres.length > 0) {
+      const selectedNames = selectedGenres
+        .map((id) => bookGenres.find((genre) => genre.id === id)?.slug)
+        .filter(Boolean);
+
+      params.set('genre', selectedNames.join(','));
+      params.set('page', '1');
+    } else {
+      params.delete('genre');
+    }
+
+    router.push(`?${params.toString()}`);
+  }, [selectedGenres]);
+
+  const removeSelected = (id: string) => {
+    const filtered = selectedGenres.filter((g) => g !== id);
+    updateSelectedGenres(filtered);
+  };
+
+  const updateSelectedGenres = (newGenres: string[]) => {
+    setSelectedGenres(newGenres);
+  };
+
+  return (
+    <div className="min-w-100 max-w-100">
+      <div className="bg-[#1A1D24] shadow rounded-xl px-5">
+        <Accordion type="single" collapsible defaultValue="item-1">
+          <AccordionItem value="item-1">
+            <AccordionTrigger>Gatunki</AccordionTrigger>
+            <div className="mb-2">
+              {selectedGenres.map((value) => {
+                const option = bookGenres.find((o) => o.id === value);
+                if (option)
+                  return (
+                    <Badge key={value} className="mb-3">
+                      {option?.name}
+
+                      <XCircle
+                        style={{ pointerEvents: 'auto' }}
+                        className="ml-2 h-6 w-6 cursor-pointer"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          removeSelected(option.id);
+                        }}
+                      />
+                    </Badge>
+                  );
+              })}
+            </div>
+            <AccordionContent className="">
+              <MultiSelect
+                options={genresList}
+                onValueChange={updateSelectedGenres}
+                value={selectedGenres}
+                placeholder="Wybierz gatunek"
+                variant="inverted"
+                animation={0}
+                modalPopover
+                showSelectedValues={false}
+                contentClassName="w-90"
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+    </div>
+  );
+};
+
+export default BookFilters;

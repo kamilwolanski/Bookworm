@@ -24,7 +24,7 @@ import { revalidatePath } from 'next/cache';
 import type { Action } from '@/types/actions';
 import { handleImageUpload, parseFormData } from '../helpers';
 import { v2 as cloudinary } from 'cloudinary';
-import { Prisma } from '@prisma/client';
+import { GenreSlug, Prisma } from '@prisma/client';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -161,12 +161,19 @@ export const removeBookAction: Action<[unknown, string]> = async (
 };
 
 export const getBooksAction: Action<
-  [{ currentPage: number; booksPerPage?: number; search?: string }],
+  [
+    {
+      currentPage: number;
+      genres: GenreSlug[];
+      booksPerPage?: number;
+      search?: string;
+    },
+  ],
   {
     books: BookListDTO[];
     totalCount: number;
   }
-> = async ({ currentPage, booksPerPage = 10, search }) => {
+> = async ({ currentPage, booksPerPage = 10, search, genres }) => {
   const session = await getUserSession();
 
   if (!session?.user?.id) return unauthorizedResponse();
@@ -176,6 +183,7 @@ export const getBooksAction: Action<
       session.user.id,
       currentPage,
       booksPerPage,
+      genres,
       search
     );
 

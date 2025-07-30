@@ -34,7 +34,6 @@ export default function CommentInput({ bookId, parentId, onSuccess }: Props) {
 
   useEffect(() => {
     if (state?.isError) {
-      console.log('result.fieldErrors', state.fieldErrors);
       if (state.fieldErrors) {
         const contentErrorMessage = state.fieldErrors.find(
           (error) => error.field === 'content'
@@ -45,7 +44,6 @@ export default function CommentInput({ bookId, parentId, onSuccess }: Props) {
 
       console.warn(state.message);
     } else {
-      // Jeśli wszystko OK – np. czyścimy input
       setContent('');
       setServerFieldError(null);
 
