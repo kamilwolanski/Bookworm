@@ -39,7 +39,9 @@ const BookFilters = ({
     const params = new URLSearchParams(searchParams.toString());
     if (selectedGenres.length > 0) {
       const selectedNames = selectedGenres
-        .map((id) => bookGenres.find((genre) => genre.id === id)?.slug)
+        .map((id) =>
+          bookGenres.find((genre) => genre.id === id)?.slug.toLowerCase()
+        )
         .filter(Boolean);
 
       params.set('genre', selectedNames.join(','));
@@ -60,6 +62,10 @@ const BookFilters = ({
     setSelectedGenres(newGenres);
   };
 
+  const removeAllSelected = () => {
+    setSelectedGenres([]);
+  };
+
   return (
     <div className="min-w-100 max-w-100">
       <div className="bg-[#1A1D24] shadow rounded-xl px-5">
@@ -71,20 +77,32 @@ const BookFilters = ({
                 const option = bookGenres.find((o) => o.id === value);
                 if (option)
                   return (
-                    <Badge key={value} className="mb-3">
+                    <Badge key={value} className="mb-3 mx-1 border-white">
                       {option?.name}
 
                       <XCircle
                         style={{ pointerEvents: 'auto' }}
                         className="ml-2 h-6 w-6 cursor-pointer"
-                        onClick={(event) => {
-                          event.stopPropagation();
+                        onClick={() => {
                           removeSelected(option.id);
                         }}
                       />
                     </Badge>
                   );
               })}
+
+              {selectedGenres.length > 0 && (
+                <Badge className="mb-3 mx-1 border-blue-300">
+                  Usuń wszystkie
+                  <XCircle
+                    style={{ pointerEvents: 'auto' }}
+                    className="ml-2 h-6 w-6 cursor-pointer"
+                    onClick={() => {
+                      removeAllSelected();
+                    }}
+                  />
+                </Badge>
+              )}
             </div>
             <AccordionContent className="">
               <MultiSelect

@@ -19,7 +19,8 @@ const ITEMS_PER_PAGE = 16;
 export default async function Books({ searchParams }: Props) {
   const { page, search, genre } = searchParams ? await searchParams : {};
   const currentPage = parseInt(page || '1', 10);
-  const genresParams = (genre?.split(',') as GenreSlug[]) ?? [];
+  const genresParams =
+    (genre?.toLocaleUpperCase().split(',') as GenreSlug[]) ?? [];
   const response = await getBooksAction({
     currentPage: currentPage,
     booksPerPage: ITEMS_PER_PAGE,
