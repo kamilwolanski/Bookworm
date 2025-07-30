@@ -165,6 +165,7 @@ export const getBooksAction: Action<
     {
       currentPage: number;
       genres: GenreSlug[];
+      ratings: string[];
       booksPerPage?: number;
       search?: string;
     },
@@ -173,7 +174,7 @@ export const getBooksAction: Action<
     books: BookListDTO[];
     totalCount: number;
   }
-> = async ({ currentPage, booksPerPage = 10, search, genres }) => {
+> = async ({ currentPage, booksPerPage = 10, search, genres, ratings }) => {
   const session = await getUserSession();
 
   if (!session?.user?.id) return unauthorizedResponse();
@@ -184,6 +185,7 @@ export const getBooksAction: Action<
       currentPage,
       booksPerPage,
       genres,
+      ratings,
       search
     );
 

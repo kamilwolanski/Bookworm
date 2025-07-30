@@ -1,5 +1,6 @@
 import { GenreDTO } from '@/lib/books';
 import GenreFilter from './GenreFilter';
+import RatingFilter from './RatingFilter';
 
 const BookFilters = ({
   bookGenres,
@@ -11,6 +12,7 @@ const BookFilters = ({
   return (
     <div className="min-w-100 max-w-100">
       <GenreFilter bookGenres={bookGenres} genresParams={genresParams} />
+      <RatingFilter />
     </div>
   );
 };

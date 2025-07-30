@@ -11,21 +11,28 @@ type Props = {
     page?: string;
     search?: string;
     genre?: string;
+    rating?: string;
   };
 };
 
 const ITEMS_PER_PAGE = 16;
 
 export default async function Books({ searchParams }: Props) {
-  const { page, search, genre } = searchParams ? await searchParams : {};
+  const { page, search, genre, rating } = searchParams
+    ? await searchParams
+    : {};
   const currentPage = parseInt(page || '1', 10);
+  console.log('rating', rating);
   const genresParams =
     (genre?.toLocaleUpperCase().split(',') as GenreSlug[]) ?? [];
+  const ratings = rating?.split(',') ?? [];
+  console.log('ratings', ratings);
   const response = await getBooksAction({
     currentPage: currentPage,
     booksPerPage: ITEMS_PER_PAGE,
     search,
     genres: genresParams,
+    ratings,
   });
   const bookGenres = await getBookGenres('pl');
 

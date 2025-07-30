@@ -79,6 +79,7 @@ export async function getBooks(
   currentPage: number,
   booksPerPage: number,
   genres: GenreSlug[],
+  ratings: string[],
   search?: string // 👈 Nowy opcjonalny parametr
 ): Promise<{
   books: BookListDTO[];
@@ -123,25 +124,36 @@ export async function getBooks(
       }
     : {};
 
+  const numericRatings =
+    ratings.filter((r) => r !== 'none').map((r) => parseInt(r)) ?? [];
+  const includeNull = ratings.includes('none');
+  const orFilters = [];
+
+  if (numericRatings.length > 0) {
+    orFilters.push({ rating: { in: numericRatings } });
+  }
+
+  if (includeNull) {
+    orFilters.push({ rating: null });
+  }
+
   const [books, totalCount] = await Promise.all([
     prisma.book.findMany({
       skip,
       take: booksPerPage,
       where: {
         userId,
-        genres:
-          genres.length > 0
-            ? {
-                some: {
-                  genre: {
-                    slug: {
-                      in: genres,
-                    },
-                  },
-                },
-              }
-            : {},
-        ...searchConditions, // 👈 dodajemy warunki wyszukiwania tylko gdy są
+        ...(genres.length > 0 && {
+          genres: {
+            some: {
+              genre: {
+                slug: { in: genres },
+              },
+            },
+          },
+        }),
+        ...(orFilters.length > 0 && { OR: orFilters }),
+        ...searchConditions,
       },
       orderBy: {
         addedAt: 'desc',
@@ -166,19 +178,18 @@ export async function getBooks(
     prisma.book.count({
       where: {
         userId,
-        genres:
-          genres.length > 0
-            ? {
-                some: {
-                  genre: {
-                    slug: {
-                      in: genres,
-                    },
-                  },
-                },
-              }
-            : {},
-        ...searchConditions, // 👈 count musi mieć ten sam filtr!
+        ...(genres.length > 0 && {
+          genres: {
+            some: {
+              genre: {
+                slug: { in: genres },
+              },
+            },
+          },
+        }),
+        ...(orFilters.length > 0 && { OR: orFilters }),
+
+        ...searchConditions,
       },
     }),
   ]);
