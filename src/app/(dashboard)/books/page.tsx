@@ -22,11 +22,9 @@ export default async function Books({ searchParams }: Props) {
     ? await searchParams
     : {};
   const currentPage = parseInt(page || '1', 10);
-  console.log('rating', rating);
   const genresParams =
     (genre?.toLocaleUpperCase().split(',') as GenreSlug[]) ?? [];
   const ratings = rating?.split(',') ?? [];
-  console.log('ratings', ratings);
   const response = await getBooksAction({
     currentPage: currentPage,
     booksPerPage: ITEMS_PER_PAGE,

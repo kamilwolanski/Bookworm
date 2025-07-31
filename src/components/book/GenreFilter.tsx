@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import {
   Accordion,
@@ -7,7 +6,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { GenreDTO } from '@/lib/books';
@@ -21,6 +20,8 @@ const GenreFilter = ({
   genresParams: string[];
 }) => {
   const searchParams = useSearchParams();
+  const params = new URLSearchParams(searchParams.toString());
+
   const genreIds = genresParams
     .map((slug) => {
       const match = bookGenres.find((g) => g.slug === slug);
@@ -34,10 +35,14 @@ const GenreFilter = ({
     label: genre.name,
   }));
 
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (selectedGenres.length > 0) {
-      const selectedNames = selectedGenres
+  const removeSelected = (id: string) => {
+    const filtered = selectedGenres.filter((g) => g !== id);
+    updateSelectedGenres(filtered);
+  };
+
+  const updateSelectedGenres = (newGenres: string[]) => {
+    if (newGenres.length > 0) {
+      const selectedNames = newGenres
         .map((id) =>
           bookGenres.find((genre) => genre.id === id)?.slug.toLowerCase()
         )
@@ -47,22 +52,15 @@ const GenreFilter = ({
       params.set('page', '1');
     } else {
       params.delete('genre');
+      params.set('page', '1');
     }
 
-    router.push(`?${params.toString()}`);
-  }, [selectedGenres]);
-
-  const removeSelected = (id: string) => {
-    const filtered = selectedGenres.filter((g) => g !== id);
-    updateSelectedGenres(filtered);
-  };
-
-  const updateSelectedGenres = (newGenres: string[]) => {
     setSelectedGenres(newGenres);
+    router.push(`?${params.toString()}`);
   };
 
   const removeAllSelected = () => {
-    setSelectedGenres([]);
+    updateSelectedGenres([]);
   };
 
   return (

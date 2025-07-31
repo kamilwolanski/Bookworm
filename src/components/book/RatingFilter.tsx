@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -10,35 +9,39 @@ import {
 } from '@/components/ui/accordion';
 import { Star } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const RatingFilter = () => {
   const searchParams = useSearchParams();
-  const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
+  const params = new URLSearchParams(searchParams.toString());
+
+  const [selectedRatings, setSelectedRatings] = useState<string[]>(
+    params.get('rating')?.split(',') ?? []
+  );
   const router = useRouter();
 
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (selectedRatings.length > 0) {
-      params.set('rating', selectedRatings.join(','));
-      params.set('page', '1');
+  const handleOnChange = (id: string) => {
+    const updatedRatings = selectedRatings.includes(id)
+      ? selectedRatings.filter((item) => item !== id)
+      : [...selectedRatings, id];
+
+    const newParams = new URLSearchParams(searchParams.toString());
+
+    if (updatedRatings.length > 0) {
+      newParams.set('rating', updatedRatings.join(','));
+      newParams.set('page', '1'); // resetuj tylko przy zmianie ratingu
     } else {
-      params.delete('rating');
+      newParams.delete('rating');
+      newParams.set('page', '1'); // nadal resetuj
     }
 
-    router.push(`?${params.toString()}`);
-  }, [selectedRatings]);
-
-  const handleOnChange = (id: string) => {
-    setSelectedRatings((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+    setSelectedRatings(updatedRatings);
+    router.push(`?${newParams.toString()}`);
   };
 
   const isChecked = (id: string) => {
     return selectedRatings.includes(id);
   };
-  console.log('selectedRatings', selectedRatings);
 
   return (
     <div className="bg-[#1A1D24] shadow rounded-xl px-5 mt-8">
