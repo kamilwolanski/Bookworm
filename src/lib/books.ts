@@ -1,4 +1,4 @@
-import { Book, Comment, GenreSlug, User } from '@prisma/client';
+import { Book, Comment, GenreSlug, ReadingStatus, User } from '@prisma/client';
 import prisma from './prisma';
 
 export type CreateBookData = Omit<Book, 'id' | 'addedAt'>;
@@ -80,7 +80,8 @@ export async function getBooks(
   booksPerPage: number,
   genres: GenreSlug[],
   ratings: string[],
-  search?: string // 👈 Nowy opcjonalny parametr
+  statuses: ReadingStatus[],
+  search?: string
 ): Promise<{
   books: BookListDTO[];
   totalCount: number;
@@ -153,6 +154,11 @@ export async function getBooks(
           },
         }),
         ...(orFilters.length > 0 && { OR: orFilters }),
+        ...(statuses.length > 0 && {
+          readingStatus: {
+            in: statuses,
+          },
+        }),
         ...searchConditions,
       },
       orderBy: {
@@ -188,7 +194,11 @@ export async function getBooks(
           },
         }),
         ...(orFilters.length > 0 && { OR: orFilters }),
-
+        ...(statuses.length > 0 && {
+          readingStatus: {
+            in: statuses,
+          },
+        }),
         ...searchConditions,
       },
     }),

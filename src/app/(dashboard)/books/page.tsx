@@ -4,7 +4,7 @@ import { getBookGenres } from '@/lib/books';
 import { getBooksAction } from '@/app/(dashboard)/books/actions/bookActions';
 import { SearchBar } from '@/components/shared/SearchBar';
 import BookFilters from '@/components/book/BookFilters';
-import { GenreSlug } from '@prisma/client';
+import { GenreSlug, ReadingStatus } from '@prisma/client';
 
 type Props = {
   searchParams?: {
@@ -12,25 +12,28 @@ type Props = {
     search?: string;
     genre?: string;
     rating?: string;
+    status?: string;
   };
 };
 
 const ITEMS_PER_PAGE = 16;
 
 export default async function Books({ searchParams }: Props) {
-  const { page, search, genre, rating } = searchParams
+  const { page, search, genre, rating, status } = searchParams
     ? await searchParams
     : {};
   const currentPage = parseInt(page || '1', 10);
   const genresParams =
     (genre?.toLocaleUpperCase().split(',') as GenreSlug[]) ?? [];
   const ratings = rating?.split(',') ?? [];
+  const statuses = (status?.toUpperCase().split(',') as ReadingStatus[]) ?? {};
   const response = await getBooksAction({
     currentPage: currentPage,
     booksPerPage: ITEMS_PER_PAGE,
     search,
     genres: genresParams,
     ratings,
+    statuses,
   });
   const bookGenres = await getBookGenres('pl');
 
