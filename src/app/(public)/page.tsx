@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 export default async function Home() {
   const session = await getUserSession();
 
-  if (session) redirect('/dashboard');
+  if (session) redirect('/books');
   return (
     <>
       <div className="container mx-auto">

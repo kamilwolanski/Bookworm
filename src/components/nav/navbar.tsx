@@ -74,7 +74,7 @@ export default function Navbar() {
           className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
           onClick={() => signOut({ callbackUrl: '/login' })}
         >
-          Log out
+          Wyloguj się
         </button>
       ) : (
         <Link

@@ -89,7 +89,7 @@ export const addBookAction: Action<[unknown, FormData]> = async (
     return serverErrorResponse();
   }
 
-  revalidatePath('/dashboard');
+  revalidatePath('/books');
 
   return {
     isError: false,
