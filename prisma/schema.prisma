@@ -106,7 +106,7 @@ model User {
   email         String          @unique
   name          String?
   avatarUrl     String?
-  books         Book[] // relacja: jeden user → wiele książek
+  books         UserBook[] // relacja: jeden user → wiele książek
   createdAt     DateTime        @default(now())
   comments      Comment[]
   CommentRating CommentRating[]
@@ -130,22 +130,36 @@ model Genre {
   translations GenreTranslation[]
 }
 
+model UserBook {
+  userId        String
+  bookId        String
+  readingStatus ReadingStatus @default(WANT_TO_READ)
+  addedAt       DateTime      @default(now())
+  note          String?
+  rating        Int?          @db.SmallInt
+  User          User          @relation(fields: [userId], references: [id])
+  book          Book          @relation(fields: [bookId], references: [id])
+
+  @@id([bookId, userId])
+}
+
 model Book {
-  id              String        @id @default(uuid())
+  id              String   @id @default(uuid())
   title           String
   author          String
-  addedAt         DateTime      @default(now())
-  readingStatus   ReadingStatus @default(WANT_TO_READ)
-  rating          Int?          @db.SmallInt
+  addedAt         DateTime @default(now())
+  description     String?
+  publicationYear Int?
   pageCount       Int?
   imageUrl        String?
   imagePublicId   String?
-  description     String?
-  publicationYear Int?
-  userId          String
-  user            User          @relation(fields: [userId], references: [id])
-  genres          BookGenre[]
-  comments        Comment[]
+
+  averageRating Float? @default(0)
+  ratingCount   Int?   @default(0)
+
+  genres   BookGenre[]
+  comments Comment[]
+  UserBook UserBook[]
 }
 
 model BookGenre {
