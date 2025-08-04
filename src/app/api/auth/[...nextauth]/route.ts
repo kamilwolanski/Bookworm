@@ -21,7 +21,6 @@ const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async signIn({ profile }) {
-      console.log('profile', profile);
       if (!profile?.email) {
         throw new Error('No profile');
       }
@@ -54,6 +53,7 @@ const authOptions: NextAuthOptions = {
           throw new Error('No user found');
         }
         token.id = user.id;
+        token.role = user.role;
       }
 
       return token;

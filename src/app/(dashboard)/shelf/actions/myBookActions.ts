@@ -109,7 +109,7 @@ export const getBooksAction: Action<
   statuses,
 }) => {
   const session = await getUserSession();
-
+  console.log('session', session.user)
   if (!session?.user?.id) return unauthorizedResponse();
 
   try {

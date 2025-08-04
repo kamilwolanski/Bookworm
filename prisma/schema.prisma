@@ -13,6 +13,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  USER
+}
+
 enum ReadingStatus {
   WANT_TO_READ
   READING
@@ -110,6 +115,8 @@ model User {
   createdAt     DateTime        @default(now())
   comments      Comment[]
   CommentRating CommentRating[]
+
+  role Role @default(USER) 
 }
 
 model GenreTranslation {
