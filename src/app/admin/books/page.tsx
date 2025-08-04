@@ -38,8 +38,11 @@ export default async function Books({ searchParams }: Props) {
   if (!response.isError && response.data)
     return (
       <div className="min-h-full flex flex-col">
-        <div className="ms-10 w-full">
-          <SearchBar />
+        <div className="flex">
+          <BookForm bookGenres={bookGenres} />
+          <div className="ms-10 w-full">
+            <SearchBar />
+          </div>
         </div>
 
         <div className="mt-10 flex flex-1">

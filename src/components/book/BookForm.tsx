@@ -28,7 +28,7 @@ import { Textarea } from '../ui/textarea';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { GenreDTO } from '@/lib/userbooks';
 import { UseFormReturn } from 'react-hook-form';
-import { createBookAction } from '@/app/(public)/books/actions/bookActions';
+import { createBookAction } from '@/app/admin/books/actions/bookActions';
 
 export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
