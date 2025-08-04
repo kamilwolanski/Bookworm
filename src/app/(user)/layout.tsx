@@ -5,6 +5,7 @@ import SessionProvider from '@/components/auth/SessionProvider';
 import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/TopBar';
 import { getUserSession } from '@/lib/session';
+import { redirect } from 'next/navigation';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -27,7 +28,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getUserSession();
-
+  if (!session) {
+    redirect('/login');
+  }
   return (
     <html lang="en">
       <body

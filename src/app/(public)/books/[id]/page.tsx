@@ -4,7 +4,7 @@ import BookDetails from '@/components/book/BookDetails';
 import CommentThread from '@/components/comments/CommentThread';
 import CommentInput from '@/components/comments/CommentInput';
 import SidebarRecentBooks from '@/components/book/SidebarRecentBooks';
-import { getBookAction } from '@/app/(dashboard)/books/actions/bookActions';
+import { getBookAction } from '@/app/(public)/books/actions/bookActions';
 
 interface BookPageProps {
   params: Promise<{ id: string }>;

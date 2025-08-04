@@ -1,6 +1,6 @@
 import { ActionResult } from '@/types/actions';
 import { startTransition, useActionState, useEffect } from 'react';
-import { AddRatingAction } from '@/app/(dashboard)/shelf/actions/commentActions';
+import { AddRatingAction } from '@/app/(user)/shelf/actions/commentActions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
