@@ -2,6 +2,7 @@
 'use client';
 
 import { bookSchema, BookInput } from '@/lib/validation';
+import { addBookAction } from '@/app/(dashboard)/shelf/actions/myBookActions';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import {
   Form,
@@ -25,10 +26,17 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { Textarea } from '../ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Star } from 'lucide-react';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { GenreDTO } from '@/lib/userbooks';
 import { UseFormReturn } from 'react-hook-form';
-import { createBookAction } from '@/app/(dashboard)/books/actions/bookActions';
 
 export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
@@ -41,21 +49,28 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
     }, 500);
   };
   const { form, isPending, handleSubmit } = useActionForm<BookInput>({
-    action: createBookAction,
+    action: addBookAction,
     schema: bookSchema,
     defaultValues: {
       title: '',
       author: '',
+      readingStatus: 'WANT_TO_READ',
       genres: [],
     },
     onSuccess: afterSuccess,
   });
-
+  const readingStatus = form.watch('readingStatus');
   const [open, setOpen] = useState(false);
   const genresList = bookGenres.map((genre) => ({
     value: genre.id,
     label: genre.name,
   }));
+
+  useEffect(() => {
+    if (readingStatus !== 'READ') {
+      form.setValue('rating', undefined);
+    }
+  }, [readingStatus]);
 
   useEffect(() => {
     form.setValue('genres', selectedGenres);
@@ -75,7 +90,7 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
         <DialogHeader>
           <DialogTitle>Dodaj nową książkę</DialogTitle>
           <DialogDescription>
-            Wypełnij poniższy formularz, aby dodać książkę.
+            Wypełnij poniższy formularz, aby dodać książkę do swojej kolekcji.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -136,6 +151,24 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="pageCount"
+                  render={({ field }) => (
+                    <FormItem className="mt-3">
+                      <FormLabel>Liczba stron</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Liczba stron"
+                          {...field}
+                          type="number"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
             <div>
@@ -179,21 +212,66 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
 
                 <FormField
                   control={form.control}
-                  name="pageCount"
+                  name="readingStatus"
                   render={({ field }) => (
                     <FormItem className="mt-3">
-                      <FormLabel>Liczba stron</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Liczba stron"
-                          {...field}
-                          type="number"
-                        />
-                      </FormControl>
+                      <FormLabel>Status czytania</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        name="readingStatus"
+                      >
+                        <FormControl className="w-full">
+                          <SelectTrigger>
+                            <SelectValue placeholder="Wybierz status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="WANT_TO_READ">
+                            Chcę przeczytać
+                          </SelectItem>
+                          <SelectItem value="READING">Czytam</SelectItem>
+                          <SelectItem value="READ">Przeczytana</SelectItem>
+                          <SelectItem value="ABANDONED">Porzucona</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {readingStatus === 'READ' && (
+                  <FormField
+                    control={form.control}
+                    name="rating"
+                    render={({ field }) => (
+                      <FormItem className="mt-5">
+                        <FormLabel>Ocena</FormLabel>
+                        <FormControl>
+                          <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((num) => (
+                              <button
+                                key={num}
+                                type="button"
+                                onClick={() => field.onChange(num)}
+                                className={
+                                  field.value
+                                    ? num <= field.value
+                                      ? 'text-yellow-400 cursor-pointer'
+                                      : 'text-gray-300 cursor-pointer'
+                                    : 'text-gray-300 cursor-pointer'
+                                }
+                              >
+                                <Star className="w-6 h-6 fill-current" />
+                              </button>
+                            ))}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
             </div>
 
@@ -206,7 +284,7 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
                     <FormLabel>Opis</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Dodaj opis książki"
+                        placeholder="Dodaj własny opis lub notatkę o książce"
                         className="resize-none"
                         {...field}
                       />

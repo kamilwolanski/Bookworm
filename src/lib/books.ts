@@ -1,109 +1,38 @@
-import { Book, Comment, GenreSlug, ReadingStatus, User } from '@prisma/client';
+import { CommentDto, GenreDTO } from './userbooks';
 import prisma from './prisma';
+import { Book, GenreSlug } from '@prisma/client';
 
-export type CreateBookData = Omit<Book, 'id' | 'addedAt'>;
-export type EditBookData = Omit<
-  CreateBookData,
-  'imageUrl' | 'imagePublicId'
-> & {
-  imageUrl?: string | null;
-  imagePublicId?: string | null;
+export type BookDTO = Book & {
+  genres?: GenreDTO[];
 };
 
-export type GenreDTO = {
-  id: string;
-  slug: GenreSlug;
-  language: string;
-  name: string;
-};
+export type CreateBookData = Omit<
+  Book,
+  'id' | 'addedAt' | 'averageRating' | 'ratingCount'
+>;
 
 export type BookDetailsDTO = Book & {
   genres?: GenreDTO[];
   comments: CommentDto[];
 };
 
-export type BookListDTO = Book & {
-  genres?: GenreDTO[];
-};
-
-export type RecentBookDto = {
-  id: string;
-  title: string;
-  imageUrl: string | null;
-};
-
-export type CommentDto = Comment & {
-  author: User;
-  totalScore: number;
-  userRating: number | null;
-  ratings: {
-    value: number;
-    userId: string;
-  }[];
-  replies: CommentDto[];
-};
-
-interface AddCommentInput {
-  content: string;
-  authorId: string;
-  bookId: string;
-  parentId?: string;
-}
-
-interface AddRatingInput {
-  commentId: string;
-  userId: string;
-  value: number;
-}
-
-export async function createBook(data: CreateBookData, genreIds: string[]) {
-  if (genreIds?.length > 0) {
-    return await prisma.book.create({
-      data: {
-        ...data,
-        genres: {
-          create: genreIds?.map((genreId) => ({
-            genre: {
-              connect: { id: genreId },
-            },
-          })),
-        },
-      },
-    });
-  } else {
-    return await prisma.book.create({ data });
-  }
-}
-export async function getBooks(
-  userId: string,
+export async function getAllBooks(
   currentPage: number,
   booksPerPage: number,
   genres: GenreSlug[],
   ratings: string[],
-  statuses: ReadingStatus[],
   search?: string
 ): Promise<{
-  books: BookListDTO[];
+  books: BookDTO[];
   totalCount: number;
 }> {
   const skip = (currentPage - 1) * booksPerPage;
 
-  // 🔍 Jeśli nie ma frazy, nie dodajemy warunku OR
   const searchConditions = search
     ? {
         OR: [
-          {
-            title: {
-              contains: search,
-              mode: 'insensitive' as const,
-            },
-          },
-          {
-            author: {
-              contains: search,
-              mode: 'insensitive' as const,
-            },
-          },
+          { title: { contains: search, mode: 'insensitive' as const } },
+          { author: { contains: search, mode: 'insensitive' as const } },
           {
             genres: {
               some: {
@@ -125,54 +54,32 @@ export async function getBooks(
       }
     : {};
 
-  const numericRatings =
-    ratings.filter((r) => r !== 'none').map((r) => parseInt(r)) ?? [];
-  const includeNull = ratings.includes('none');
-  const orFilters = [];
-
-  if (numericRatings.length > 0) {
-    orFilters.push({ rating: { in: numericRatings } });
-  }
-
-  if (includeNull) {
-    orFilters.push({ rating: null });
-  }
+  const where = {
+    ...searchConditions,
+    ...(genres.length > 0 && {
+      genres: {
+        some: {
+          genre: {
+            slug: { in: genres },
+          },
+        },
+      },
+    }),
+  };
 
   const [books, totalCount] = await Promise.all([
     prisma.book.findMany({
       skip,
       take: booksPerPage,
-      where: {
-        userId,
-        ...(genres.length > 0 && {
-          genres: {
-            some: {
-              genre: {
-                slug: { in: genres },
-              },
-            },
-          },
-        }),
-        ...(orFilters.length > 0 && { OR: orFilters }),
-        ...(statuses.length > 0 && {
-          readingStatus: {
-            in: statuses,
-          },
-        }),
-        ...searchConditions,
-      },
-      orderBy: {
-        addedAt: 'desc',
-      },
+      where,
+      orderBy: { addedAt: 'desc' },
       include: {
         genres: {
           include: {
             genre: {
               include: {
                 translations: {
-                  where: {
-                    language: 'pl',
-                  },
+                  where: { language: 'pl' },
                 },
               },
             },
@@ -180,62 +87,26 @@ export async function getBooks(
         },
       },
     }),
-
-    prisma.book.count({
-      where: {
-        userId,
-        ...(genres.length > 0 && {
-          genres: {
-            some: {
-              genre: {
-                slug: { in: genres },
-              },
-            },
-          },
-        }),
-        ...(orFilters.length > 0 && { OR: orFilters }),
-        ...(statuses.length > 0 && {
-          readingStatus: {
-            in: statuses,
-          },
-        }),
-        ...searchConditions,
-      },
-    }),
+    prisma.book.count({ where }),
   ]);
 
-  const booksDto = books.map((book) => {
-    const genresDto = book.genres.map((genre) => {
-      const translation = genre.genre.translations[0];
-
+  const booksDto: BookDTO[] = books.map((book) => ({
+    ...book,
+    genres: book.genres.map((g) => {
+      const t = g.genre.translations[0];
       return {
-        id: genre.genre.id,
-        slug: genre.genre.slug,
-        language: translation.language,
-        name: translation.name,
+        id: g.genre.id,
+        slug: g.genre.slug,
+        language: t.language,
+        name: t.name,
       };
-    });
-
-    return {
-      ...book,
-      genres: genresDto,
-    };
-  });
+    }),
+  }));
 
   return {
     books: booksDto,
     totalCount,
   };
-}
-
-export async function deleteBook(bookId: string) {
-  const book = await prisma.book.delete({
-    where: {
-      id: bookId,
-    },
-  });
-
-  return book;
 }
 
 export async function getBook(
@@ -326,146 +197,21 @@ export async function getBook(
   return enrichedBook;
 }
 
-export async function getBookGenres(
-  language: 'pl' | 'en'
-): Promise<GenreDTO[]> {
-  const genres = await prisma.genre.findMany({
-    include: {
-      translations: {
-        where: {
-          language: language,
-        },
-        take: 1,
-      },
-    },
-  });
-
-  return genres.map((genre) => {
-    const translation = genre.translations[0];
-
-    return {
-      id: genre.id,
-      slug: genre.slug,
-      language: translation.language,
-      name: translation.name,
-    };
-  });
-}
-
-export async function updateBookWithTransaction(
-  bookId: string,
-  data: EditBookData,
-  genreIds: string[]
-) {
-  const updatedBook = await prisma.$transaction(async (tx) => {
-    // 1. Usuń stare przypisania gatunków
-    await tx.bookGenre.deleteMany({
-      where: { bookId },
-    });
-
-    // 2. Zaktualizuj książkę i dodaj nowe gatunki
-    return await tx.book.update({
-      where: { id: bookId },
+export async function createBook(data: CreateBookData, genreIds: string[]) {
+  if (genreIds?.length > 0) {
+    return await prisma.book.create({
       data: {
         ...data,
         genres: {
-          create: genreIds.map((genreId) => ({
+          create: genreIds?.map((genreId) => ({
             genre: {
               connect: { id: genreId },
             },
           })),
         },
       },
-      include: {
-        genres: {
-          include: {
-            genre: true,
-          },
-        },
-      },
     });
-  });
-
-  return updatedBook;
-}
-
-export async function addComment(input: AddCommentInput) {
-  const { content, authorId, bookId, parentId } = input;
-
-  // Walidacja - musi być albo bookId, albo parentId (odpowiedź)
-  if (!bookId && !parentId) {
-    throw new Error('Musisz podać bookId lub parentId');
+  } else {
+    return await prisma.book.create({ data });
   }
-
-  const comment = await prisma.comment.create({
-    data: {
-      content,
-      authorId,
-      bookId,
-      parentId,
-    },
-  });
-
-  return comment;
-}
-
-export async function addRating(input: AddRatingInput) {
-  const { commentId, userId, value } = input;
-
-  const rating = await prisma.commentRating.create({
-    data: {
-      userId,
-      commentId,
-      value,
-    },
-  });
-
-  return rating;
-}
-
-export async function addOrUpdateRating(input: AddRatingInput) {
-  const { commentId, userId, value } = input;
-
-  if (value === 0) {
-    return await prisma.commentRating.delete({
-      where: {
-        commentId_userId: {
-          commentId,
-          userId,
-        },
-      },
-    });
-  }
-
-  return await prisma.commentRating.upsert({
-    where: {
-      commentId_userId: {
-        commentId,
-        userId,
-      },
-    },
-    update: { value },
-    create: { commentId, userId, value },
-  });
-}
-
-export async function getRecentBooksExcludingCurrent(
-  userId: string,
-  currentBookId: string
-): Promise<RecentBookDto[]> {
-  return await prisma.book.findMany({
-    where: {
-      userId,
-      id: { not: currentBookId },
-    },
-    select: {
-      id: true,
-      title: true,
-      imageUrl: true,
-    },
-    orderBy: {
-      addedAt: 'desc',
-    },
-    take: 8,
-  });
 }

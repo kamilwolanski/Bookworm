@@ -2,7 +2,7 @@
 
 import { User } from '@prisma/client';
 
-import { CommentDto } from '@/lib/books';
+import { CommentDto } from '@/lib/userbooks';
 import CommentCard from './CommentCard';
 import { useState } from 'react';
 

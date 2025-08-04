@@ -1,5 +1,5 @@
 'use server';
-import { getRecentBooksAction } from '@/app/(dashboard)/books/actions/bookActions';
+import { getRecentBooksAction } from '@/app/(dashboard)/shelf/actions/myBookActions';
 
 import Link from 'next/link';
 import Image from 'next/image';

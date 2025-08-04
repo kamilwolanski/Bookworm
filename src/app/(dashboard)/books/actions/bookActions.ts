@@ -2,29 +2,19 @@
 
 import {
   BookDetailsDTO,
-  BookListDTO,
+  BookDTO,
   createBook,
   CreateBookData,
-  deleteBook,
-  EditBookData,
+  getAllBooks,
   getBook,
-  getBooks,
-  getRecentBooksExcludingCurrent,
-  RecentBookDto,
-  updateBookWithTransaction,
 } from '@/lib/books';
-import {
-  forbiddenResponse,
-  notFoundResponse,
-  serverErrorResponse,
-  unauthorizedResponse,
-} from '@/lib/responses';
-import { getUserSession } from '@/lib/session';
+import { notFoundResponse, serverErrorResponse } from '@/lib/responses';
+import { Action } from '@/types/actions';
+import { GenreSlug, Prisma } from '@prisma/client';
+import { handleImageUpload, parseFormData } from '../../shelf/helpers';
 import { revalidatePath } from 'next/cache';
-import type { Action } from '@/types/actions';
-import { handleImageUpload, parseFormData } from '../helpers';
+import { getUserSession } from '@/lib/session';
 import { v2 as cloudinary } from 'cloudinary';
-import { GenreSlug, Prisma, ReadingStatus } from '@prisma/client';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -32,15 +22,61 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
-export const addBookAction: Action<[unknown, FormData]> = async (
+export const getAllBooksAction: Action<
+  [
+    {
+      currentPage: number;
+      genres: GenreSlug[];
+      ratings: string[];
+      booksPerPage?: number;
+      search?: string;
+    },
+  ],
+  {
+    books: BookDTO[];
+    totalCount: number;
+  }
+> = async ({ currentPage, booksPerPage = 10, search, genres, ratings }) => {
+  try {
+    const books = await getAllBooks(
+      currentPage,
+      booksPerPage,
+      genres,
+      ratings,
+      search
+    );
+
+    return {
+      isError: false,
+      status: 'success',
+      httpStatus: 200,
+      data: books,
+    };
+  } catch {
+    return serverErrorResponse('Problem przy odczycie danych');
+  }
+};
+
+export const getBookAction: Action<[string], BookDetailsDTO> = async (
+  bookId
+) => {
+  const session = await getUserSession();
+  const book = await getBook(bookId, session.user.id);
+
+  if (!book) return notFoundResponse(`Nie znaleziono książki o id: ${bookId}`);
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    data: book,
+  };
+};
+
+export const createBookAction: Action<[unknown, FormData]> = async (
   currentState,
   formData
 ) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) {
-    return unauthorizedResponse();
-  }
   const parsed = parseFormData(formData);
   if (!parsed.success) {
     return parsed.errorResponse;
@@ -53,8 +89,6 @@ export const addBookAction: Action<[unknown, FormData]> = async (
     genres,
     pageCount,
     publicationYear,
-    readingStatus,
-    rating,
     description,
   } = parsed.data;
 
@@ -72,12 +106,9 @@ export const addBookAction: Action<[unknown, FormData]> = async (
   const data: CreateBookData = {
     title,
     author,
-    userId: session.user.id,
     description: description ?? null,
     pageCount: pageCount ?? null,
     publicationYear: publicationYear ?? null,
-    readingStatus,
-    rating: rating ?? null,
     imageUrl,
     imagePublicId,
   };
@@ -112,11 +143,6 @@ export const removeBookAction: Action<[unknown, string]> = async (
   const book = await getBook(bookId, session.user.id);
 
   if (!book) return notFoundResponse(`Nie znaleziono książki o id: ${bookId}`);
-
-  if (book.userId !== session.user.id)
-    return forbiddenResponse(
-      `Brak uprawnień do usunięcia książki o id: ${bookId}`
-    );
 
   try {
     if (book.imagePublicId) {
@@ -157,183 +183,5 @@ export const removeBookAction: Action<[unknown, string]> = async (
     status: 'success',
     httpStatus: 200,
     message: 'Książka została usunięta',
-  };
-};
-
-export const getBooksAction: Action<
-  [
-    {
-      currentPage: number;
-      genres: GenreSlug[];
-      ratings: string[];
-      statuses: ReadingStatus[];
-      booksPerPage?: number;
-      search?: string;
-    },
-  ],
-  {
-    books: BookListDTO[];
-    totalCount: number;
-  }
-> = async ({
-  currentPage,
-  booksPerPage = 10,
-  search,
-  genres,
-  ratings,
-  statuses,
-}) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) return unauthorizedResponse();
-
-  try {
-    const books = await getBooks(
-      session.user.id,
-      currentPage,
-      booksPerPage,
-      genres,
-      ratings,
-      statuses,
-      search
-    );
-
-    return {
-      isError: false,
-      status: 'success',
-      httpStatus: 200,
-      data: books,
-    };
-  } catch {
-    return serverErrorResponse('Problem przy odczycie danych');
-  }
-};
-
-export const getBookAction: Action<[string], BookDetailsDTO> = async (
-  bookId
-) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) return unauthorizedResponse();
-
-  const book = await getBook(bookId, session.user.id);
-
-  if (!book) return notFoundResponse(`Nie znaleziono książki o id: ${bookId}`);
-
-  if (book.userId !== session.user.id)
-    return forbiddenResponse('Brak dostępu do tej książki');
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    data: book,
-  };
-};
-
-export const editBookAction: Action<[unknown, FormData]> = async (
-  _,
-  formData
-) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) {
-    return unauthorizedResponse();
-  }
-
-  const parsed = parseFormData(formData);
-  if (!parsed.success) {
-    return parsed.errorResponse;
-  }
-
-  if (!parsed.data.id) {
-    return {
-      isError: true,
-      status: 'validation_error',
-      httpStatus: 422,
-      message: 'Brak ID książki',
-    };
-  }
-
-  const {
-    id,
-    title,
-    author,
-    file,
-    genres,
-    pageCount,
-    publicationYear,
-    readingStatus,
-    rating,
-    description,
-    imagePublicId: existingImagePublicId,
-  } = parsed.data;
-
-  let imageUrl: string | null = null;
-  let imagePublicId: string | null = null;
-
-  if (file && file.size > 0) {
-    const uploadResult = await handleImageUpload(file, existingImagePublicId);
-    if (uploadResult.isError) return uploadResult;
-
-    imageUrl = uploadResult.imageUrl;
-    imagePublicId = uploadResult.imagePublicId;
-  }
-
-  const updateData: EditBookData = {
-    title,
-    author,
-    userId: session.user.id,
-    description: description ?? null,
-    pageCount: pageCount ?? null,
-    publicationYear: publicationYear ?? null,
-    readingStatus,
-    rating: rating ?? null,
-    ...(imageUrl && imagePublicId && { imageUrl, imagePublicId }),
-  };
-
-  if (!id) {
-    return {
-      isError: true,
-      status: 'validation_error',
-      httpStatus: 422,
-      message: 'Brak id',
-    };
-  }
-
-  try {
-    await updateBookWithTransaction(id, updateData, genres);
-  } catch (err) {
-    console.error(err);
-    return serverErrorResponse();
-  }
-
-  revalidatePath(`/books/${id}`);
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    message: 'Książka została zaktualizowana',
-  };
-};
-
-export const getRecentBooksAction: Action<[string], RecentBookDto[]> = async (
-  currentBookId
-) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) return unauthorizedResponse();
-
-  const recentBooks = await getRecentBooksExcludingCurrent(
-    session.user.id,
-    currentBookId
-  );
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    data: recentBooks,
   };
 };

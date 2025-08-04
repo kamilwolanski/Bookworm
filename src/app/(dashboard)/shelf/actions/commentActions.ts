@@ -5,7 +5,7 @@ import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
 import type { Action } from '@/types/actions';
 
-import { addComment, addOrUpdateRating } from '@/lib/books';
+import { addComment, addOrUpdateRating } from '@/lib/userbooks';
 
 import { commentSchema } from '@/lib/commentValidation';
 

@@ -1,4 +1,4 @@
-import { GenreDTO } from '@/lib/books';
+import { GenreDTO } from '@/lib/userbooks';
 import GenreFilter from './GenreFilter';
 import RatingFilter from './RatingFilter';
 import StatusFilter from './StatusFilter';

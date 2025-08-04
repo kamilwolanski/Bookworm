@@ -1,18 +1,17 @@
 import { BookCard } from './BookCard';
-import { BookListDTO } from '@/lib/books';
+import { UserBookDTO } from '@/lib/userbooks';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
+import { BookDTO } from '@/lib/books';
 
-export function BookList({
-  books,
-  page,
-  pageSize,
-  totalCount,
-}: {
-  books: BookListDTO[];
+type BookListProps = {
+  books: UserBookDTO[] | BookDTO[];
   totalCount: number;
   pageSize: number;
   page: number;
-}) {
+};
+
+export function BookList(props: BookListProps) {
+  const { books, page, pageSize, totalCount } = props;
   return (
     <div className="ms-16 flex flex-col flex-1 justify-between">
       <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 3xl:grid-cols-8 gap-5 3xl:gap-10">

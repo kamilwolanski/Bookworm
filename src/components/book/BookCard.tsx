@@ -5,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import DeleteBtn from '../forms/DeleteBookBtn';
 import { Star, Trash2 } from 'lucide-react';
-import { Book } from '@prisma/client';
 import { BookStatus } from './BookStatus';
 import {
   Tooltip,
@@ -13,8 +12,16 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useRouter } from 'next/navigation';
+import { UserBookDTO } from '@/lib/userbooks';
+import { BookDTO } from '@/lib/books';
 
-export function BookCard({ book }: { book: Book }) {
+type CommonBook = UserBookDTO | BookDTO;
+
+function isUserBook(book: CommonBook): book is UserBookDTO {
+  return 'readingStatus' in book;
+}
+
+export function BookCard({ book }: { book: CommonBook }) {
   const router = useRouter();
   return (
     <Card
@@ -34,7 +41,7 @@ export function BookCard({ book }: { book: Book }) {
             Brak okładki
           </div>
         )}
-        {book.rating !== null && (
+        {isUserBook(book) && book.rating !== null && (
           <div className="flex gap-1 absolute right-2 top-2 p-4 bg-black/60 backdrop-blur-sm rounded">
             {[1, 2, 3, 4, 5].map((num) => (
               <button
@@ -49,16 +56,22 @@ export function BookCard({ book }: { book: Book }) {
             ))}
           </div>
         )}
-        <div className="absolute bottom-2 left-2 p-2">
-          <Tooltip>
-            <TooltipTrigger>
-              <BookStatus status={book.readingStatus} onlyIcon iconSize={6} />
-            </TooltipTrigger>
-            <TooltipContent>
-              <BookStatus status={book.readingStatus} onlyText textSize="xs" />
-            </TooltipContent>
-          </Tooltip>
-        </div>
+        {isUserBook(book) && (
+          <div className="absolute bottom-2 left-2 p-2">
+            <Tooltip>
+              <TooltipTrigger>
+                <BookStatus status={book.readingStatus} onlyIcon iconSize={6} />
+              </TooltipTrigger>
+              <TooltipContent>
+                <BookStatus
+                  status={book.readingStatus}
+                  onlyText
+                  textSize="xs"
+                />
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        )}
       </div>
       <CardContent className="p-4 pt-0">
         <div className="flex justify-between">
@@ -66,16 +79,18 @@ export function BookCard({ book }: { book: Book }) {
             <h3 className="font-semibold text-md text-white">{book.title}</h3>
             <p className="text-sm text-gray-300">{book.author}</p>
           </div>
-          <div onClick={(e) => e.stopPropagation()}>
-            <DeleteBtn bookTitle={book.title} bookId={book.id}>
-              <Button
-                variant="outline"
-                className="text-black cursor-pointer bg-[#30313E] border-0"
-              >
-                <Trash2 color="red" />
-              </Button>
-            </DeleteBtn>
-          </div>
+          {isUserBook(book) && (
+            <div onClick={(e) => e.stopPropagation()}>
+              <DeleteBtn bookTitle={book.title} bookId={book.id}>
+                <Button
+                  variant="outline"
+                  className="text-black cursor-pointer bg-[#30313E] border-0"
+                >
+                  <Trash2 color="red" />
+                </Button>
+              </DeleteBtn>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

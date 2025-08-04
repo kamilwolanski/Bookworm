@@ -29,7 +29,7 @@ export function SearchBar() {
   return (
     <div className="max-w-sm w-full">
       <Input
-        placeholder="Wyszukaj książki..."
+        placeholder="Wyszukaj książke..."
         value={value}
         onChange={(e) => setValue(e.target.value)}
         className="w-full"

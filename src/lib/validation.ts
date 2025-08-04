@@ -19,7 +19,6 @@ export const bookSchema = z.object({
     }),
   description: z.string().max(1000).optional(),
   genres: z.array(z.string()).default([]),
-  readingStatus: z.enum(['WANT_TO_READ', 'READING', 'READ', 'ABANDONED']),
   pageCount: z.preprocess((arg) => {
     if (typeof arg === 'string' && arg === '') {
       return undefined;

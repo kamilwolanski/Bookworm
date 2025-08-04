@@ -1,6 +1,6 @@
 import { ActionResult } from '@/types/actions';
 import { startTransition, useActionState, useEffect } from 'react';
-import { AddRatingAction } from '@/app/(dashboard)/books/actions/commentActions';
+import { AddRatingAction } from '@/app/(dashboard)/shelf/actions/commentActions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { CommentDto } from '@/lib/books';
+import { CommentDto } from '@/lib/userbooks';
 import CommentInput from './CommentInput';
 
 function CommentCard({

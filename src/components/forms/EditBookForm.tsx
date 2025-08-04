@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { editBookAction } from '@/app/(dashboard)/books/actions/bookActions';
+import { editBookAction } from '@/app/(dashboard)/shelf/actions/myBookActions';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import {
   Form,
@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 
 import { BookInput, bookSchema } from '@/lib/validation';
-import { BookDetailsDTO, GenreDTO } from '@/lib/books';
+import { UserBookDetailsDTO, GenreDTO } from '@/lib/userbooks';
 import { MultiSelect } from '../ui/multi-select';
 import {
   Select,
@@ -34,7 +34,7 @@ const EditBookForm = ({
 }: {
   closeDialog: () => void;
   bookGenres: GenreDTO[];
-  bookData: BookDetailsDTO;
+  bookData: UserBookDetailsDTO;
 }) => {
   const [selectedGenres, setSelectedGenres] = useState<string[]>(
     bookData.genres?.map((genre) => genre.id) ?? []

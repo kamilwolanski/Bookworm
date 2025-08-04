@@ -25,10 +25,10 @@ export default function Topbar() {
   const pathname = usePathname();
 
   const isActive = (path: string) =>
-    pathname === path ? 'text-green-300' : '';
+    pathname === path ? 'text-green-300! focus:text-green-300!' : '';
 
   return (
-    <header className="flex justify-between items-center gap-6 px-16 py-6 text-white border-b-[1px] border-[#757575]">
+    <header className="flex justify-between items-center gap-6 px-16 py-6  border-b-[1px] border-[#757575]">
       <Link href="/" className="text-xl font-bold flex items-center">
         <Image
           src={logo}
@@ -46,7 +46,7 @@ export default function Topbar() {
               <NavigationMenuLink asChild>
                 <Link
                   href="/books"
-                  className={`font-bold ${isActive('/books')}`}
+                  className={`font-bold focus:text-white focus:bg-transparent focus-visible:bg-transparent  ${isActive('/books')}`}
                 >
                   Książki
                 </Link>
@@ -56,7 +56,7 @@ export default function Topbar() {
               <NavigationMenuLink asChild>
                 <Link
                   href="/shelf"
-                  className={`font-bold ${isActive('/shelf')}`}
+                  className={`font-bold focus:text-white focus:bg-transparent focus-visible:bg-transparent ${isActive('/shelf')}`}
                 >
                   Moja Półka
                 </Link>

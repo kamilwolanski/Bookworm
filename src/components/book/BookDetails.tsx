@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { format } from 'date-fns';
-import { BookDetailsDTO, getBookGenres } from '@/lib/books';
+import { UserBookDetailsDTO, getBookGenres } from '@/lib/userbooks';
 import { Badge } from '../ui/badge';
 import { Star, Trash2 } from 'lucide-react';
 import { genreColorMap } from '@/lib/genreColorMap';
@@ -9,8 +9,15 @@ import DeleteBtn from '../forms/DeleteBookBtn';
 import { Button } from '../ui/button';
 import EditBtn from '../shared/EditBtn';
 import { Pencil } from 'lucide-react';
+import { BookDetailsDTO } from '@/lib/books';
 
-const BookDetails = async ({ bookData }: { bookData: BookDetailsDTO }) => {
+type CommonBook = UserBookDetailsDTO | BookDetailsDTO;
+
+function isUserBook(book: CommonBook): book is UserBookDetailsDTO {
+  return 'readingStatus' in book;
+}
+
+const BookDetails = async ({ bookData }: { bookData: CommonBook }) => {
   const bookGenres = await getBookGenres('pl');
 
   const {
@@ -19,13 +26,16 @@ const BookDetails = async ({ bookData }: { bookData: BookDetailsDTO }) => {
     author,
     imageUrl,
     publicationYear,
-    readingStatus,
-    rating,
     genres,
     description,
     pageCount,
     addedAt,
   } = bookData;
+
+  const readingStatus = isUserBook(bookData)
+    ? bookData.readingStatus
+    : undefined;
+  const rating = isUserBook(bookData) ? bookData.rating : undefined;
 
   return (
     <div className="p-6 bg-[#1A1D24] shadow rounded-xl col-span-2">
@@ -110,9 +120,11 @@ const BookDetails = async ({ bookData }: { bookData: BookDetailsDTO }) => {
               )}
             </div>
             <div className="flex justify-between flex-col">
-              <div className="ml-auto">
-                <BookStatus status={readingStatus} />
-              </div>
+              {readingStatus && (
+                <div className="ml-auto">
+                  <BookStatus status={readingStatus} />
+                </div>
+              )}
               <div className="ml-auto">
                 <DeleteBtn bookId={id} bookTitle={title}>
                   <Button
@@ -125,24 +137,26 @@ const BookDetails = async ({ bookData }: { bookData: BookDetailsDTO }) => {
                     </span>
                   </Button>
                 </DeleteBtn>
-                <EditBtn bookGenres={bookGenres} bookData={bookData}>
-                  <Button
-                    variant="default"
-                    className="cursor-pointer text-white px-5 ms-5"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Pencil size={16} />
-                      Edytuj
-                    </span>
-                  </Button>
-                </EditBtn>
+                {isUserBook(bookData) && (
+                  <EditBtn bookGenres={bookGenres} bookData={bookData}>
+                    <Button
+                      variant="default"
+                      className="cursor-pointer text-white px-5 ms-5"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Pencil size={16} />
+                        Edytuj
+                      </span>
+                    </Button>
+                  </EditBtn>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
       {description && (
-        <div className="mt-20 pl-10">
+        <div className="mt-20">
           <p className="text-sm text-white leading-relaxed">{description}</p>
         </div>
       )}

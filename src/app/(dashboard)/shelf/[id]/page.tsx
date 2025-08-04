@@ -1,11 +1,9 @@
 import BackTopBar from '@/components/layout/BackTopBar';
-// import { getBookAction } from '@/app/(dashboard)/shelf/actions/myBookActions';
+import { getBookAction } from '@/app/(dashboard)/shelf/actions/myBookActions';
 import BookDetails from '@/components/book/BookDetails';
 import CommentThread from '@/components/comments/CommentThread';
 import CommentInput from '@/components/comments/CommentInput';
 import SidebarRecentBooks from '@/components/book/SidebarRecentBooks';
-import { getBookAction } from '@/app/(dashboard)/books/actions/bookActions';
-
 interface BookPageProps {
   params: Promise<{ id: string }>;
 }
@@ -14,7 +12,7 @@ export default async function Book({ params }: BookPageProps) {
   const { id } = await params;
 
   const book = await getBookAction(id);
-  console.log('book', book)
+
   if (book.isError) {
     return <p>Błąd</p>;
   }
