@@ -52,6 +52,7 @@ export default async function Books({ searchParams }: Props) {
             page={currentPage}
             pageSize={ITEMS_PER_PAGE}
             totalCount={response.data.totalCount}
+            bookGenres={bookGenres}
           />
         </div>
       </div>

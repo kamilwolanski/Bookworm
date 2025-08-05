@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { editBookAction } from '@/app/admin/books/actions/bookActions';
+import { editBookAction } from '@/app/(user)/shelf/actions/myBookActions';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import {
   Form,
@@ -13,12 +13,19 @@ import { Input } from '@/components/ui/input';
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 
 import { BookInput, bookSchema } from '@/lib/validation';
-import { GenreDTO } from '@/lib/userbooks';
+import { UserBookDetailsDTO, GenreDTO } from '@/lib/userbooks';
 import { MultiSelect } from '../ui/multi-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useEffect, useState } from 'react';
+import { Star } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
-import { BookBasicDTO } from '@/lib/books';
 
 const EditBookForm = ({
   closeDialog,
@@ -27,7 +34,7 @@ const EditBookForm = ({
 }: {
   closeDialog: () => void;
   bookGenres: GenreDTO[];
-  bookData: BookBasicDTO;
+  bookData: UserBookDetailsDTO;
 }) => {
   const [selectedGenres, setSelectedGenres] = useState<string[]>(
     bookData.genres?.map((genre) => genre.id) ?? []
@@ -41,11 +48,14 @@ const EditBookForm = ({
       author: bookData.author,
       pageCount: bookData.pageCount ?? undefined,
       publicationYear: bookData.publicationYear ?? undefined,
+      readingStatus: bookData.readingStatus,
+      rating: bookData.rating ?? undefined,
       description: bookData.description ?? undefined,
       imagePublicId: bookData.imagePublicId ?? undefined,
     },
     onSuccess: closeDialog,
   });
+  const readingStatus = form.watch('readingStatus');
 
   const genresList = bookGenres.map((genre) => ({
     value: genre.id,
@@ -115,6 +125,24 @@ const EditBookForm = ({
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="pageCount"
+              render={({ field }) => (
+                <FormItem className="mt-3">
+                  <FormLabel>Liczba stron</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Liczba stron"
+                      {...field}
+                      type="number"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
         <div>
@@ -137,6 +165,7 @@ const EditBookForm = ({
                 </FormMessage>
               )}
             </div>
+
             <FormField
               control={form.control}
               name="publicationYear"
@@ -150,23 +179,69 @@ const EditBookForm = ({
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
-              name="pageCount"
+              name="readingStatus"
               render={({ field }) => (
                 <FormItem className="mt-3">
-                  <FormLabel>Liczba stron</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Liczba stron"
-                      {...field}
-                      type="number"
-                    />
-                  </FormControl>
+                  <FormLabel>Status czytania</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    name="readingStatus"
+                  >
+                    <FormControl className="w-full">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Wybierz status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="WANT_TO_READ">
+                        Chcę przeczytać
+                      </SelectItem>
+                      <SelectItem value="READING">Czytam</SelectItem>
+                      <SelectItem value="READ">Przeczytana</SelectItem>
+                      <SelectItem value="ABANDONED">Porzucona</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {readingStatus === 'READ' && (
+              <FormField
+                control={form.control}
+                name="rating"
+                render={({ field }) => (
+                  <FormItem className="mt-5">
+                    <FormLabel>Ocena</FormLabel>
+                    <FormControl>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((num) => (
+                          <button
+                            key={num}
+                            type="button"
+                            onClick={() => field.onChange(num)}
+                            className={
+                              field.value
+                                ? num <= field.value
+                                  ? 'text-yellow-400 cursor-pointer'
+                                  : 'text-gray-300 cursor-pointer'
+                                : 'text-gray-300 cursor-pointer'
+                            }
+                          >
+                            <Star className="w-6 h-6 fill-current" />
+                          </button>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
         </div>
 

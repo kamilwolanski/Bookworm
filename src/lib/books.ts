@@ -13,12 +13,22 @@ export type BookBasicDTO = Omit<
   | 'description'
   | 'pageCount'
   | 'publicationYear'
->;
+> & {
+  genres?: GenreDTO[];
+};
 
 export type CreateBookData = Omit<
   Book,
   'id' | 'addedAt' | 'averageRating' | 'ratingCount'
 >;
+
+export type EditBookData = Omit<
+  CreateBookData,
+  'imageUrl' | 'imagePublicId'
+> & {
+  imageUrl?: string | null;
+  imagePublicId?: string | null;
+};
 
 export type BookDetailsDTO = Book & {
   genres?: GenreDTO[];
@@ -182,14 +192,38 @@ export async function getAllBooksBasic(
         addedAt: true,
         imageUrl: true,
         imagePublicId: true,
+        genres: {
+          include: {
+            genre: {
+              include: {
+                translations: {
+                  where: { language: 'pl' },
+                },
+              },
+            },
+          },
+        },
       },
     }),
     prisma.book.count({ where }),
   ]);
 
-  const booksDto: BookBasicDTO[] = books.map((book) => ({
-    ...book,
-  }));
+  const booksDto: BookBasicDTO[] = books.map((book) => {
+    const genresDto = book.genres.map((genreRelation) => {
+      const translation = genreRelation.genre.translations[0];
+      return {
+        id: genreRelation.genre.id,
+        slug: genreRelation.genre.slug,
+        language: translation.language,
+        name: translation.name,
+      };
+    });
+
+    return {
+      ...book,
+      genres: genresDto,
+    };
+  });
 
   return {
     books: booksDto,
@@ -312,4 +346,41 @@ export async function deleteBook(bookId: string) {
   });
 
   return book;
+}
+
+export async function updateBookWithTransaction(
+  bookId: string,
+  data: EditBookData,
+  genreIds: string[]
+) {
+  const updatedBook = await prisma.$transaction(async (tx) => {
+    // 1. Usuń stare przypisania gatunków
+    await tx.bookGenre.deleteMany({
+      where: { bookId },
+    });
+
+    // 2. Zaktualizuj książkę i dodaj nowe gatunki
+    return await tx.book.update({
+      where: { id: bookId },
+      data: {
+        ...data,
+        genres: {
+          create: genreIds.map((genreId) => ({
+            genre: {
+              connect: { id: genreId },
+            },
+          })),
+        },
+      },
+      include: {
+        genres: {
+          include: {
+            genre: true,
+          },
+        },
+      },
+    });
+  });
+
+  return updatedBook;
 }

@@ -7,6 +7,8 @@ import {
   CreateBookData,
   getAllBooksBasic,
   getBook,
+  updateBookWithTransaction,
+  EditBookData,
 } from '@/lib/books';
 import {
   notFoundResponse,
@@ -194,5 +196,87 @@ export const deleteBookAction: Action<[unknown, string]> = async (
     status: 'success',
     httpStatus: 200,
     message: 'Książka została usunięta',
+  };
+};
+
+export const editBookAction: Action<[unknown, FormData]> = async (
+  _,
+  formData
+) => {
+  const session = await getUserSession();
+
+  if (!session?.user?.id) {
+    return unauthorizedResponse();
+  }
+
+  const parsed = parseFormData(formData);
+  if (!parsed.success) {
+    return parsed.errorResponse;
+  }
+
+  if (!parsed.data.id) {
+    return {
+      isError: true,
+      status: 'validation_error',
+      httpStatus: 422,
+      message: 'Brak ID książki',
+    };
+  }
+
+  const {
+    id,
+    title,
+    author,
+    file,
+    genres,
+    pageCount,
+    publicationYear,
+    description,
+    imagePublicId: existingImagePublicId,
+  } = parsed.data;
+
+  let imageUrl: string | null = null;
+  let imagePublicId: string | null = null;
+
+  if (file && file.size > 0) {
+    const uploadResult = await handleImageUpload(file, existingImagePublicId);
+    if (uploadResult.isError) return uploadResult;
+
+    imageUrl = uploadResult.imageUrl;
+    imagePublicId = uploadResult.imagePublicId;
+  }
+
+  const updateData: EditBookData = {
+    title,
+    author,
+    description: description ?? null,
+    pageCount: pageCount ?? null,
+    publicationYear: publicationYear ?? null,
+    ...(imageUrl && imagePublicId && { imageUrl, imagePublicId }),
+  };
+
+  if (!id) {
+    return {
+      isError: true,
+      status: 'validation_error',
+      httpStatus: 422,
+      message: 'Brak id',
+    };
+  }
+
+  try {
+    await updateBookWithTransaction(id, updateData, genres);
+  } catch (err) {
+    console.error(err);
+    return serverErrorResponse();
+  }
+
+  revalidatePath(`/books/${id}`);
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    message: 'Książka została zaktualizowana',
   };
 };

@@ -3,30 +3,23 @@
 import * as React from 'react';
 import {
   ColumnDef,
-  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table';
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -36,134 +29,142 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { BookBasicDTO } from '@/lib/books';
-import { PaginationWithLinks } from '../shared/PaginationWithLinks';
-import { Trash2 } from 'lucide-react';
+import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
+import { Trash2, Pencil } from 'lucide-react';
 import DeleteBtn from '@/components/forms/DeleteBookBtn';
+import EditBtn from '@/components/shared/EditBtn';
 import { deleteBookAction } from '@/app/admin/books/actions/bookActions';
-
-export const columns: ColumnDef<Omit<BookBasicDTO, 'imagePublicId'>>[] = [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: 'id',
-    header: 'Id',
-    cell: ({ row }) => <div className="capitalize">{row.getValue('id')}</div>,
-  },
-  {
-    accessorKey: 'title',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Title
-          <ArrowUpDown />
-        </Button>
-      );
-    },
-    cell: ({ row }) => <div>{row.getValue('title')}</div>,
-  },
-  {
-    accessorKey: 'author',
-    header: 'Author',
-    cell: ({ row }) => <div>{row.getValue('author')}</div>,
-  },
-  {
-    accessorKey: 'imageUrl',
-    header: 'Image Url',
-    cell: ({ row }) => <div>{row.getValue('imageUrl') ?? 'None'}</div>,
-  },
-  {
-    accessorKey: 'addedAt',
-    header: 'Added At',
-    cell: ({ row }) => {
-      const date = row.getValue('addedAt') as Date;
-      return <div>{date.toLocaleString()}</div>;
-    },
-  },
-
-  {
-    id: 'actions',
-    enableHiding: false,
-    cell: ({ row }) => {
-      const book = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(book.id)}
-            >
-              Copy book ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DeleteBtn
-              bookId={book.id}
-              removeBookAction={deleteBookAction}
-              revalidatePath="/admin/books"
-              dialogTitle={
-                <>
-                  Czy na pewno chcesz usunąć <b>„{book.title}”</b> ze zbioru
-                  książek?
-                </>
-              }
-            >
-              <div className="cursor-pointer px-2 py-1.5 text-sm hover:bg-muted flex items-center gap-2">
-                Usuń
-                <Trash2 size={16} />
-              </div>
-            </DeleteBtn>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
+import { GenreDTO } from '@/lib/userbooks';
 
 export default function AdminBooksTable({
   books,
   pageSize,
   page,
   totalCount,
+  bookGenres,
 }: {
   books: BookBasicDTO[];
   pageSize: number;
   page: number;
   totalCount: number;
+  bookGenres: GenreDTO[];
 }) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  console.log('rowSelection', rowSelection);
+  const columns: ColumnDef<BookBasicDTO>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: 'id',
+      header: 'Id',
+      cell: ({ row }) => <div className="capitalize">{row.getValue('id')}</div>,
+    },
+    {
+      accessorKey: 'title',
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Title
+            <ArrowUpDown />
+          </Button>
+        );
+      },
+      cell: ({ row }) => <div>{row.getValue('title')}</div>,
+    },
+    {
+      accessorKey: 'author',
+      header: 'Author',
+      cell: ({ row }) => <div>{row.getValue('author')}</div>,
+    },
+    {
+      accessorKey: 'imageUrl',
+      header: 'Image Url',
+      cell: ({ row }) => <div>{row.getValue('imageUrl') ?? 'None'}</div>,
+    },
+    {
+      accessorKey: 'addedAt',
+      header: 'Added At',
+      cell: ({ row }) => {
+        const date = row.getValue('addedAt') as Date;
+        return <div>{date.toLocaleString()}</div>;
+      },
+    },
+
+    {
+      id: 'actions',
+      enableHiding: false,
+      cell: ({ row }) => {
+        const book = row.original;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Akcję</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigator.clipboard.writeText(book.id)}
+              >
+                Skopiuj ID książki
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DeleteBtn
+                bookId={book.id}
+                removeBookAction={deleteBookAction}
+                revalidatePath="/admin/books"
+                dialogTitle={
+                  <>
+                    Czy na pewno chcesz usunąć <b>„{book.title}”</b> ze zbioru
+                    książek?
+                  </>
+                }
+              >
+                <div className="cursor-pointer px-2 py-1.5 text-sm hover:bg-muted flex items-center gap-2">
+                  Usuń
+                  <Trash2 size={16} />
+                </div>
+              </DeleteBtn>
+              <EditBtn bookGenres={bookGenres} bookData={book}>
+                <span className="cursor-pointer px-2 py-1.5 text-sm hover:bg-muted flex items-center gap-2">
+                  Edytuj
+                  <Pencil size={16} />
+                </span>
+              </EditBtn>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
   const table = useReactTable({
     data: books,
@@ -189,16 +190,7 @@ export default function AdminBooksTable({
   console.log('selectedIds', selectedIds);
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
-        {/* <Input
-          placeholder="Filter title..."
-          value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
-          onChange={(event) =>
-            table.getColumn('title')?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        /> */}
-      </div>
+      <div className="flex items-center py-4"></div>
       <div className="overflow-hidden bg-[#1A1D24] shadow rounded-xl px-5">
         <Table>
           <TableHeader>

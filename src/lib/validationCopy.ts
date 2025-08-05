@@ -33,6 +33,7 @@ export const bookSchema = z.object({
       return arg;
     }
   }, z.coerce.number().min(0).positive().optional()),
+  rating: z.coerce.number().min(1).max(5).optional(),
   imagePublicId: z.string().optional(),
 });
 
