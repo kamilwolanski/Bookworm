@@ -68,7 +68,7 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
           variant="outline"
           className="text-black cursor-pointer self-start"
         >
-          Dodaj książkę
+          Dodaj książkę +
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[825px]">

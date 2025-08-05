@@ -145,7 +145,7 @@ model UserBook {
   note          String?
   rating        Int?          @db.SmallInt
   User          User          @relation(fields: [userId], references: [id])
-  book          Book          @relation(fields: [bookId], references: [id])
+  book          Book          @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@id([bookId, userId])
 }
@@ -189,7 +189,7 @@ model Comment {
   parent   Comment?        @relation("CommentReplies", fields: [parentId], references: [id])
   replies  Comment[]       @relation("CommentReplies")
   ratings  CommentRating[]
-  Book     Book?           @relation(fields: [bookId], references: [id])
+  Book     Book?           @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId   String
 }
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import {
@@ -18,19 +19,22 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { ActionResult } from '@/types/actions';
+import { Action, ActionResult } from '@/types/actions';
 import { useRouter } from 'next/navigation';
-import { removeBookAction } from '@/app/(user)/shelf/actions/myBookActions';
 import { usePathname } from 'next/navigation';
 
 const DeleteBtn = ({
-  bookTitle,
   bookId,
+  dialogTitle,
   children,
+  removeBookAction,
+  revalidatePath,
 }: {
-  bookTitle: string;
   bookId: string;
+  dialogTitle: string | ReactNode;
   children: ReactNode;
+  removeBookAction: Action<[unknown, string], void>;
+  revalidatePath: string;
 }) => {
   const [state, doAction, isPending] = useActionState<ActionResult, string>(
     removeBookAction,
@@ -41,10 +45,15 @@ const DeleteBtn = ({
 
   useEffect(() => {
     if (state.status === 'success' && !state.isError) {
-      router.refresh();
-      if (pathname !== '/books') router.push('/books');
+      setOpen(false);
+
+      setTimeout(() => {
+        router.refresh();
+        if (pathname !== revalidatePath) router.push(revalidatePath);
+      }, 100);
     }
   }, [state, router, pathname]);
+
   const [open, setOpen] = useState(false);
 
   return (
@@ -52,10 +61,7 @@ const DeleteBtn = ({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            Czy na pewno chcesz usunąć <b>„{bookTitle}”</b> ze swojej
-            biblioteczki?
-          </DialogTitle>
+          <DialogTitle>{dialogTitle}</DialogTitle>
           <DialogDescription>
             Usunięcie jest trwałe i nie będzie można go cofnąć.
           </DialogDescription>

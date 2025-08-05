@@ -6,6 +6,15 @@ export type BookDTO = Book & {
   genres?: GenreDTO[];
 };
 
+export type BookBasicDTO = Omit<
+  Book,
+  | 'averageRating'
+  | 'ratingCount'
+  | 'description'
+  | 'pageCount'
+  | 'publicationYear'
+>;
+
 export type CreateBookData = Omit<
   Book,
   'id' | 'addedAt' | 'averageRating' | 'ratingCount'
@@ -101,6 +110,85 @@ export async function getAllBooks(
         name: t.name,
       };
     }),
+  }));
+
+  return {
+    books: booksDto,
+    totalCount,
+  };
+}
+
+export async function getAllBooksBasic(
+  currentPage: number,
+  booksPerPage: number,
+  genres: GenreSlug[],
+  ratings: string[],
+  search?: string
+): Promise<{
+  books: BookBasicDTO[];
+  totalCount: number;
+}> {
+  const skip = (currentPage - 1) * booksPerPage;
+
+  const searchConditions = search
+    ? {
+        OR: [
+          { title: { contains: search, mode: 'insensitive' as const } },
+          { author: { contains: search, mode: 'insensitive' as const } },
+          {
+            genres: {
+              some: {
+                genre: {
+                  translations: {
+                    some: {
+                      language: 'pl',
+                      name: {
+                        contains: search,
+                        mode: 'insensitive' as const,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      }
+    : {};
+
+  const where = {
+    ...searchConditions,
+    ...(genres.length > 0 && {
+      genres: {
+        some: {
+          genre: {
+            slug: { in: genres },
+          },
+        },
+      },
+    }),
+  };
+
+  const [books, totalCount] = await Promise.all([
+    prisma.book.findMany({
+      skip,
+      take: booksPerPage,
+      where,
+      orderBy: { addedAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        addedAt: true,
+        imageUrl: true,
+        imagePublicId: true,
+      },
+    }),
+    prisma.book.count({ where }),
+  ]);
+
+  const booksDto: BookBasicDTO[] = books.map((book) => ({
+    ...book,
   }));
 
   return {
@@ -214,4 +302,14 @@ export async function createBook(data: CreateBookData, genreIds: string[]) {
   } else {
     return await prisma.book.create({ data });
   }
+}
+
+export async function deleteBook(bookId: string) {
+  const book = await prisma.book.delete({
+    where: {
+      id: bookId,
+    },
+  });
+
+  return book;
 }

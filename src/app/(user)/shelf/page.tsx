@@ -1,8 +1,6 @@
 import { BookList } from '@/components/book/BookList';
-import BookForm from '@/components/book/BookForm';
 import { getBookGenres } from '@/lib/userbooks';
 import { getBooksAction } from '@/app/(user)/shelf/actions/myBookActions';
-import { SearchBar } from '@/components/shared/SearchBar';
 import BookFilters from '@/components/book/BookFilters';
 import { GenreSlug, ReadingStatus } from '@prisma/client';
 
@@ -41,9 +39,6 @@ export default async function ShelfBooks({ searchParams }: Props) {
   if (!response.isError && response.data)
     return (
       <div className="min-h-full flex flex-col">
-        <div className="w-full">
-          <SearchBar />
-        </div>
         <div className="mt-10 flex flex-1">
           <BookFilters bookGenres={bookGenres} genresParams={genresParams} />
           <BookList

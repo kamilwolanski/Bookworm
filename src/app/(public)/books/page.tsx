@@ -38,10 +38,6 @@ export default async function Books({ searchParams }: Props) {
   if (!response.isError && response.data)
     return (
       <div className="min-h-full flex flex-col">
-        <div className="ms-10 w-full">
-          <SearchBar />
-        </div>
-
         <div className="mt-10 flex flex-1">
           <BookFilters bookGenres={bookGenres} genresParams={genresParams} />
           <BookList

@@ -27,7 +27,7 @@ export function SearchBar() {
   }, [router, searchParams, value]);
 
   return (
-    <div className="max-w-sm w-full">
+    <div className="max-w-sm w-full mb-10">
       <Input
         placeholder="Wyszukaj książke..."
         value={value}

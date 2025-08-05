@@ -1,10 +1,10 @@
-import { BookList } from '@/components/book/BookList';
 import BookForm from '@/components/book/BookForm';
 import { getBookGenres } from '@/lib/userbooks';
 import { SearchBar } from '@/components/shared/SearchBar';
 import BookFilters from '@/components/book/BookFilters';
 import { GenreSlug } from '@prisma/client';
-import { getAllBooksAction } from '@/app/(public)/books/actions/bookActions';
+import { getAllBooksAction } from '@/app/admin/books/actions/bookActions';
+import AdminBooksTable from '@/components/admin/AdminBooksTable';
 
 type Props = {
   searchParams?: {
@@ -45,9 +45,9 @@ export default async function Books({ searchParams }: Props) {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-1">
-          <BookFilters bookGenres={bookGenres} genresParams={genresParams} />
-          <BookList
+        <div className="flex flex-1">
+          {/* <BookFilters bookGenres={bookGenres} genresParams={genresParams} /> */}
+          <AdminBooksTable
             books={response.data.books}
             page={currentPage}
             pageSize={ITEMS_PER_PAGE}

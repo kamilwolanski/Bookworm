@@ -2,10 +2,10 @@
 
 import {
   BookDetailsDTO,
-  BookDTO,
+  BookBasicDTO,
   createBook,
   CreateBookData,
-  getAllBooks,
+  getAllBooksBasic,
   getBook,
 } from '@/lib/books';
 import {
@@ -38,12 +38,12 @@ export const getAllBooksAction: Action<
     },
   ],
   {
-    books: BookDTO[];
+    books: BookBasicDTO[];
     totalCount: number;
   }
 > = async ({ currentPage, booksPerPage = 10, search, genres, ratings }) => {
   try {
-    const books = await getAllBooks(
+    const books = await getAllBooksBasic(
       currentPage,
       booksPerPage,
       genres,
@@ -141,7 +141,7 @@ export const createBookAction: Action<[unknown, FormData]> = async (
   };
 };
 
-export const removeBookAction: Action<[unknown, string]> = async (
+export const deleteBookAction: Action<[unknown, string]> = async (
   _,
   bookId
 ) => {
@@ -187,7 +187,7 @@ export const removeBookAction: Action<[unknown, string]> = async (
     };
   }
 
-  // revalidatePath('/books');
+  revalidatePath('/admin/books');
 
   return {
     isError: false,
