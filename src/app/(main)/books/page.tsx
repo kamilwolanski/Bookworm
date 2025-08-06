@@ -1,10 +1,8 @@
 import { BookList } from '@/components/book/BookList';
-import BookForm from '@/components/book/BookForm';
 import { getBookGenres } from '@/lib/userbooks';
-import { SearchBar } from '@/components/shared/SearchBar';
+import { getBooksAction } from '@/app/(main)/books/actions/myBookActions';
 import BookFilters from '@/components/book/BookFilters';
-import { GenreSlug } from '@prisma/client';
-import { getAllBooksAction } from '@/app/(public)/books/actions/bookActions';
+import { GenreSlug, ReadingStatus } from '@prisma/client';
 
 type Props = {
   searchParams?: {
@@ -18,23 +16,26 @@ type Props = {
 
 const ITEMS_PER_PAGE = 16;
 
-export default async function Books({ searchParams }: Props) {
-  const { page, search, genre, rating } = searchParams
+export default async function ShelfBooks({ searchParams }: Props) {
+  const { page, search, genre, rating, status } = searchParams
     ? await searchParams
     : {};
   const currentPage = parseInt(page || '1', 10);
   const genresParams =
     (genre?.toLocaleUpperCase().split(',') as GenreSlug[]) ?? [];
   const ratings = rating?.split(',') ?? [];
-  const response = await getAllBooksAction({
+  const statuses = (status?.toUpperCase().split(',') as ReadingStatus[]) ?? {};
+  const response = await getBooksAction({
     currentPage: currentPage,
     booksPerPage: ITEMS_PER_PAGE,
     search,
     genres: genresParams,
     ratings,
+    statuses,
   });
+  console.log('response', response);
   const bookGenres = await getBookGenres('pl');
-  console.log('responses', response);
+
   if (!response.isError && response.data)
     return (
       <div className="min-h-full flex flex-col">

@@ -52,16 +52,6 @@ export default function Topbar() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/shelf"
-                  className={`font-bold focus:text-white focus:bg-transparent focus-visible:bg-transparent ${isActive('/shelf')}`}
-                >
-                  Moja Półka
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
         {status === 'loading' ? null : session ? (

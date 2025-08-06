@@ -166,7 +166,7 @@ model Book {
 
   genres   BookGenre[]
   comments Comment[]
-  UserBook UserBook[]
+  userBook UserBook[]
 }
 
 model BookGenre {

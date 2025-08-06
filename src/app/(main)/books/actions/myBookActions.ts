@@ -10,6 +10,8 @@ import {
   getRecentBooksExcludingCurrent,
   RecentBookDto,
   updateBookWithTransaction,
+  getBooksAll,
+  BookWithUserData,
 } from '@/lib/userbooks';
 import {
   forbiddenResponse,
@@ -97,7 +99,7 @@ export const getBooksAction: Action<
     },
   ],
   {
-    books: UserBookDTO[];
+    books: BookWithUserData[];
     totalCount: number;
   }
 > = async ({
@@ -109,19 +111,21 @@ export const getBooksAction: Action<
   statuses,
 }) => {
   const session = await getUserSession();
-  console.log('session', session.user)
-  if (!session?.user?.id) return unauthorizedResponse();
+  console.log('session', session.user);
+  // if (!session?.user?.id) return unauthorizedResponse();
 
   try {
-    const books = await getBooks(
-      session.user.id,
-      currentPage,
-      booksPerPage,
-      genres,
-      ratings,
-      statuses,
-      search
-    );
+    // const books = await getBooks(
+    //   session.user.id,
+    //   currentPage,
+    //   booksPerPage,
+    //   genres,
+    //   ratings,
+    //   statuses,
+    //   search
+    // );
+
+    const books = await getBooksAll(session.user.id, currentPage, booksPerPage);
 
     return {
       isError: false,

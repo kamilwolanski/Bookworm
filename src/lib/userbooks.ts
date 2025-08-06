@@ -66,6 +66,66 @@ interface AddRatingInput {
   value: number;
 }
 
+export type BookWithUserData = Book & {
+  userBook?: UserBook;
+  isOnShelf: boolean;
+};
+
+export async function getBooksAll(
+  userId: string,
+  currentPage: number,
+  booksPerPage: number
+): Promise<{
+  books: BookWithUserData[];
+  totalCount: number;
+}> {
+  const skip = (currentPage - 1) * booksPerPage;
+  const [books, totalCount] = await Promise.all([
+    prisma.book.findMany({
+      skip,
+      take: booksPerPage,
+      orderBy: { addedAt: 'desc' },
+      include: {
+        genres: {
+          include: {
+            genre: {
+              include: {
+                translations: {
+                  where: { language: 'pl' },
+                },
+              },
+            },
+          },
+        },
+        userBook: {
+          where: {
+            userId: userId, // tylko dane usera!
+          },
+        },
+      },
+    }),
+    prisma.book.count(),
+  ]);
+
+  console.log('books', books);
+  const bookDtos = books.map((book) => {
+    const userData = book.userBook[0]; // albo undefined
+
+    return {
+      ...book,
+      userBook: userData,
+      isOnShelf: !!userData,
+    };
+  });
+
+  console.log('bookDtos', bookDtos);
+
+  return {
+    books: bookDtos,
+    totalCount,
+  };
+}
+
 export async function getBooks(
   userId: string,
   currentPage: number,
