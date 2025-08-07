@@ -48,7 +48,7 @@ const RatingFilter = () => {
       <Accordion type="single" collapsible defaultValue="item-1">
         <AccordionItem value="item-1">
           <AccordionTrigger className="cursor-pointer hover:no-underline">
-            Ocena
+            Twoja Ocena
           </AccordionTrigger>
 
           <AccordionContent className="">

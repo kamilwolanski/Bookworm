@@ -26,7 +26,7 @@ import { handleImageUpload, parseFormData } from '../helpers';
 import { v2 as cloudinary } from 'cloudinary';
 import { GenreSlug, Prisma, ReadingStatus } from '@prisma/client';
 
-export const removeBookAction: Action<[unknown, string]> = async (
+export const removeUserBookAction: Action<[unknown, string]> = async (
   _,
   bookId
 ) => {
@@ -58,7 +58,7 @@ export const removeBookAction: Action<[unknown, string]> = async (
       }
     }
 
-    await deleteBook(bookId);
+    await deleteBook(bookId, session.user.id);
   } catch (e) {
     console.error('Delete error:', e);
 
@@ -111,8 +111,6 @@ export const getBooksAction: Action<
   statuses,
 }) => {
   const session = await getUserSession();
-  console.log('session', session.user);
-  // if (!session?.user?.id) return unauthorizedResponse();
 
   try {
     // const books = await getBooks(
@@ -125,7 +123,13 @@ export const getBooksAction: Action<
     //   search
     // );
 
-    const books = await getBooksAll(session.user.id, currentPage, booksPerPage);
+    const books = await getBooksAll(
+      currentPage,
+      booksPerPage,
+      genres,
+      search,
+      session?.user?.id
+    );
 
     return {
       isError: false,
@@ -133,7 +137,8 @@ export const getBooksAction: Action<
       httpStatus: 200,
       data: books,
     };
-  } catch {
+  } catch (e) {
+    console.log('e', e);
     return serverErrorResponse('Problem przy odczycie danych');
   }
 };

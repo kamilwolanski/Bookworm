@@ -1,5 +1,5 @@
 import BackTopBar from '@/components/layout/BackTopBar';
-import { getBookAction } from '@/app/(user)/shelf/actions/myBookActions';
+import { getBookAction } from '@/app/(main)/books/actions/bookActions';
 import BookDetails from '@/components/book/BookDetails';
 import CommentThread from '@/components/comments/CommentThread';
 import CommentInput from '@/components/comments/CommentInput';

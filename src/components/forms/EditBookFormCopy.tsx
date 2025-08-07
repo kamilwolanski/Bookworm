@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { editBookAction } from '@/app/(user)/shelf/actions/myBookActions';
+import { editBookAction } from '@/app/(main)/books/actions/bookActions';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import {
   Form,

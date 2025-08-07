@@ -72,18 +72,72 @@ export type BookWithUserData = Book & {
 };
 
 export async function getBooksAll(
-  userId: string,
   currentPage: number,
-  booksPerPage: number
+  booksPerPage: number,
+  genres: GenreSlug[],
+  search?: string,
+  userId?: string
 ): Promise<{
   books: BookWithUserData[];
   totalCount: number;
 }> {
+  console.log('userId', userId);
   const skip = (currentPage - 1) * booksPerPage;
+
+  const searchConditions = search
+    ? {
+        OR: [
+          {
+            title: {
+              contains: search,
+              mode: 'insensitive' as const,
+            },
+          },
+          {
+            author: {
+              contains: search,
+              mode: 'insensitive' as const,
+            },
+          },
+          {
+            genres: {
+              some: {
+                genre: {
+                  translations: {
+                    some: {
+                      language: 'pl',
+                      name: {
+                        contains: search,
+                        mode: 'insensitive' as const,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      }
+    : {};
+
+  const where = {
+    ...searchConditions,
+    ...(genres.length > 0 && {
+      genres: {
+        some: {
+          genre: {
+            slug: { in: genres },
+          },
+        },
+      },
+    }),
+  };
+
   const [books, totalCount] = await Promise.all([
     prisma.book.findMany({
       skip,
       take: booksPerPage,
+      where,
       orderBy: { addedAt: 'desc' },
       include: {
         genres: {
@@ -97,11 +151,13 @@ export async function getBooksAll(
             },
           },
         },
-        userBook: {
-          where: {
-            userId: userId, // tylko dane usera!
+        ...(userId && {
+          userBook: {
+            where: {
+              userId: userId,
+            },
           },
-        },
+        }),
       },
     }),
     prisma.book.count(),
@@ -109,7 +165,9 @@ export async function getBooksAll(
 
   console.log('books', books);
   const bookDtos = books.map((book) => {
-    const userData = book.userBook[0]; // albo undefined
+    const userData = Array.isArray(book.userBook)
+      ? book.userBook[0]
+      : undefined;
 
     return {
       ...book,
@@ -278,10 +336,13 @@ export async function getBooks(
   };
 }
 
-export async function deleteBook(bookId: string) {
-  const book = await prisma.book.delete({
+export async function deleteBook(bookId: string, userId: string) {
+  const book = await prisma.userBook.delete({
     where: {
-      id: bookId,
+      bookId_userId: {
+        bookId: bookId,
+        userId: userId,
+      },
     },
   });
 

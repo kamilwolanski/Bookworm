@@ -14,8 +14,6 @@ type BookListProps = {
 export function BookList(props: BookListProps) {
   const { books, page, pageSize, totalCount } = props;
 
-  console.log('books booklist', books)
-
   return (
     <div className="ms-16 flex flex-col min-h-[80vh] w-full">
       <SearchBar />

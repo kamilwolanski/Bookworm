@@ -17,7 +17,7 @@ import {
 } from '@/lib/responses';
 import { Action } from '@/types/actions';
 import { GenreSlug, Prisma, Role } from '@prisma/client';
-import { handleImageUpload, parseFormData } from '@/app/(user)/shelf/helpers';
+import { handleImageUpload, parseFormData } from '@/app/(main)/books/helpers';
 import { revalidatePath } from 'next/cache';
 import { getUserSession } from '@/lib/session';
 import { v2 as cloudinary } from 'cloudinary';

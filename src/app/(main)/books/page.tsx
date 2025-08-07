@@ -1,6 +1,6 @@
 import { BookList } from '@/components/book/BookList';
 import { getBookGenres } from '@/lib/userbooks';
-import { getBooksAction } from '@/app/(main)/books/actions/myBookActions';
+import { getBooksAction } from '@/app/(main)/books/actions/bookActions';
 import BookFilters from '@/components/book/BookFilters';
 import { GenreSlug, ReadingStatus } from '@prisma/client';
 
@@ -14,7 +14,7 @@ type Props = {
   };
 };
 
-const ITEMS_PER_PAGE = 16;
+const ITEMS_PER_PAGE = 18;
 
 export default async function ShelfBooks({ searchParams }: Props) {
   const { page, search, genre, rating, status } = searchParams
