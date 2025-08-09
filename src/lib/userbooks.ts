@@ -75,13 +75,13 @@ export async function getBooksAll(
   currentPage: number,
   booksPerPage: number,
   genres: GenreSlug[],
+  myShelf: boolean,
   search?: string,
   userId?: string
 ): Promise<{
   books: BookWithUserData[];
   totalCount: number;
 }> {
-  console.log('userId', userId);
   const skip = (currentPage - 1) * booksPerPage;
 
   const searchConditions = search
@@ -131,6 +131,10 @@ export async function getBooksAll(
         },
       },
     }),
+    ...(myShelf &&
+      userId && {
+        userBook: { some: { userId } },
+      }),
   };
 
   const [books, totalCount] = await Promise.all([
@@ -160,10 +164,9 @@ export async function getBooksAll(
         }),
       },
     }),
-    prisma.book.count(),
+    prisma.book.count({ where }),
   ]);
 
-  console.log('books', books);
   const bookDtos = books.map((book) => {
     const userData = Array.isArray(book.userBook)
       ? book.userBook[0]
@@ -175,8 +178,6 @@ export async function getBooksAll(
       isOnShelf: !!userData,
     };
   });
-
-  console.log('bookDtos', bookDtos);
 
   return {
     books: bookDtos,

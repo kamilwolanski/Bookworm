@@ -94,6 +94,7 @@ export const getBooksAction: Action<
       genres: GenreSlug[];
       ratings: string[];
       statuses: ReadingStatus[];
+      myShelf: boolean;
       booksPerPage?: number;
       search?: string;
     },
@@ -107,10 +108,17 @@ export const getBooksAction: Action<
   booksPerPage = 10,
   search,
   genres,
+  myShelf,
   ratings,
   statuses,
 }) => {
   const session = await getUserSession();
+
+  if (myShelf) {
+    if (!session?.user?.id) {
+      return unauthorizedResponse();
+    }
+  }
 
   try {
     // const books = await getBooks(
@@ -127,6 +135,7 @@ export const getBooksAction: Action<
       currentPage,
       booksPerPage,
       genres,
+      myShelf,
       search,
       session?.user?.id
     );
