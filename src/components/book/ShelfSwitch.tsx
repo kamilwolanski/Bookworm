@@ -1,32 +1,33 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Label } from '@/components/ui/label';
 
 const ShelfSwitch = () => {
-  const searchParams = useSearchParams();
-  const params = new URLSearchParams(searchParams.toString());
-  const [myShelf, setmyShelf] = useState(
-    params.get('myshelf') === 'true' ? true : false
-  );
-
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const myShelf = searchParams.get('myshelf') === 'true';
 
   const handleChange = (checked: boolean) => {
-    const newParams = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams.toString());
 
     if (checked) {
-      newParams.set('myshelf', 'true');
-      newParams.set('page', '1');
+      params.set('myshelf', 'true');
+      params.set('page', '1');
     } else {
-      newParams.delete('myshelf');
+      params.delete('myshelf');
+      params.delete('page');
     }
 
-    router.push(`?${newParams.toString()}`);
-    setmyShelf(checked);
+    const query = params.toString();
+    const next = query ? `${pathname}?${query}` : pathname;
+
+    router.replace(next, { scroll: false });
   };
+
   return (
     <div className="flex items-center space-x-2">
       <Switch id="on-shelf" checked={myShelf} onCheckedChange={handleChange} />

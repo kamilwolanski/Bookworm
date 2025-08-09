@@ -51,11 +51,15 @@ export function BookCard({ book }: { book: BookWithUserData }) {
             </div>
           )}
 
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild className="w-8">
-              <div className="bg-black hover:bg-gray-900 rounded-full w-8 h-8 flex items-center justify-center">
+              <button
+                className="bg-black hover:bg-gray-900 rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
                 <MoreVertical color="white" size={18} />
-              </div>
+              </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
