@@ -116,7 +116,8 @@ model User {
   comments      Comment[]
   CommentRating CommentRating[]
 
-  role Role @default(USER) 
+  role       Role         @default(USER)
+  userRatings UserRating[]
 }
 
 model GenreTranslation {
@@ -143,8 +144,7 @@ model UserBook {
   readingStatus ReadingStatus @default(WANT_TO_READ)
   addedAt       DateTime      @default(now())
   note          String?
-  rating        Int?          @db.SmallInt
-  User          User          @relation(fields: [userId], references: [id])
+  User          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   book          Book          @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@id([bookId, userId])
@@ -164,9 +164,25 @@ model Book {
   averageRating Float? @default(0)
   ratingCount   Int?   @default(0)
 
-  genres   BookGenre[]
-  comments Comment[]
-  userBook UserBook[]
+  genres     BookGenre[]
+  comments   Comment[]
+  userBook   UserBook[]
+  userRatings UserRating[]
+}
+
+model UserRating {
+  userId    String
+  bookId    String
+  rating    Int      @db.SmallInt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@id([bookId, userId])
+  @@index([bookId])
+  @@index([userId])
 }
 
 model BookGenre {
@@ -189,7 +205,7 @@ model Comment {
   parent   Comment?        @relation("CommentReplies", fields: [parentId], references: [id])
   replies  Comment[]       @relation("CommentReplies")
   ratings  CommentRating[]
-  Book     Book?           @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  Book     Book            @relation(fields: [bookId], references: [id], onDelete: Cascade)
   bookId   String
 }
 

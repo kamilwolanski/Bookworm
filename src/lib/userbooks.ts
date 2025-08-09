@@ -69,6 +69,7 @@ interface AddRatingInput {
 export type BookWithUserData = Book & {
   userBook?: UserBook;
   isOnShelf: boolean;
+  myRating: number | null;
 };
 
 export async function getBooksAll(
@@ -162,6 +163,14 @@ export async function getBooksAll(
             },
           },
         }),
+        ...(userId && {
+          userRatings: {
+            // <--- nazwa relacji w liczbie mnogiej
+            where: { userId },
+            select: { rating: true }, // bierz tylko to, co potrzebne
+            take: 1, // bo i tak będzie max 1 rekord (PK: bookId+userId)
+          },
+        }),
       },
     }),
     prisma.book.count({ where }),
@@ -171,11 +180,12 @@ export async function getBooksAll(
     const userData = Array.isArray(book.userBook)
       ? book.userBook[0]
       : undefined;
-
+    const myRating = book.userRatings?.[0]?.rating ?? null;
     return {
       ...book,
       userBook: userData,
       isOnShelf: !!userData,
+      myRating, // <-- ocena zalogowanego użytkownika
     };
   });
 

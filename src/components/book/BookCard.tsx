@@ -75,7 +75,7 @@ export function BookCard({ book }: { book: BookWithUserData }) {
                 </>
               )}
 
-              {book.userBook?.rating ? (
+              {book.myRating ? (
                 <span className="cursor-pointer px-2 py-1.5 text-sm flex items-center gap-2">
                   <Star size={16} className="fill-current text-yellow-400" />
                   Zmień ocenę
@@ -129,15 +129,15 @@ export function BookCard({ book }: { book: BookWithUserData }) {
                 <div className="flex gap-1">
                   <Image src={multipleUsersIcon} alt="icon" />
                   <span className="flex items-center gap-1">
-                    4/5{' '}
+                    {book.averageRating}/5{' '}
                     <Star className="w-3 h-3 fill-current text-yellow-400" />
                   </span>
                 </div>
-                {book.userBook?.rating && (
+                {book.myRating && (
                   <div className="flex gap-1">
                     <Image src={userIcon} alt="icon" />
                     <span className="flex items-center gap-1">
-                      {book.userBook?.rating}/5
+                      {book.myRating}/5
                       <Star className="w-3 h-3 fill-current text-yellow-400" />
                     </span>
                   </div>
