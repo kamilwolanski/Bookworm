@@ -98,7 +98,7 @@ export const getBooksAction: Action<
     {
       currentPage: number;
       genres: GenreSlug[];
-      ratings: string[];
+      userRatings: string[];
       statuses: ReadingStatus[];
       myShelf: boolean;
       booksPerPage?: number;
@@ -115,7 +115,7 @@ export const getBooksAction: Action<
   search,
   genres,
   myShelf,
-  ratings,
+  userRatings,
   statuses,
 }) => {
   const session = await getUserSession();
@@ -142,6 +142,7 @@ export const getBooksAction: Action<
       booksPerPage,
       genres,
       myShelf,
+      userRatings,
       search,
       session?.user?.id
     );

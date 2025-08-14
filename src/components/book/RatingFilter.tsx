@@ -9,38 +9,38 @@ import {
 } from '@/components/ui/accordion';
 import { Star } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
 
 const RatingFilter = () => {
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
 
-  const [selectedRatings, setSelectedRatings] = useState<string[]>(
-    params.get('rating')?.split(',') ?? []
-  );
+  // params.get('rating')?.split(',') ?? []
   const router = useRouter();
 
   const handleOnChange = (id: string) => {
-    const updatedRatings = selectedRatings.includes(id)
-      ? selectedRatings.filter((item) => item !== id)
-      : [...selectedRatings, id];
-
+    let updatedRatings = params.get('userrating')?.split(',') ?? [];
+    console.log('updatedRatings', updatedRatings);
+    if (updatedRatings.includes(id)) {
+      updatedRatings = updatedRatings.filter((el) => el !== id);
+    } else {
+      updatedRatings.push(id);
+    }
     const newParams = new URLSearchParams(searchParams.toString());
 
     if (updatedRatings.length > 0) {
-      newParams.set('rating', updatedRatings.join(','));
+      newParams.set('userrating', updatedRatings.join(','));
       newParams.set('page', '1'); // resetuj tylko przy zmianie ratingu
     } else {
-      newParams.delete('rating');
+      newParams.delete('userrating');
       newParams.set('page', '1'); // nadal resetuj
     }
 
-    setSelectedRatings(updatedRatings);
     router.push(`?${newParams.toString()}`);
   };
 
   const isChecked = (id: string) => {
-    return selectedRatings.includes(id);
+    const currentRatings = params.get('userrating')?.split(',') ?? [];
+    return currentRatings.includes(id);
   };
 
   return (

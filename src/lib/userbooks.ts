@@ -77,6 +77,7 @@ export async function getBooksAll(
   booksPerPage: number,
   genres: GenreSlug[],
   myShelf: boolean,
+  userRatings: string[],
   search?: string,
   userId?: string
 ): Promise<{
@@ -84,6 +85,22 @@ export async function getBooksAll(
   totalCount: number;
 }> {
   const skip = (currentPage - 1) * booksPerPage;
+
+  const includeUnrated = userRatings.includes('none');
+  const numericRatings = userRatings.filter((r) => r !== 'none').map(Number);
+  const ratingFilters = [];
+
+  if (numericRatings.length > 0 && userId) {
+    ratingFilters.push({
+      userRatings: { some: { userId, rating: { in: numericRatings } } },
+    });
+  }
+
+  if (includeUnrated && userId) {
+    ratingFilters.push({
+      userRatings: { none: { userId } },
+    });
+  }
 
   const searchConditions = search
     ? {
@@ -136,6 +153,7 @@ export async function getBooksAll(
       userId && {
         userBook: { some: { userId } },
       }),
+    ...(ratingFilters.length > 0 && { OR: ratingFilters }),
   };
 
   const [books, totalCount] = await Promise.all([
