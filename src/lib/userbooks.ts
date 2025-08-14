@@ -78,6 +78,7 @@ export async function getBooksAll(
   genres: GenreSlug[],
   myShelf: boolean,
   userRatings: string[],
+  statuses: ReadingStatus[],
   search?: string,
   userId?: string
 ): Promise<{
@@ -154,7 +155,19 @@ export async function getBooksAll(
         userBook: { some: { userId } },
       }),
     ...(ratingFilters.length > 0 && { OR: ratingFilters }),
+    ...(statuses.length > 0 &&
+      userId && {
+        userBook: {
+          some: {
+            readingStatus: {
+              in: statuses,
+            },
+          },
+        },
+      }),
   };
+
+  console.log('where', where);
 
   const [books, totalCount] = await Promise.all([
     prisma.book.findMany({

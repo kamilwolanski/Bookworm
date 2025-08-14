@@ -143,6 +143,7 @@ export const getBooksAction: Action<
       genres,
       myShelf,
       userRatings,
+      statuses,
       search,
       session?.user?.id
     );
