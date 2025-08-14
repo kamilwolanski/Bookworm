@@ -21,10 +21,16 @@ import {
 } from '@/lib/responses';
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
-import type { Action } from '@/types/actions';
+import type { Action, ActionResult } from '@/types/actions';
 import { handleImageUpload, parseFormData } from '../helpers';
 import { v2 as cloudinary } from 'cloudinary';
 import { GenreSlug, Prisma, ReadingStatus } from '@prisma/client';
+import {
+  findUniqueBook,
+  RateData,
+  RatePayload,
+  updateBookRating,
+} from '@/lib/books';
 
 export const removeUserBookAction: Action<[unknown, string]> = async (
   _,
@@ -261,9 +267,10 @@ export const editBookAction: Action<[unknown, FormData]> = async (
   };
 };
 
-export const getRecentBooksAction: Action<[string], RecentBookDto[]> = async (
-  currentBookId
-) => {
+export const getRecentBooksAction: Action<
+  [ActionResult<RecentBookDto[]>, string],
+  RecentBookDto[]
+> = async (_prev, currentBookId) => {
   const session = await getUserSession();
 
   if (!session?.user?.id) return unauthorizedResponse();
@@ -279,4 +286,28 @@ export const getRecentBooksAction: Action<[string], RecentBookDto[]> = async (
     httpStatus: 200,
     data: recentBooks,
   };
+};
+
+export const rateBookAction: Action<
+  [ActionResult<RateData>, RatePayload],
+  RateData
+> = async (_prev, { bookId, rating }) => {
+  const session = await getUserSession();
+  if (!session?.user?.id) return unauthorizedResponse();
+
+  const bookExists = await findUniqueBook(bookId);
+  if (!bookExists) return notFoundResponse(`książki o id: ${bookId}`);
+
+  try {
+    const result = await updateBookRating(session.user.id, { bookId, rating });
+    return {
+      isError: false,
+      status: 'success',
+      httpStatus: 200,
+      data: result,
+    };
+  } catch (err) {
+    console.error(err);
+    return serverErrorResponse();
+  }
 };

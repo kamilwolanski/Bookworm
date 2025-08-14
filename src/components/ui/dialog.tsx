@@ -50,13 +50,25 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  withOverlay = true,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
+  withOverlay?: boolean;
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
-      <DialogOverlay />
+      {/* Manualny overlay – działa i przy modal i przy non-modal */}
+      {withOverlay && (
+        <div
+          data-slot="dialog-overlay"
+          aria-hidden
+          className="fixed inset-0 z-40 bg-black/50
+                     data-[state=open]:animate-in data-[state=closed]:animate-out
+                     data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+        />
+      )}
+      {/* <DialogOverlay /> */}
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(

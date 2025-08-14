@@ -35,6 +35,13 @@ export type BookDetailsDTO = Book & {
   comments: CommentDto[];
 };
 
+export type RatePayload = { bookId: string; rating: number };
+export type RateData = {
+  averageRating: number;
+  ratingCount: number;
+  userRating: number;
+};
+
 export async function getAllBooks(
   currentPage: number,
   booksPerPage: number,
@@ -383,4 +390,55 @@ export async function updateBookWithTransaction(
   });
 
   return updatedBook;
+}
+
+export async function findUniqueBook(bookId: string) {
+  const book = await prisma.book.findUnique({
+    where: { id: bookId },
+    select: { id: true },
+  });
+
+  return book;
+}
+
+export async function updateBookRating(
+  userId: string,
+  { bookId, rating }: RatePayload
+): Promise<RateData> {
+  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+    throw new Error('Rating must be an integer between 1 and 5.');
+  }
+
+  return prisma.$transaction(async (tx) => {
+    // Upsert oceny użytkownika
+    await tx.userRating.upsert({
+      where: {
+        bookId_userId: { bookId, userId },
+      },
+      create: { bookId, userId, rating },
+      update: { rating },
+    });
+
+    // Agregaty po zmianie
+    const aggs = await tx.userRating.aggregate({
+      where: { bookId },
+      _avg: { rating: true },
+      _count: { rating: true },
+    });
+
+    // Zaokrąglenie średniej do 2 miejsc (opcjonalnie)
+    const avg = Number((aggs._avg.rating ?? 0).toFixed(2));
+    const count = aggs._count.rating;
+
+    // Zapis agregatów w tabeli Book
+    await tx.book.update({
+      where: { id: bookId },
+      data: {
+        averageRating: avg,
+        ratingCount: count,
+      },
+    });
+
+    return { averageRating: avg, ratingCount: count, userRating: rating };
+  });
 }
