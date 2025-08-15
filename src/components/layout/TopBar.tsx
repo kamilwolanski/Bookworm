@@ -19,17 +19,21 @@ import {
   NavigationMenuList,
 } from '@/components/ui/navigation-menu';
 import { usePathname } from 'next/navigation';
+import ModeToggle from '@/components/layout/ModeToggle';
 
 export default function Topbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
 
   const isActive = (path: string) =>
-    pathname === path ? 'text-green-300! focus:text-green-300!' : '';
+    pathname === path ? 'text-link! focus:text-link' : '';
 
   return (
-    <header className="flex justify-between items-center gap-6 px-16 py-6  border-b-[1px] border-[#757575]">
-      <Link href="/" className="text-xl font-bold flex items-center">
+    <header className="flex justify-between items-center gap-6 px-16 py-6  border-b-[1px] border-[#757575] ">
+      <Link
+        href="/"
+        className="text-xl font-bold flex items-center text-primary"
+      >
         <Image
           src={logo}
           width={70}
@@ -39,8 +43,9 @@ export default function Topbar() {
         />
         <span className="ms-5">BookWorm</span>
       </Link>
-      <div className="flex items-center">
-        <NavigationMenu viewport={false} className="me-10">
+
+      <div className="flex items-center gap-4">
+        <NavigationMenu viewport={false}>
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
@@ -54,6 +59,7 @@ export default function Topbar() {
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
+        <ModeToggle />
         {status === 'loading' ? null : session ? (
           <div className="flex items-center gap-4">
             {session.user?.image && (

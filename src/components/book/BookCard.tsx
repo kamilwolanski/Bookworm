@@ -56,20 +56,20 @@ export function BookCard({ book }: { book: BookWithUserData }) {
             sizes="(max-width: 768px) 100vw, 33vw"
           />
         ) : (
-          <div className="h-full w-full bg-gray-200 flex items-center justify-center text-gray-500 rounded-lg">
+          <div className="h-full w-full bg-gray-200 flex items-center justify-center rounded-lg">
             Brak okładki
           </div>
         )}
 
         <div className="absolute top-0 left-0 p-2 w-full flex justify-between items-center">
           {book.isOnShelf ? (
-            <div className="bg-[#378212] px-3 py-1 text-white rounded-2xl">
+            <div className="bg-primary text-primary-foreground px-3 py-1 rounded-2xl">
               <div className="flex items-center gap-2">
                 <span className="text-sm">Na półce</span> <Check size={16} />
               </div>
             </div>
           ) : (
-            <div className="bg-[#006DC0] px-3 py-1 text-white rounded-2xl">
+            <div className="bg-secondary text-secondary-foreground px-3 py-1 rounded-2xl">
               <div className="flex items-center gap-2">
                 <span className="text-sm">Dodaj</span> <Plus size={16} />
               </div>
@@ -85,7 +85,7 @@ export function BookCard({ book }: { book: BookWithUserData }) {
                 <DropdownMenuTrigger asChild className="w-8">
                   <button
                     type="button"
-                    className="bg-black hover:bg-gray-900 rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"
+                    className="bg-background hover:bg-black rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"
                     aria-label="Więcej akcji"
                     data-no-nav="true"
                   >
@@ -93,12 +93,7 @@ export function BookCard({ book }: { book: BookWithUserData }) {
                   </button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent
-                  align="start"
-                  className="bg-[#111111] border-0 text-[#CCCCCC]
-                             [&_[data-highlighted]]:bg-black [&_[data-highlighted]]:text-white"
-                  data-no-nav="true"
-                >
+                <DropdownMenuContent align="start" data-no-nav="true">
                   {book.userBook && (
                     <>
                       <DropdownMenuItem
@@ -186,12 +181,12 @@ export function BookCard({ book }: { book: BookWithUserData }) {
           </Dialog>
         </div>
 
-        <div className="bg-gradient-to-t from-black/90 via-black/50 to-black/40 backdrop-blur-sm absolute bottom-0 left-0 px-3 pt-2 pb-3 w-full flex justify-between text-white min-h-32 rounded-b-lg">
+        <div className="bg-gradient-to-t from-black/90 via-black/50 to-black/40 backdrop-blur-sm absolute bottom-0 left-0 px-3 pt-2 pb-3 w-full flex justify-between min-h-32 rounded-b-lg">
           <div className="flex justify-between w-full">
             <div className="w-full flex flex-col justify-between">
               <div className="pb-1">
                 <h3 className="font-semibold text-md">{book.title}</h3>
-                <p className="text-md text-gray-300">{book.author}</p>
+                <p className="text-md">{book.author}</p>
               </div>
 
               <div className="flex gap-2 pt-1 border-gray-300/30 border-t">

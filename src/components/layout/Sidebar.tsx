@@ -18,7 +18,7 @@ export default function Sidebar() {
   const { data: session, status } = useSession();
 
   return (
-    <aside className="bg-[#262632] text-white w-80 p-6 flex flex-col justify-between">
+    <aside className="w-80 p-6 flex flex-col justify-between">
       <div>
         <Link href="/" className="text-md font-bold flex items-center">
           <Image

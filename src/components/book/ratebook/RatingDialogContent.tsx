@@ -51,7 +51,7 @@ export default function RatingDialogContent({
         <DialogTitle className="text-xl font-semibold tracking-tight">
           Oceń książkę
         </DialogTitle>
-        <DialogDescription className="text-sm text-muted-foreground">
+        <DialogDescription className="text-sm">
           Jak bardzo spodobała Ci się ta książka?
         </DialogDescription>
       </DialogHeader>

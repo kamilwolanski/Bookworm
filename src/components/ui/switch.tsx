@@ -14,10 +14,10 @@ function Switch({
       data-slot="switch"
       className={cn(
         'peer relative cursor-pointer inline-flex h-8 w-16 items-center rounded-full border border-transparent p-[2px] shadow-xs transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50',
-        'data-[state=checked]:bg-purple-600',
-        'data-[state=unchecked]:bg-gray-300',
-        'hover:data-[state=checked]:bg-purple-700',
-        'hover:data-[state=unchecked]:bg-gray-400',
+        'data-[state=checked]:bg-primary',
+        'data-[state=unchecked]:bg-input',
+        'hover:data-[state=checked]:bg-primary/90',
+        'hover:data-[state=unchecked]:bg-input/90',
         className
       )}
       {...props}
@@ -31,7 +31,7 @@ function Switch({
           'peer-hover:scale-105'
         )}
       >
-        <LibraryBig className="w-4 h-4 text-purple-600" />
+        <LibraryBig className="w-4 h-4 text-primary" />
       </SwitchPrimitive.Thumb>
     </SwitchPrimitive.Root>
   );

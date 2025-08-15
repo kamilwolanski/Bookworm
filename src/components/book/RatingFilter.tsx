@@ -44,7 +44,7 @@ const RatingFilter = () => {
   };
 
   return (
-    <div className="bg-[#1A1D24] shadow rounded-xl px-5 mt-8">
+    <div className="bg-sidebar shadow rounded-xl px-5 mt-8">
       <Accordion type="single" collapsible defaultValue="item-1">
         <AccordionItem value="item-1">
           <AccordionTrigger className="cursor-pointer hover:no-underline">

@@ -64,7 +64,7 @@ const GenreFilter = ({
   };
 
   return (
-    <div className="bg-[#1A1D24] shadow rounded-xl px-5">
+    <div className="bg-sidebar shadow rounded-xl px-5">
       <Accordion type="single" collapsible defaultValue="item-1">
         <AccordionItem value="item-1">
           <AccordionTrigger className="cursor-pointer hover:no-underline">
@@ -77,7 +77,7 @@ const GenreFilter = ({
                 const option = bookGenres.find((o) => o.id === value);
                 if (option)
                   return (
-                    <Badge key={value} className="mb-3 mx-1 border-white">
+                    <Badge key={value} className="mb-3 mx-1">
                       {option?.name}
 
                       <XCircle
@@ -92,7 +92,7 @@ const GenreFilter = ({
               })}
 
               {selectedGenres.length > 0 && (
-                <Badge className="mb-3 mx-1 border-blue-300">
+                <Badge className="mb-3 mx-1">
                   Usuń wszystkie
                   <XCircle
                     style={{ pointerEvents: 'auto' }}
@@ -113,7 +113,7 @@ const GenreFilter = ({
               animation={0}
               modalPopover
               showSelectedValues={false}
-              className="cursor-pointer"
+              className="cursor-pointer dark:bg-input/30 border-input"
               contentClassName="w-90"
             />
           </AccordionContent>

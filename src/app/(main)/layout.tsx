@@ -2,10 +2,9 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import '../globals.css';
 import SessionProvider from '@/components/auth/SessionProvider';
-import Sidebar from '@/components/layout/Sidebar';
 import Topbar from '@/components/layout/TopBar';
 import { getUserSession } from '@/lib/session';
-import { redirect } from 'next/navigation';
+import { ThemeProvider } from '@/components/layout/ThemeProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -28,21 +27,26 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getUserSession();
-  // if (!session) {
-  //   redirect('/login');
-  // }
+
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex min-h-screen`}
       >
-        <SessionProvider session={session}>
-          {/* <Sidebar /> */}
-          <div className="flex-1 flex flex-col bg-[#30313E] text-white">
-            <Topbar />
-            <main className="flex-1 p-16 pt-8">{children}</main>
-          </div>
-        </SessionProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          // enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider session={session}>
+            {/* <Sidebar /> */}
+            <div className="flex-1 flex flex-col">
+              <Topbar />
+              <main className="flex-1 p-16 pt-8">{children}</main>
+            </div>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
