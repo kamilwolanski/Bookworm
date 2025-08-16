@@ -29,7 +29,7 @@ export default function Topbar() {
     pathname === path ? 'text-link! focus:text-link' : '';
 
   return (
-    <header className="flex justify-between items-center gap-6 px-16 py-6  border-b-[1px] border-[#757575] ">
+    <header className="flex justify-between items-center gap-6 px-16 py-6  border-b-[1px] border-border ">
       <Link
         href="/"
         className="text-xl font-bold flex items-center text-primary"

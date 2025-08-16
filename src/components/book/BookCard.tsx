@@ -42,7 +42,7 @@ export function BookCard({ book }: { book: BookWithUserData }) {
 
   return (
     <Card
-      className="cursor-pointer h-full border-none shadow-md py-0 bg-black rounded-lg"
+      className="cursor-pointer border-none h-full shadow-md hover:shadow-xl p-1 rounded-xl"
       onClick={handleClick}
       key={book.id}
     >
@@ -85,7 +85,7 @@ export function BookCard({ book }: { book: BookWithUserData }) {
                 <DropdownMenuTrigger asChild className="w-8">
                   <button
                     type="button"
-                    className="bg-background hover:bg-black rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"
+                    className="bg-card-menu-trigger hover:bg-card-menu-trigger-hover rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"
                     aria-label="Więcej akcji"
                     data-no-nav="true"
                   >
@@ -185,14 +185,14 @@ export function BookCard({ book }: { book: BookWithUserData }) {
           <div className="flex justify-between w-full">
             <div className="w-full flex flex-col justify-between">
               <div className="pb-1">
-                <h3 className="font-semibold text-md">{book.title}</h3>
+                <h3 className="font-semibold text-lg">{book.title}</h3>
                 <p className="text-md">{book.author}</p>
               </div>
 
               <div className="flex gap-2 pt-1 border-gray-300/30 border-t">
                 <div className="flex gap-1">
                   <Image src={multipleUsersIcon} alt="icon" />
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1 text-sm">
                     {book.averageRating}/5{' '}
                     <Star className="w-3 h-3 fill-current text-yellow-400" />
                   </span>
@@ -200,7 +200,7 @@ export function BookCard({ book }: { book: BookWithUserData }) {
                 {book.myRating && (
                   <div className="flex gap-1">
                     <Image src={userIcon} alt="icon" />
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1 text-sm">
                       {book.myRating}/5{' '}
                       <Star className="w-3 h-3 fill-current text-yellow-400" />
                     </span>

@@ -43,7 +43,7 @@ export default async function ShelfBooks({ searchParams }: Props) {
   if (!response.isError && response.data)
     return (
       <div className="min-h-full flex flex-col">
-        <div className="mt-10 flex flex-1">
+        <div className="mt-5 flex flex-1">
           <BookFilters bookGenres={bookGenres} genresParams={genresParams} />
           <BookList
             books={response.data.books}

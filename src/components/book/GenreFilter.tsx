@@ -64,7 +64,7 @@ const GenreFilter = ({
   };
 
   return (
-    <div className="bg-sidebar shadow rounded-xl px-5">
+    <div className="bg-sidebar shadow-xl rounded-xl px-5">
       <Accordion type="single" collapsible defaultValue="item-1">
         <AccordionItem value="item-1">
           <AccordionTrigger className="cursor-pointer hover:no-underline">
@@ -113,7 +113,7 @@ const GenreFilter = ({
               animation={0}
               modalPopover
               showSelectedValues={false}
-              className="cursor-pointer dark:bg-input/30 border-input"
+              className="cursor-pointer dark:bg-input/30 bg-input"
               contentClassName="w-90"
             />
           </AccordionContent>
