@@ -25,7 +25,7 @@ function Switch({
       <SwitchPrimitive.Thumb
         data-slot="switch-thumb"
         className={cn(
-          'pointer-events-none flex items-center justify-center size-7 rounded-full bg-white ring-0 transition-transform',
+          'pointer-events-none flex items-center justify-center size-7 rounded-full bg-accent ring-0 transition-transform',
           'data-[state=unchecked]:translate-x-0',
           'data-[state=checked]:translate-x-[calc(100%+4px)]',
           'peer-hover:scale-105'

@@ -48,6 +48,7 @@
   --color-overlay-strong: var(--overlay-strong);
   --color-card-menu-trigger: var(--card-menu-trigger);
   --color-card-menu-trigger-hover: var(--card-menu-trigger-hover);
+  --color-label: var(--label);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -58,7 +59,7 @@
 :root {
   --radius: 0.625rem;
   --background: oklch(96.416% 0.00011 271.152);
-  --foreground: oklch(0.145 0 0);
+  --foreground: oklch(0.45 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(1 0 0);
   --popover: oklch(1 0 0);
@@ -94,6 +95,7 @@
   --overlay-strong: oklch(0 0 0 / 0.72);
   --card-menu-trigger: oklch(0.209 0 0);
   --card-menu-trigger-hover: oklch(13.441% 0.00002 271.152);
+  --label: oklch(23.929% 0.00003 271.152);
 }
 
 .dark {
@@ -134,6 +136,7 @@
   --overlay-strong: oklch(0 0 0 / 0.72);
   --card-menu-trigger: oklch(0.209 0 0);
   --card-menu-trigger-hover: oklch(13.441% 0.00002 271.152);
+  --label: oklch(1 0 0);
 }
 
 @layer base {

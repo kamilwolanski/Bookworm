@@ -36,12 +36,12 @@ export default function Topbar() {
       >
         <Image
           src={logo}
-          width={70}
-          height={70}
+          width={50}
+          height={50}
           alt="logo"
           className="rounded"
         />
-        <span className="ms-5">BookWorm</span>
+        <span className="ms-3">BookWorm</span>
       </Link>
 
       <div className="flex items-center gap-4">

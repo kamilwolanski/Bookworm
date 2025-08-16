@@ -5,6 +5,7 @@ import { BookDTO } from '@/lib/books';
 import { SearchBar } from '../shared/SearchBar';
 import ShelfSwitch from '@/components/book/ShelfSwitch';
 import { getUserSession } from '@/lib/session';
+import NoResults from '@/components/states/NoResults';
 
 type BookListProps = {
   books: UserBookDTO[] | BookDTO[];
@@ -23,19 +24,27 @@ export async function BookList(props: BookListProps) {
         <SearchBar />
         {session && <ShelfSwitch />}
       </div>
-      <div className="flex-1">
-        <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 3xl:grid-cols-6 gap-5 3xl:gap-14 ">
-          {books.map((book) => (
-            <BookCard key={book.id} book={book} />
-          ))}
+      {books.length > 0 ? (
+        <div className="flex-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 3xl:grid-cols-6 gap-5 3xl:gap-14 ">
+            {books.map((book) => (
+              <BookCard key={book.id} book={book} />
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="mt-5">
+          <NoResults />
+        </div>
+      )}
 
-      <PaginationWithLinks
-        page={page}
-        pageSize={pageSize}
-        totalCount={totalCount}
-      />
+      {books.length > 0 && (
+        <PaginationWithLinks
+          page={page}
+          pageSize={pageSize}
+          totalCount={totalCount}
+        />
+      )}
     </div>
   );
 }
