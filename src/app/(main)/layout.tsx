@@ -35,9 +35,10 @@ export default async function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
-          // enableSystem
+          defaultTheme="system"
+          enableSystem
           disableTransitionOnChange
+          themes={['light', 'dark']}
         >
           <SessionProvider session={session}>
             {/* <Sidebar /> */}

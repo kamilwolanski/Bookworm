@@ -62,13 +62,12 @@ const RatingFilter = () => {
                 />
                 <Label htmlFor="5">
                   {[1, 2, 3, 4, 5].map((num) => (
-                    <button
+                    <div
                       key={num}
-                      type="button"
                       className={num <= 5 ? 'text-yellow-400' : 'text-gray-300'}
                     >
                       <Star className="w-4 h-4 fill-current" />
-                    </button>
+                    </div>
                   ))}
                 </Label>
               </div>
@@ -81,15 +80,14 @@ const RatingFilter = () => {
                 />
                 <Label htmlFor="4">
                   {[1, 2, 3, 4, 5].map((num) => (
-                    <button
+                    <div
                       key={num}
-                      type="button"
                       className={
                         num <= 4 ? 'text-yellow-400 ' : 'text-gray-300 '
                       }
                     >
                       <Star className="w-4 h-4 fill-current" />
-                    </button>
+                    </div>
                   ))}
                 </Label>
               </div>
@@ -102,15 +100,14 @@ const RatingFilter = () => {
                 />
                 <Label htmlFor="3">
                   {[1, 2, 3, 4, 5].map((num) => (
-                    <button
+                    <div
                       key={num}
-                      type="button"
                       className={
                         num <= 3 ? 'text-yellow-400 ' : 'text-gray-300 '
                       }
                     >
                       <Star className="w-4 h-4 fill-current" />
-                    </button>
+                    </div>
                   ))}
                 </Label>
               </div>
@@ -123,15 +120,14 @@ const RatingFilter = () => {
                 />
                 <Label htmlFor="2">
                   {[1, 2, 3, 4, 5].map((num) => (
-                    <button
+                    <div
                       key={num}
-                      type="button"
                       className={
                         num <= 2 ? 'text-yellow-400 ' : 'text-gray-300 '
                       }
                     >
                       <Star className="w-4 h-4 fill-current" />
-                    </button>
+                    </div>
                   ))}
                 </Label>
               </div>
@@ -144,15 +140,14 @@ const RatingFilter = () => {
                 />
                 <Label htmlFor="1">
                   {[1, 2, 3, 4, 5].map((num) => (
-                    <button
+                    <div
                       key={num}
-                      type="button"
                       className={
                         num <= 1 ? 'text-yellow-400 ' : 'text-gray-300 '
                       }
                     >
                       <Star className="w-4 h-4 fill-current" />
-                    </button>
+                    </div>
                   ))}
                 </Label>
               </div>
