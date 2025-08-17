@@ -56,7 +56,7 @@ const StatusFilter = () => {
               <div className="flex items-center gap-3">
                 <Checkbox
                   id={ReadingStatus.READ}
-                  className="data-[state=checked]:border-white w-5 h-5 cursor-pointer"
+                  className="data-[state=checked]:border-border w-5 h-5 cursor-pointer"
                   onClick={() => handleOnChange(ReadingStatus.READ)}
                   checked={isChecked(ReadingStatus.READ)}
                 />
@@ -65,7 +65,7 @@ const StatusFilter = () => {
               <div className="flex items-center gap-3">
                 <Checkbox
                   id={ReadingStatus.READING}
-                  className="data-[state=checked]:border-white w-5 h-5 cursor-pointer"
+                  className="data-[state=checked]:border-border w-5 h-5 cursor-pointer"
                   onClick={() => handleOnChange(ReadingStatus.READING)}
                   checked={isChecked(ReadingStatus.READING)}
                 />
@@ -74,7 +74,7 @@ const StatusFilter = () => {
               <div className="flex items-center gap-3">
                 <Checkbox
                   id={ReadingStatus.WANT_TO_READ}
-                  className="data-[state=checked]:border-white w-5 h-5 cursor-pointer"
+                  className="data-[state=checked]:border-border w-5 h-5 cursor-pointer"
                   onClick={() => handleOnChange(ReadingStatus.WANT_TO_READ)}
                   checked={isChecked(ReadingStatus.WANT_TO_READ)}
                 />
@@ -85,7 +85,7 @@ const StatusFilter = () => {
               <div className="flex items-center gap-3">
                 <Checkbox
                   id={ReadingStatus.ABANDONED}
-                  className="data-[state=checked]:border-white w-5 h-5 cursor-pointer"
+                  className="data-[state=checked]:border-border w-5 h-5 cursor-pointer"
                   onClick={() => handleOnChange(ReadingStatus.ABANDONED)}
                   checked={isChecked(ReadingStatus.ABANDONED)}
                 />

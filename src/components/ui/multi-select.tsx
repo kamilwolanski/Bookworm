@@ -300,11 +300,11 @@ export const MultiSelect = React.forwardRef<
         >
           <Command>
             <CommandInput
-              placeholder="Search..."
+              placeholder="Wyszukaj gatunek..."
               onKeyDown={handleInputKeyDown}
             />
             <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandEmpty>Nie znaleziono wyników.</CommandEmpty>
               <CommandGroup>
                 {/* <CommandItem
                   key="all"
@@ -333,17 +333,15 @@ export const MultiSelect = React.forwardRef<
                     >
                       <div
                         className={cn(
-                          'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                          'mr-2 flex h-4 w-4 items-center justify-center rounded-[4px] border border-primary',
                           isSelected
-                            ? 'bg-primary text-primary-foreground'
+                            ? 'bg-primary text-primary-foreground border-border'
                             : 'opacity-50 [&_svg]:invisible'
                         )}
                       >
-                        <CheckIcon className="h-4 w-4" />
+                        <CheckIcon className="h-2 w-2 scale-75 text-primary-foreground" />
                       </div>
-                      {option.icon && (
-                        <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                      )}
+                      {option.icon && <option.icon className="mr-2 h-4 w-4 " />}
                       <span>{option.label}</span>
                     </CommandItem>
                   );
@@ -358,7 +356,7 @@ export const MultiSelect = React.forwardRef<
                         onSelect={handleClear}
                         className="flex-1 justify-center cursor-pointer"
                       >
-                        Clear
+                        Wyczyść
                       </CommandItem>
                       <Separator
                         orientation="vertical"
@@ -370,7 +368,7 @@ export const MultiSelect = React.forwardRef<
                     onSelect={() => setIsPopoverOpen(false)}
                     className="flex-1 justify-center cursor-pointer max-w-full"
                   >
-                    Close
+                    Zamknij
                   </CommandItem>
                 </div>
               </CommandGroup>

@@ -37,7 +37,6 @@ const RateBookBtn = ({
 
   return (
     <RatingDialogContent
-      dialogTitle="asdasd"
       bookId={bookId}
       initialRating={rating}
       isPending={isPending}

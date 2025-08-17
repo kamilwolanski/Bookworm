@@ -89,7 +89,10 @@ export function BookCard({ book }: { book: BookWithUserData }) {
                     aria-label="Więcej akcji"
                     data-no-nav="true"
                   >
-                    <MoreVertical color="white" size={18} />
+                    <MoreVertical
+                      className="text-popover-foreground"
+                      size={18}
+                    />
                   </button>
                 </DropdownMenuTrigger>
 

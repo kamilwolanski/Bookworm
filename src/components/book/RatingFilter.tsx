@@ -56,7 +56,7 @@ const RatingFilter = () => {
               <div className="flex items-center gap-3">
                 <Checkbox
                   id="5"
-                  className="data-[state=checked]:border-white w-5 h-5 cursor-pointer"
+                  className="data-[state=checked]:border-border w-5 h-5 cursor-pointer"
                   onClick={() => handleOnChange('5')}
                   checked={isChecked('5')}
                 />
@@ -75,7 +75,7 @@ const RatingFilter = () => {
               <div className="flex items-center gap-3">
                 <Checkbox
                   id="4"
-                  className="data-[state=checked]:border-white w-5 h-5 cursor-pointer"
+                  className="data-[state=checked]:border-border w-5 h-5 cursor-pointer"
                   onClick={() => handleOnChange('4')}
                   checked={isChecked('4')}
                 />
@@ -96,7 +96,7 @@ const RatingFilter = () => {
               <div className="flex items-center gap-3">
                 <Checkbox
                   id="3"
-                  className="data-[state=checked]:border-white w-5 h-5 cursor-pointer"
+                  className="data-[state=checked]:border-border w-5 h-5 cursor-pointer"
                   onClick={() => handleOnChange('3')}
                   checked={isChecked('3')}
                 />
@@ -117,7 +117,7 @@ const RatingFilter = () => {
               <div className="flex items-center gap-3">
                 <Checkbox
                   id="2"
-                  className="data-[state=checked]:border-white w-5 h-5 cursor-pointer"
+                  className="data-[state=checked]:border-border w-5 h-5 cursor-pointer"
                   onClick={() => handleOnChange('2')}
                   checked={isChecked('2')}
                 />
@@ -138,7 +138,7 @@ const RatingFilter = () => {
               <div className="flex items-center gap-3">
                 <Checkbox
                   id="1"
-                  className="data-[state=checked]:border-white w-5 h-5 cursor-pointer"
+                  className="data-[state=checked]:border-border w-5 h-5 cursor-pointer"
                   onClick={() => handleOnChange('1')}
                   checked={isChecked('1')}
                 />
@@ -159,7 +159,7 @@ const RatingFilter = () => {
               <div className="flex items-center gap-3">
                 <Checkbox
                   id="none"
-                  className="data-[state=checked]:border-white w-5 h-5 cursor-pointer"
+                  className="data-[state=checked]:border-border w-5 h-5 cursor-pointer"
                   onClick={() => handleOnChange('none')}
                   checked={isChecked('none')}
                 />

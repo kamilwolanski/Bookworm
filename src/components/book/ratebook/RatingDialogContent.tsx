@@ -44,14 +44,15 @@ export default function RatingDialogContent({
     border border-border
     shadow-2xl
     bg-background/95 backdrop-blur
-    supports-[backdrop-filter]:bg-background/80 
+    supports-[backdrop-filter]:bg-background/80
+    text-dialog-foreground 
   "
     >
       <DialogHeader className="space-y-1">
-        <DialogTitle className="text-xl font-semibold tracking-tight">
+        <DialogTitle className="text-xl font-semibold tracking-tight text-dialog-foreground ">
           Oceń książkę
         </DialogTitle>
-        <DialogDescription className="text-sm">
+        <DialogDescription className="text-sm text-dialog-foreground">
           Jak bardzo spodobała Ci się ta książka?
         </DialogDescription>
       </DialogHeader>
@@ -89,7 +90,7 @@ export default function RatingDialogContent({
           ))}
         </div>
 
-        <div className="text-xs text-muted-foreground h-5 flex items-center gap-2">
+        <div className="text-xs h-5 flex items-center gap-2 text-dialog-foreground">
           <span>
             {(hover || rating) === 0
               ? 'Wybierz ocenę'
