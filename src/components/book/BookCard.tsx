@@ -133,7 +133,7 @@ export function BookCard({ book }: { book: BookWithUserData }) {
                   {/* DELETE */}
                   {book.userBook ? (
                     <DropdownMenuItem
-                      className="px-2 py-1.5 text-sm flex items-center gap-2 text-[#FF6D8F] focus:text-[#FF6D8F] cursor-pointer"
+                      className="px-2 py-1.5 text-sm flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
                       data-no-nav="true"
                       onClick={() => {
                         setDialogType('delete');
@@ -145,7 +145,7 @@ export function BookCard({ book }: { book: BookWithUserData }) {
                   ) : (
                     <DropdownMenuItem
                       onSelect={(e) => e.preventDefault()}
-                      className="px-2 py-1.5 text-sm flex items-center gap-2 text-blue-400 cursor-pointer"
+                      className="px-2 py-1.5 text-sm flex items-center gap-2 text-secondary focus:text-secondary cursor-pointer"
                       data-no-nav="true"
                     >
                       <Plus size={16} />

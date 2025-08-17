@@ -1,19 +1,17 @@
 'use client';
 
-import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 
 export default function ModeToggle() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
-  // console.log('resolvedTheme', resolvedTheme);
-  // Zapobiega błędom hydratacji – ikona pokaże się dopiero po montażu
-  React.useEffect(() => setMounted(true), []);
+  useEffect(() => setMounted(true), []);
 
-  const isDark = theme === 'dark';
+  const isDark = resolvedTheme === 'dark';
   const next = isDark ? 'light' : 'dark';
 
   return (
