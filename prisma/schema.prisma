@@ -21,87 +21,6 @@ enum ReadingStatus {
   ABANDONED
 }
 
-enum GenreSlug {
-  FANTASY
-  SCIENCE_FICTION
-  THRILLER
-  ROMANCE
-  NON_FICTION
-  HORROR
-  MYSTERY
-  HISTORY
-  BIOGRAPHY
-  POETRY
-  DRAMA
-  ADVENTURE
-  CLASSICS
-  CHILDREN
-  YOUNG_ADULT
-  SELF_HELP
-  HEALTH
-  TECHNOLOGY
-  PHILOSOPHY
-  RELIGION
-  ART
-  TRAVEL
-  SATIRE
-  GOTHIC
-  DYSTOPIA
-  MEMOIR
-  CRIME
-  DETECTIVE
-  ESSAY
-  HUMOR
-  COOKING
-  BUSINESS
-  EDUCATION
-  PSYCHOLOGY
-  POLITICS
-  SPORT
-  TRUE_CRIME
-  FAIRY_TALES
-  WESTERN
-  LGBTQ
-  CULTURE
-  COMICS
-  GRAPHIC_NOVEL
-  ESSAYS
-  LITERARY_FICTION
-  SPIRITUALITY
-  ENVIRONMENT
-  MUSIC
-  CLASSIC_FICTION
-  CONTEMPORARY_FICTION
-  URBAN_FANTASY
-  HISTORICAL_FICTION
-  MAGICAL_REALISM
-  SHORT_STORIES
-  FANFICTION
-  SCIENCE
-  ASTRONOMY
-  MATHEMATICS
-  ECONOMICS
-  PARENTING
-  MINDFULNESS
-  PRODUCTIVITY
-  PERSONAL_DEVELOPMENT
-  ANTHROPOLOGY
-  SOCIOLOGY
-  GENDER_STUDIES
-  RACE_AND_ETHNICITY
-  DESIGN
-  PHOTOGRAPHY
-  ARCHITECTURE
-  FASHION
-  GAMEBOOK
-  ZINES
-  MYTHOLOGY
-  FOLKLORE
-  AUTOBIOGRAPHY
-  ANIMALS
-  LANGUAGE
-}
-
 enum MediaFormat {
   HARDCOVER
   PAPERBACK
@@ -117,12 +36,23 @@ enum EditionContributorRole {
   PREFACE_AUTHOR
 }
 
-// ---------- Core people/publishers ----------
+// ---------- People & publishers ----------
 model Person {
-  id        String   @id @default(uuid())
-  name      String
-  sortName  String?
-  aliases   String[] @default([])
+  id       String   @id @default(uuid())
+  name     String
+  slug     String   @unique
+  sortName String?
+  aliases  String[] @default([])
+
+  bio            String?
+  imageUrl       String?
+  imagePublicId  String?
+  birthDate      DateTime?
+  deathDate      DateTime?
+  nationality    String?
+  imageCredit    String?
+  imageSourceUrl String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -136,48 +66,51 @@ model Person {
 model Publisher {
   id   String @id @default(uuid())
   name String @unique
+  slug String @unique
 
   editions Edition[]
+
+  @@index([name])
 }
 
-// ---------- User ----------
+// ---------- Users ----------
 model User {
   id        String   @id @default(uuid())
-  email     String   @unique
+  email     String   @unique @db.Citext
   name      String?
   avatarUrl String?
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   role Role @default(USER)
 
-  books         UserBook[]
-  comments      Comment[]
-  CommentRating CommentRating[]
-  userRatings   UserRating[]
+  books          UserBook[]
+  comments       Comment[]
+  commentRatings CommentRating[]
+  userRatings    UserRating[]
 }
 
-// ---------- Books & Editions ----------
+// ---------- Books & editions ----------
 model Book {
   id                   String    @id @default(uuid())
   title                String
   description          String?
   addedAt              DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
   firstPublicationDate DateTime?
+  averageRating        Float?
+  ratingCount          Int?
 
-  averageRating Float? @default(0)
-  ratingCount   Int?   @default(0)
-
-  // autorzy (kolejność przez "order")
-  authors BookAuthor[]
-
-  // wydania
+  authors  BookAuthor[]
   editions Edition[]
 
-  // pozostałe relacje z Twojego projektu
   genres      BookGenre[]
   comments    Comment[]
   userBook    UserBook[]
   userRatings UserRating[]
+
+  @@index([addedAt])
+  @@index([title])
 }
 
 model BookAuthor {
@@ -190,6 +123,7 @@ model BookAuthor {
 
   @@id([bookId, personId])
   @@index([personId])
+  @@index([bookId, order])
 }
 
 model Edition {
@@ -197,13 +131,12 @@ model Edition {
   bookId String
   book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
-  // identyfikatory (opcjonalne – ale jeśli podasz, to unikalne)
   isbn13 String? @unique
   isbn10 String? @unique
 
   language    String
   publisherId String?
-  publisher   Publisher? @relation(fields: [publisherId], references: [id])
+  publisher   Publisher? @relation(fields: [publisherId], references: [id], onDelete: SetNull)
 
   publicationDate DateTime?
   pageCount       Int?
@@ -211,11 +144,9 @@ model Edition {
   coverUrl        String?
   coverPublicId   String?
 
-  // nadpisania metadanych (opcjonalnie)
   title    String?
   subtitle String?
 
-  // role na poziomie wydania (tłumacz/ilustrator/lektor/…)
   contributors EditionContributor[]
 
   createdAt DateTime   @default(now())
@@ -239,12 +170,13 @@ model EditionContributor {
 
   @@id([editionId, personId, role])
   @@index([personId])
+  @@index([editionId, order])
 }
 
 // ---------- Genres ----------
 model Genre {
   id           String             @id @default(uuid())
-  slug         GenreSlug          @unique
+  slug         String             @unique
   books        BookGenre[]
   translations GenreTranslation[]
 }
@@ -268,13 +200,14 @@ model BookGenre {
   genre Genre @relation(fields: [genreId], references: [id])
 
   @@id([bookId, genreId])
+  @@index([genreId])
 }
 
-// ---------- Social: ratings & comments ----------
+// ---------- Ratings & comments ----------
 model UserRating {
   userId    String
   bookId    String
-  rating    Int      @db.SmallInt
+  rating    Int      @db.SmallInt // enforce 1..5 via DB CHECK or w aplikacji
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -287,17 +220,22 @@ model UserRating {
 }
 
 model Comment {
-  id       String          @id @default(uuid())
-  content  String
-  addedAt  DateTime        @default(now())
-  authorId String
-  author   User            @relation(fields: [authorId], references: [id])
-  parentId String?
-  parent   Comment?        @relation("CommentReplies", fields: [parentId], references: [id])
-  replies  Comment[]       @relation("CommentReplies")
-  ratings  CommentRating[]
-  Book     Book            @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  bookId   String
+  id        String          @id @default(uuid())
+  content   String
+  addedAt   DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  authorId  String
+  author    User            @relation(fields: [authorId], references: [id])
+  parentId  String?
+  parent    Comment?        @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[]       @relation("CommentReplies")
+  ratings   CommentRating[]
+
+  bookId String
+  book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId, addedAt])
+  @@index([parentId])
 }
 
 model CommentRating {
@@ -308,25 +246,27 @@ model CommentRating {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  value Int // +1 = upvote, -1 = downvote
+  value Int // +1 / -1; dodaj DB CHECK lub walidację w kodzie
 
   @@unique([commentId, userId])
+  @@index([userId])
 }
 
 // ---------- User ↔ Book ----------
 model UserBook {
   userId        String
   bookId        String
-  editionId     String? // opcjonalnie: wybrane wydanie użytkownika
+  editionId     String?
   readingStatus ReadingStatus @default(WANT_TO_READ)
   addedAt       DateTime      @default(now())
   note          String?
 
-  User    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   book    Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
   edition Edition? @relation(fields: [editionId], references: [id], onDelete: SetNull)
 
-  @@id([bookId, userId]) // jeden wpis per dzieło na użytkownika
+  @@id([bookId, userId])
   @@index([editionId])
   @@index([userId, addedAt])
+  @@index([userId, readingStatus, addedAt])
 }
