@@ -1,6 +1,6 @@
 import { CommentDto, GenreDTO } from './userbooks';
 import prisma from './prisma';
-import { Book, GenreSlug } from '@prisma/client';
+import { Book, BookAuthor, GenreSlug } from '@prisma/client';
 
 export type BookDTO = Book & {
   genres?: GenreDTO[];
@@ -20,7 +20,9 @@ export type BookBasicDTO = Omit<
 export type CreateBookData = Omit<
   Book,
   'id' | 'addedAt' | 'averageRating' | 'ratingCount'
->;
+> & {
+  authors: BookAuthor[];
+};
 
 export type EditBookData = Omit<
   CreateBookData,
@@ -195,10 +197,9 @@ export async function getAllBooksBasic(
       select: {
         id: true,
         title: true,
-        author: true,
+        authors: true,
         addedAt: true,
-        imageUrl: true,
-        imagePublicId: true,
+        firstPublicationDate: true,
         genres: {
           include: {
             genre: {

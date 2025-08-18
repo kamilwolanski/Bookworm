@@ -1,9 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// ---------- Generator & datasource ----------
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,6 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ---------- Enums ----------
 enum Role {
   ADMIN
   USER
@@ -106,31 +102,146 @@ enum GenreSlug {
   LANGUAGE
 }
 
+enum MediaFormat {
+  HARDCOVER
+  PAPERBACK
+  EBOOK
+  AUDIOBOOK
+}
+
+enum EditionContributorRole {
+  TRANSLATOR
+  ILLUSTRATOR
+  EDITOR
+  NARRATOR
+  PREFACE_AUTHOR
+}
+
+// ---------- Core people/publishers ----------
+model Person {
+  id        String   @id @default(uuid())
+  name      String
+  sortName  String?
+  aliases   String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  authoredBooks        BookAuthor[]
+  editionContributions EditionContributor[]
+
+  @@index([name])
+  @@index([sortName])
+}
+
+model Publisher {
+  id   String @id @default(uuid())
+  name String @unique
+
+  editions Edition[]
+}
+
+// ---------- User ----------
 model User {
-  id            String          @id @default(uuid())
-  email         String          @unique
-  name          String?
-  avatarUrl     String?
-  books         UserBook[] // relacja: jeden user → wiele książek
-  createdAt     DateTime        @default(now())
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  role Role @default(USER)
+
+  books         UserBook[]
   comments      Comment[]
   CommentRating CommentRating[]
+  userRatings   UserRating[]
+}
 
-  role       Role         @default(USER)
+// ---------- Books & Editions ----------
+model Book {
+  id                   String    @id @default(uuid())
+  title                String
+  description          String?
+  addedAt              DateTime  @default(now())
+  firstPublicationDate DateTime?
+
+  averageRating Float? @default(0)
+  ratingCount   Int?   @default(0)
+
+  // autorzy (kolejność przez "order")
+  authors BookAuthor[]
+
+  // wydania
+  editions Edition[]
+
+  // pozostałe relacje z Twojego projektu
+  genres      BookGenre[]
+  comments    Comment[]
+  userBook    UserBook[]
   userRatings UserRating[]
 }
 
-model GenreTranslation {
-  id      String @id @default(uuid())
-  genreId String
-  genre   Genre  @relation(fields: [genreId], references: [id])
+model BookAuthor {
+  bookId   String
+  personId String
+  order    Int?
 
-  language String // np. "pl", "en", "de"
-  name     String // tłumaczenie nazwy gatunku
+  book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
-  @@unique([genreId, language]) // unikalność tłumaczenia na dany język
+  @@id([bookId, personId])
+  @@index([personId])
 }
 
+model Edition {
+  id     String @id @default(uuid())
+  bookId String
+  book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  // identyfikatory (opcjonalne – ale jeśli podasz, to unikalne)
+  isbn13 String? @unique
+  isbn10 String? @unique
+
+  language    String
+  publisherId String?
+  publisher   Publisher? @relation(fields: [publisherId], references: [id])
+
+  publicationDate DateTime?
+  pageCount       Int?
+  format          MediaFormat?
+  coverUrl        String?
+  coverPublicId   String?
+
+  // nadpisania metadanych (opcjonalnie)
+  title    String?
+  subtitle String?
+
+  // role na poziomie wydania (tłumacz/ilustrator/lektor/…)
+  contributors EditionContributor[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  UserBook  UserBook[]
+
+  @@index([bookId])
+  @@index([language])
+  @@index([publicationDate])
+  @@index([bookId, language, publicationDate])
+}
+
+model EditionContributor {
+  editionId String
+  personId  String
+  role      EditionContributorRole
+  order     Int?
+
+  edition Edition @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  person  Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@id([editionId, personId, role])
+  @@index([personId])
+}
+
+// ---------- Genres ----------
 model Genre {
   id           String             @id @default(uuid())
   slug         GenreSlug          @unique
@@ -138,38 +249,28 @@ model Genre {
   translations GenreTranslation[]
 }
 
-model UserBook {
-  userId        String
-  bookId        String
-  readingStatus ReadingStatus @default(WANT_TO_READ)
-  addedAt       DateTime      @default(now())
-  note          String?
-  User          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  book          Book          @relation(fields: [bookId], references: [id], onDelete: Cascade)
+model GenreTranslation {
+  id      String @id @default(uuid())
+  genreId String
+  genre   Genre  @relation(fields: [genreId], references: [id])
 
-  @@id([bookId, userId])
+  language String
+  name     String
+
+  @@unique([genreId, language])
 }
 
-model Book {
-  id              String   @id @default(uuid())
-  title           String
-  author          String
-  addedAt         DateTime @default(now())
-  description     String?
-  publicationYear Int?
-  pageCount       Int?
-  imageUrl        String?
-  imagePublicId   String?
+model BookGenre {
+  bookId  String
+  genreId String
 
-  averageRating Float? @default(0)
-  ratingCount   Int?   @default(0)
+  book  Book  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  genre Genre @relation(fields: [genreId], references: [id])
 
-  genres     BookGenre[]
-  comments   Comment[]
-  userBook   UserBook[]
-  userRatings UserRating[]
+  @@id([bookId, genreId])
 }
 
+// ---------- Social: ratings & comments ----------
 model UserRating {
   userId    String
   bookId    String
@@ -183,16 +284,6 @@ model UserRating {
   @@id([bookId, userId])
   @@index([bookId])
   @@index([userId])
-}
-
-model BookGenre {
-  bookId  String
-  genreId String
-
-  book  Book  @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  genre Genre @relation(fields: [genreId], references: [id])
-
-  @@id([bookId, genreId])
 }
 
 model Comment {
@@ -219,5 +310,23 @@ model CommentRating {
 
   value Int // +1 = upvote, -1 = downvote
 
-  @@unique([commentId, userId]) // jeden głos użytkownika na komentarz
+  @@unique([commentId, userId])
+}
+
+// ---------- User ↔ Book ----------
+model UserBook {
+  userId        String
+  bookId        String
+  editionId     String? // opcjonalnie: wybrane wydanie użytkownika
+  readingStatus ReadingStatus @default(WANT_TO_READ)
+  addedAt       DateTime      @default(now())
+  note          String?
+
+  User    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book    Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  edition Edition? @relation(fields: [editionId], references: [id], onDelete: SetNull)
+
+  @@id([bookId, userId]) // jeden wpis per dzieło na użytkownika
+  @@index([editionId])
+  @@index([userId, addedAt])
 }

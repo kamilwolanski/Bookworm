@@ -102,11 +102,6 @@ export default function AdminBooksTable({
       cell: ({ row }) => <div>{row.getValue('author')}</div>,
     },
     {
-      accessorKey: 'imageUrl',
-      header: 'Image Url',
-      cell: ({ row }) => <div>{row.getValue('imageUrl') ?? 'None'}</div>,
-    },
-    {
       accessorKey: 'addedAt',
       header: 'Added At',
       cell: ({ row }) => {

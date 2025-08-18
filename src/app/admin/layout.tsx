@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import '../globals.css';
 import SessionProvider from '@/components/auth/SessionProvider';
-import Topbar from '@/components/layout/TopBar';
 import { getUserSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { Role } from '@prisma/client';
@@ -40,7 +39,7 @@ export default async function RootLayout({
       >
         <SessionProvider session={session}>
           <Sidebar />
-          <div className="bg-[#30313E] text-white w-full">
+          <div className="w-full">
             <main className="p-16 pt-8">{children}</main>
           </div>
         </SessionProvider>
