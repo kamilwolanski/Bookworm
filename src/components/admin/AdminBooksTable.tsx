@@ -8,7 +8,7 @@ import {
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -35,6 +35,7 @@ import EditBtn from '@/components/shared/EditBtn';
 import { deleteBookAction } from '@/app/admin/books/actions/bookActions';
 import { GenreDTO } from '@/lib/userbooks';
 import DeleteDialog from '@/components/forms/DeleteDialog';
+import { Dialog } from '@/components/ui/dialog';
 
 export default function AdminBooksTable({
   books,
@@ -52,6 +53,9 @@ export default function AdminBooksTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [dialogType, setDialogType] = React.useState<null | 'delete'>(null);
+  const openDialog = dialogType !== null;
+  const [clickedRow, setClickedRow] = React.useState<BookBasicDTO | null>(null);
 
   const columns: ColumnDef<BookBasicDTO>[] = [
     {
@@ -132,17 +136,17 @@ export default function AdminBooksTable({
                 Skopiuj ID książki
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DeleteDialog
-                id={book.id}
-                removeAction={deleteBookAction}
-                revalidatePath="/admin/books"
-                dialogTitle={
-                  <>
-                    Czy na pewno chcesz usunąć <b>„{book.title}”</b> ze zbioru
-                    książek?
-                  </>
-                }
-              />
+              <DropdownMenuItem
+                className="px-2 py-1.5 text-sm flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
+                data-no-nav="true"
+                onClick={() => {
+                  setDialogType('delete');
+                  setClickedRow(book);
+                }}
+              >
+                <Trash2 size={16} />
+                Usuń z półki
+              </DropdownMenuItem>
 
               <EditBtn bookGenres={bookGenres} bookData={book}>
                 <span className="cursor-pointer px-2 py-1.5 text-sm hover:bg-muted flex items-center gap-2">
@@ -182,56 +186,80 @@ export default function AdminBooksTable({
   return (
     <div className="w-full">
       <div className="flex items-center py-4"></div>
-      <div className="overflow-hidden bg-[#1A1D24] shadow rounded-xl px-5">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className="text-white">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  className="hover:bg-black data-[state=selected]:bg-black border-b transition-colors text-white"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+      <div className="overflow-hidden shadow rounded-xl px-5 bg-sidebar text-sidebar-foreground">
+        <Dialog
+          open={openDialog}
+          onOpenChange={(o) => !o && setDialogType(null)}
+        >
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead
+                        key={header.id}
+                        className="text-sidebar-foreground"
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                    className="border-b transition-colors"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+          {dialogType === 'delete' && clickedRow && (
+            <DeleteDialog
+              id={clickedRow.id}
+              removeAction={deleteBookAction}
+              revalidatePath="/admin/books"
+              dialogTitle={
+                <>
+                  Czy na pewno chcesz usunąć <b>„{clickedRow.title}”</b>
+                </>
+              }
+              onSuccess={() => {
+                setClickedRow(null);
+                setDialogType(null);
+              }}
+            />
+          )}
+        </Dialog>
       </div>
       <div className="mt-10">
         <PaginationWithLinks
