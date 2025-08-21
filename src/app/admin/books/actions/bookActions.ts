@@ -109,7 +109,7 @@ export const createBookAction: Action<[unknown, FormData]> = async (
   let imagePublicId: string | null = null;
 
   if (file && file.size > 0) {
-    const uploadResult = await handleImageUpload(file);
+    const uploadResult = await handleImageUpload('BookCovers', file);
     if (uploadResult.isError) return uploadResult;
 
     imageUrl = uploadResult.imageUrl;
@@ -239,7 +239,11 @@ export const editBookAction: Action<[unknown, FormData]> = async (
   let imagePublicId: string | null = null;
 
   if (file && file.size > 0) {
-    const uploadResult = await handleImageUpload(file, existingImagePublicId);
+    const uploadResult = await handleImageUpload(
+      'BookCovers',
+      file,
+      existingImagePublicId
+    );
     if (uploadResult.isError) return uploadResult;
 
     imageUrl = uploadResult.imageUrl;

@@ -1,0 +1,261 @@
+'use client';
+
+import { personSchema, PersonInput } from '@/lib/validation';
+import { useActionForm } from '@/app/hooks/useActionForm';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import { Textarea } from '../ui/textarea';
+import { UseFormReturn } from 'react-hook-form';
+import { createPersonAction } from '@/app/admin/persons/actions/personActions';
+import { AliasesInput } from '@/components/ui/AliasesInput';
+import { format } from 'date-fns';
+import { CountryCombobox } from '../ui/CountryCombobox';
+
+export default function AddPersonForm() {
+  const afterSuccess = (form: UseFormReturn<PersonInput>) => {
+    setOpen(false);
+    setTimeout(() => {
+      form.reset();
+    }, 500);
+  };
+  const { form, isPending, handleSubmit } = useActionForm<PersonInput>({
+    action: createPersonAction,
+    schema: personSchema,
+    defaultValues: {
+      name: '',
+      aliases: [],
+    },
+    onSuccess: afterSuccess,
+  });
+
+  const [open, setOpen] = useState(false);
+  const aliases = form.watch('aliases');
+  console.log(aliases);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          className="text-black cursor-pointer self-start"
+        >
+          Dodaj osobę +
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[825px]">
+        <DialogHeader>
+          <DialogTitle>Dodaj nową osobę</DialogTitle>
+          <DialogDescription>
+            Wypełnij poniższy formularz, aby dodać nową osobę
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-auto"
+          >
+            <div>
+              <div>
+                <FormField
+                  control={form.control}
+                  name="file"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dodaj obrazek</FormLabel>
+                      <FormControl>
+                        <Input
+                          required={false}
+                          type="file"
+                          accept="image/*"
+                          multiple={false}
+                          onChange={(e) => field.onChange(e.target.files?.[0])}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="mt-3">
+                      <FormLabel>
+                        Imię i nazwisko<span className="text-red-500 ">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Imię i nazwisko" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="sortName"
+                  render={({ field }) => (
+                    <FormItem className="mt-3">
+                      <FormLabel>
+                        Nazwa sortowania<span className="text-red-500 ">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Nazwa sortowania" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="nationality"
+                  render={({ field }) => (
+                    <FormItem className="mt-3">
+                      <FormLabel>Narodowość</FormLabel>
+                      <FormControl>
+                        <CountryCombobox
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Wybierz kraj..."
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            <div>
+              <div>
+                <FormField
+                  control={form.control}
+                  name="birthDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data urodzenia</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          value={
+                            field.value ? format(field.value, 'yyyy-MM-dd') : ''
+                          }
+                          onChange={(e) => field.onChange(e.target.value)}
+                          placeholder="RRRR-MM-DD"
+                          min="1800-01-01"
+                          max="2100-12-31"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="deathDate"
+                  render={({ field }) => (
+                    <FormItem className="mt-3">
+                      <FormLabel>Data śmierci</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          value={
+                            field.value ? format(field.value, 'yyyy-MM-dd') : ''
+                          }
+                          onChange={(e) => field.onChange(e.target.value)}
+                          placeholder="RRRR-MM-DD"
+                          min="1800-01-01"
+                          max="2100-12-31"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="aliases"
+                  render={({ field }) => (
+                    <FormItem className="mt-3">
+                      <FormLabel>Alias(y)</FormLabel>
+                      <FormControl>
+                        <AliasesInput
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="col-span-2">
+              <FormField
+                control={form.control}
+                name="bio"
+                render={({ field }) => (
+                  <FormItem className="mt-3">
+                    <FormLabel>Bio</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Dodaj bio"
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="col-span-1 col-start-2">
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline" className="cursor-pointer">
+                    Anuluj
+                  </Button>
+                </DialogClose>
+                <Button
+                  type="submit"
+                  disabled={isPending}
+                  className="cursor-pointer"
+                >
+                  {isPending ? 'Dodaję...' : 'Dodaj'}
+                </Button>
+              </DialogFooter>
+
+              {form.formState.errors.root && (
+                <p className="text-red-600 text-sm">
+                  {form.formState.errors.root.message}
+                </p>
+              )}
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}

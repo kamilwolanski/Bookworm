@@ -1,12 +1,11 @@
 import { ActionError } from '@/types/actions';
-import { bookSchema } from '@/lib/validation';
-import z from 'zod';
+import { BookInput, bookSchema } from '@/lib/validation';
 import { v2 as cloudinary } from 'cloudinary';
 
 export function parseFormData(formData: FormData):
   | {
       success: true;
-      data: z.infer<typeof bookSchema>;
+      data: BookInput;
     }
   | {
       success: false;
@@ -52,6 +51,7 @@ export function parseFormData(formData: FormData):
 }
 
 export async function handleImageUpload(
+  folderName: string,
   file: File,
   existingPublicId?: string
 ): Promise<
@@ -61,7 +61,7 @@ export async function handleImageUpload(
     const arrayBuffer = await file.arrayBuffer();
     const base64 = `data:${file.type};base64,${Buffer.from(arrayBuffer).toString('base64')}`;
     const result = await cloudinary.uploader.upload(base64, {
-      folder: 'BookCovers',
+      folder: folderName,
       resource_type: 'image',
     });
 

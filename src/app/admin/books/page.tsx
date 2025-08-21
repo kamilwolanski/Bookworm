@@ -34,7 +34,7 @@ export default async function Books({ searchParams }: Props) {
     ratings,
   });
   const bookGenres = await getBookGenres('pl');
-  console.log('responses', response);
+
   if (!response.isError && response.data)
     return (
       <div className="min-h-full flex flex-col">

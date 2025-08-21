@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Book, User } from 'lucide-react';
+import { Home, Book, User, PersonStanding } from 'lucide-react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import NavLink from '../nav/NavLink';
@@ -10,6 +10,11 @@ import logo from '@/app/assets/logo.png';
 
 const menu = [
   { name: 'Dashboard', icon: <Home size={20} />, href: '/admin/dashboard' },
+  {
+    name: 'Persons',
+    icon: <PersonStanding size={20} />,
+    href: '/admin/persons',
+  },
   { name: 'Books', icon: <Book size={20} />, href: '/admin/books' },
   { name: 'Users', icon: <User size={20} />, href: '/admin/users' },
 ];

@@ -1,0 +1,25 @@
+import AddPersonForm from '@/components/admin/AddPersonForm';
+import { SearchBar } from '@/components/shared/SearchBar';
+
+import { getAllPersons } from '@/lib/persons';
+
+export default async function Books() {
+  const response = await getAllPersons();
+  console.log('responses', response);
+
+  return (
+    <div className="min-h-full flex flex-col">
+      <div className="flex">
+        <AddPersonForm />
+        <div className="ms-10 w-full">
+          <SearchBar />
+        </div>
+      </div>
+
+      <div className="flex flex-1">
+        {/* <BookFilters bookGenres={bookGenres} genresParams={genresParams} /> */}
+        {/* <AdminPersonsTable persons={response.data.persons} /> */}
+      </div>
+    </div>
+  );
+}

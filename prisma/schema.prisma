@@ -47,7 +47,7 @@ model Person {
   bio            String?
   imageUrl       String?
   imagePublicId  String?
-  birthDate      DateTime?
+  birthDate     DateTime? 
   deathDate      DateTime?
   nationality    String?
   imageCredit    String?

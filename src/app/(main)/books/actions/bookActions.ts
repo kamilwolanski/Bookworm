@@ -127,16 +127,6 @@ export const getBooksAction: Action<
   }
 
   try {
-    // const books = await getBooks(
-    //   session.user.id,
-    //   currentPage,
-    //   booksPerPage,
-    //   genres,
-    //   ratings,
-    //   statuses,
-    //   search
-    // );
-
     const books = await getBooksAll(
       currentPage,
       booksPerPage,
@@ -224,7 +214,11 @@ export const editBookAction: Action<[unknown, FormData]> = async (
   let imagePublicId: string | null = null;
 
   if (file && file.size > 0) {
-    const uploadResult = await handleImageUpload(file, existingImagePublicId);
+    const uploadResult = await handleImageUpload(
+      'BookCovers',
+      file,
+      existingImagePublicId
+    );
     if (uploadResult.isError) return uploadResult;
 
     imageUrl = uploadResult.imageUrl;

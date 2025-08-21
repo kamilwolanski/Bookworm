@@ -17,6 +17,11 @@ export type BookBasicDTO = Omit<
   genres?: GenreDTO[];
 };
 
+export type CreateBookData = Omit<
+  Book,
+  'id' | 'addedAt' | 'averageRating' | 'ratingCount'
+>;
+
 export type BookDetailsDTO = Book & {
   genres?: GenreDTO[];
   comments: CommentDto[];
