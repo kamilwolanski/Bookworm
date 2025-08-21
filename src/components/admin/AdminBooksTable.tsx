@@ -30,11 +30,11 @@ import {
 } from '@/components/ui/table';
 import { BookBasicDTO } from '@/lib/books';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
-import { Trash2, Pencil } from 'lucide-react';
-import DeleteBtn from '@/components/forms/DeleteBookBtn';
+import { Pencil } from 'lucide-react';
 import EditBtn from '@/components/shared/EditBtn';
 import { deleteBookAction } from '@/app/admin/books/actions/bookActions';
 import { GenreDTO } from '@/lib/userbooks';
+import DeleteDialog from '@/components/forms/DeleteDialog';
 
 export default function AdminBooksTable({
   books,
@@ -132,9 +132,9 @@ export default function AdminBooksTable({
                 Skopiuj ID książki
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DeleteBtn
-                bookId={book.id}
-                removeBookAction={deleteBookAction}
+              <DeleteDialog
+                id={book.id}
+                removeAction={deleteBookAction}
                 revalidatePath="/admin/books"
                 dialogTitle={
                   <>
@@ -142,12 +142,8 @@ export default function AdminBooksTable({
                     książek?
                   </>
                 }
-              >
-                <div className="cursor-pointer px-2 py-1.5 text-sm hover:bg-muted flex items-center gap-2">
-                  Usuń
-                  <Trash2 size={16} />
-                </div>
-              </DeleteBtn>
+              />
+
               <EditBtn bookGenres={bookGenres} bookData={book}>
                 <span className="cursor-pointer px-2 py-1.5 text-sm hover:bg-muted flex items-center gap-2">
                   Edytuj

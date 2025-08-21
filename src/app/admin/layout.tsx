@@ -6,6 +6,7 @@ import { getUserSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { Role } from '@prisma/client';
 import Sidebar from '@/components/layout/Sidebar';
+import { ThemeProvider } from '@/components/layout/ThemeProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,16 +34,24 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex min-h-screen`}
       >
-        <SessionProvider session={session}>
-          <Sidebar />
-          <div className="w-full">
-            <main className="p-16 pt-8">{children}</main>
-          </div>
-        </SessionProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+          themes={['light', 'dark']}
+        >
+          <SessionProvider session={session}>
+            <Sidebar />
+            <div className="w-full">
+              <main className="p-16 pt-8">{children}</main>
+            </div>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

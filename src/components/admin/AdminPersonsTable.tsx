@@ -28,23 +28,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { BookBasicDTO } from '@/lib/books';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import { Trash2, Pencil } from 'lucide-react';
-import DeleteBtn from '@/components/forms/DeleteBookBtn';
 import EditBtn from '@/components/shared/EditBtn';
-import { deleteBookAction } from '@/app/admin/books/actions/bookActions';
+import { Person } from '@prisma/client';
+import { Dialog } from '@/components/ui/dialog';
+import { deletePersonAction } from '@/app/admin/persons/actions/personActions';
+import DeleteDialog from '@/components/forms/DeleteDialog';
 
-export default function AdminPersonsTable({
-  persons,
-}: {
-  persons: BookBasicDTO[];
-}) {
+export default function AdminPersonsTable({ persons }: { persons: Person[] }) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [dialogType, setDialogType] = React.useState<null | 'delete'>(null);
+  const openDialog = dialogType !== null;
+  const [clickedRow, setClickedRow] = React.useState<Person | null>(null);
 
-  const columns: ColumnDef<BookBasicDTO>[] = [
+  const columns: ColumnDef<Person>[] = [
     {
       id: 'select',
       header: ({ table }) => (
@@ -70,7 +70,9 @@ export default function AdminPersonsTable({
     {
       accessorKey: 'id',
       header: 'Id',
-      cell: ({ row }) => <div className="capitalize">{row.getValue('id')}</div>,
+      cell: ({ row }) => (
+        <div className="capitalize ">{row.getValue('id')}</div>
+      ),
     },
     {
       accessorKey: 'name',
@@ -93,29 +95,55 @@ export default function AdminPersonsTable({
       cell: ({ row }) => <div>{row.getValue('slug')}</div>,
     },
     {
+      accessorKey: 'createdAt',
+      header: 'createdAt',
+      cell: ({ row }) => {
+        const date = row.getValue('createdAt') as Date;
+        return <div>{date.toLocaleString()}</div>;
+      },
+    },
+    {
+      accessorKey: 'imageUrl',
+      header: 'imageUrl',
+      cell: ({ row }) => <div>{row.getValue('imageUrl')}</div>,
+    },
+    {
       id: 'actions',
       enableHiding: false,
       cell: ({ row }) => {
-        const book = row.original;
+        const person = row.original;
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Akcję</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(book.id)}
-              >
-                Skopiuj ID książki
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Akcję</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => navigator.clipboard.writeText(person.id)}
+                >
+                  Skopiuj ID osoby
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="px-2 py-1.5 text-sm flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
+                  data-no-nav="true"
+                  onClick={() => {
+                    setDialogType('delete');
+                    setClickedRow(person);
+                  }}
+                >
+                  <Trash2 size={16} />
+                  Usuń z półki
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
         );
       },
     },
@@ -139,71 +167,96 @@ export default function AdminPersonsTable({
     //   },
     // },
   });
-  const selectedIds = table
-    .getSelectedRowModel()
-    .rows.map((row) => row.original.id);
-  console.log('selectedIds', selectedIds);
+  // const selectedIds = table
+  //   .getSelectedRowModel()
+  //   .rows.map((row) => row.original.id);
+  // console.log('selectedIds', selectedIds);
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4"></div>
-      <div className="overflow-hidden bg-[#1A1D24] shadow rounded-xl px-5">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} className="text-white">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  className="hover:bg-black data-[state=selected]:bg-black border-b transition-colors text-white"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+      <div className="overflow-hidden shadow rounded-xl px-5 bg-sidebar text-sidebar-foreground">
+        <Dialog
+          open={openDialog}
+          onOpenChange={(o) => !o && setDialogType(null)}
+        >
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead
+                        key={header.id}
+                        className="text-sidebar-foreground"
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                    className="border-b transition-colors "
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+          {dialogType === 'delete' && clickedRow && (
+            <DeleteDialog
+              id={clickedRow.id}
+              removeAction={deletePersonAction}
+              revalidatePath="/admin/persons"
+              dialogTitle={
+                <>
+                  Czy na pewno chcesz usunąć <b>„{clickedRow.name}”</b>
+                </>
+              }
+              onSuccess={() => {
+                setClickedRow(null);
+                setDialogType(null);
+              }}
+            />
+          )}
+        </Dialog>
       </div>
-      <div className="mt-10">
+      {/* <div className="mt-10">
         <PaginationWithLinks
           page={page}
           pageSize={pageSize}
           totalCount={totalCount}
         />
-      </div>
+      </div> */}
     </div>
   );
 }

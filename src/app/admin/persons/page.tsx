@@ -1,4 +1,5 @@
 import AddPersonForm from '@/components/admin/AddPersonForm';
+import AdminPersonsTable from '@/components/admin/AdminPersonsTable';
 import { SearchBar } from '@/components/shared/SearchBar';
 
 import { getAllPersons } from '@/lib/persons';
@@ -18,7 +19,7 @@ export default async function Books() {
 
       <div className="flex flex-1">
         {/* <BookFilters bookGenres={bookGenres} genresParams={genresParams} /> */}
-        {/* <AdminPersonsTable persons={response.data.persons} /> */}
+        <AdminPersonsTable persons={response} />
       </div>
     </div>
   );

@@ -15,10 +15,10 @@ import {
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { Dialog } from '@/components/ui/dialog';
-import DeleteBtn from '../forms/DeleteBookBtn';
 import RateBookBtn from './ratebook/RateBookBtn'; // <-- import
 import userIcon from '@/app/assets/icons/user.svg';
 import multipleUsersIcon from '@/app/assets/icons/multiple_users.svg';
+import DeleteDialog from '@/components/forms/DeleteDialog';
 
 export function BookCard({ book }: { book: BookWithUserData }) {
   const router = useRouter();
@@ -158,9 +158,9 @@ export function BookCard({ book }: { book: BookWithUserData }) {
 
             {/* Treści dialogów */}
             {dialogType === 'delete' && book.userBook && (
-              <DeleteBtn
-                bookId={book.id}
-                removeBookAction={removeUserBookAction}
+              <DeleteDialog
+                id={book.id}
+                removeAction={removeUserBookAction}
                 revalidatePath="/books"
                 dialogTitle={
                   <>

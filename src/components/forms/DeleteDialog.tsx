@@ -14,21 +14,21 @@ import { ReactNode, startTransition, useActionState, useEffect } from 'react';
 import { Action, ActionResult } from '@/types/actions';
 import { useRouter, usePathname } from 'next/navigation';
 
-const DeleteBtn = ({
-  bookId,
+const DeleteDialog = ({
+  id,
   dialogTitle,
-  removeBookAction,
+  removeAction,
   revalidatePath,
   onSuccess,
 }: {
-  bookId: string;
+  id: string;
   dialogTitle: string | ReactNode;
-  removeBookAction: Action<[unknown, string], void>;
+  removeAction: Action<[unknown, string], void>;
   revalidatePath: string;
   onSuccess?: () => void;
 }) => {
   const [state, doAction, isPending] = useActionState<ActionResult, string>(
-    removeBookAction,
+    removeAction,
     { isError: false }
   );
   const router = useRouter();
@@ -74,7 +74,7 @@ const DeleteBtn = ({
           className="cursor-pointer"
           onClick={() => {
             startTransition(() => {
-              doAction(bookId);
+              doAction(id);
             });
           }}
         >
@@ -85,4 +85,4 @@ const DeleteBtn = ({
   );
 };
 
-export default DeleteBtn;
+export default DeleteDialog;
