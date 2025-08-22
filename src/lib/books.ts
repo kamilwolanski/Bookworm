@@ -1,5 +1,5 @@
 import { CommentDto, GenreDTO } from './userbooks';
-import prisma from './prisma';
+import prisma from '@/lib/prisma';
 import { Book, GenreSlug } from '@prisma/client';
 
 export type BookDTO = Book & {

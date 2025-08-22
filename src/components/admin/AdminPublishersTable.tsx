@@ -8,7 +8,7 @@ import {
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table';
-import { ArrowUpDown, MoreHorizontal, Trash2 } from 'lucide-react';
+import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -28,36 +28,27 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { BookBasicDTO } from '@/lib/books';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
-import { Pencil } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
 import EditBtn from '@/components/shared/EditBtn';
-import { deleteBookAction } from '@/app/admin/books/actions/bookActions';
-import { GenreDTO } from '@/lib/userbooks';
-import DeleteDialog from '@/components/forms/DeleteDialog';
+import { Publisher } from '@prisma/client';
 import { Dialog } from '@/components/ui/dialog';
+import { deletePublisherAction } from '@/app/admin/publishers/actions/publisherActions';
+import DeleteDialog from '@/components/forms/DeleteDialog';
 
-export default function AdminBooksTable({
-  books,
-  pageSize,
-  page,
-  totalCount,
-  bookGenres,
+export default function AdminPublishersTable({
+  publishers,
 }: {
-  books: BookBasicDTO[];
-  pageSize: number;
-  page: number;
-  totalCount: number;
-  bookGenres: GenreDTO[];
+  publishers: Publisher[];
 }) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [dialogType, setDialogType] = React.useState<null | 'delete'>(null);
   const openDialog = dialogType !== null;
-  const [clickedRow, setClickedRow] = React.useState<BookBasicDTO | null>(null);
+  const [clickedRow, setClickedRow] = React.useState<Publisher | null>(null);
 
-  const columns: ColumnDef<BookBasicDTO>[] = [
+  const columns: ColumnDef<Publisher>[] = [
     {
       id: 'select',
       header: ({ table }) => (
@@ -83,86 +74,83 @@ export default function AdminBooksTable({
     {
       accessorKey: 'id',
       header: 'Id',
-      cell: ({ row }) => <div className="capitalize">{row.getValue('id')}</div>,
+      cell: ({ row }) => (
+        <div className="capitalize ">{row.getValue('id')}</div>
+      ),
     },
     {
-      accessorKey: 'title',
+      accessorKey: 'name',
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
-            Title
+            Name
             <ArrowUpDown />
           </Button>
         );
       },
-      cell: ({ row }) => <div>{row.getValue('title')}</div>,
+      cell: ({ row }) => <div>{row.getValue('name')}</div>,
     },
     {
-      accessorKey: 'author',
-      header: 'Author',
-      cell: ({ row }) => <div>{row.getValue('author')}</div>,
+      accessorKey: 'slug',
+      header: 'Slug',
+      cell: ({ row }) => <div>{row.getValue('slug')}</div>,
     },
     {
-      accessorKey: 'addedAt',
-      header: 'Added At',
+      accessorKey: 'createdAt',
+      header: 'createdAt',
       cell: ({ row }) => {
-        const date = row.getValue('addedAt') as Date;
+        const date = row.getValue('createdAt') as Date;
         return <div>{date.toLocaleString()}</div>;
       },
     },
-
     {
       id: 'actions',
       enableHiding: false,
       cell: ({ row }) => {
-        const book = row.original;
+        const publisher = row.original;
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Akcję</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(book.id)}
-              >
-                Skopiuj ID książki
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="px-2 py-1.5 text-sm flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
-                data-no-nav="true"
-                onClick={() => {
-                  setDialogType('delete');
-                  setClickedRow(book);
-                }}
-              >
-                <Trash2 size={16} />
-                Usuń z półki
-              </DropdownMenuItem>
-
-              <EditBtn bookGenres={bookGenres} bookData={book}>
-                <span className="cursor-pointer px-2 py-1.5 text-sm hover:bg-muted flex items-center gap-2">
-                  Edytuj
-                  <Pencil size={16} />
-                </span>
-              </EditBtn>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Akcję</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => navigator.clipboard.writeText(publisher.id)}
+                  className="cursor-pointer"
+                >
+                  Skopiuj ID wydawcy
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="px-2 py-1.5 text-sm flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
+                  data-no-nav="true"
+                  onClick={() => {
+                    setDialogType('delete');
+                    setClickedRow(publisher);
+                  }}
+                >
+                  <Trash2 size={16} />
+                  Usuń z półki
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
         );
       },
     },
   ];
 
   const table = useReactTable({
-    data: books,
+    data: publishers,
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualSorting: true,
@@ -173,16 +161,17 @@ export default function AdminBooksTable({
       columnVisibility,
       rowSelection,
     },
-    initialState: {
-      pagination: {
-        pageSize,
-      },
-    },
+    // initialState: {
+    //   pagination: {
+    //     pageSize,
+    //   },
+    // },
   });
-  const selectedIds = table
-    .getSelectedRowModel()
-    .rows.map((row) => row.original.id);
-  console.log('selectedIds', selectedIds);
+  // const selectedIds = table
+  //   .getSelectedRowModel()
+  //   .rows.map((row) => row.original.id);
+  // console.log('selectedIds', selectedIds);
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4"></div>
@@ -219,7 +208,7 @@ export default function AdminBooksTable({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
-                    className="border-b transition-colors"
+                    className="border-b transition-colors "
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -237,7 +226,7 @@ export default function AdminBooksTable({
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    Brak wyników
+                    Brak wyników.
                   </TableCell>
                 </TableRow>
               )}
@@ -246,11 +235,11 @@ export default function AdminBooksTable({
           {dialogType === 'delete' && clickedRow && (
             <DeleteDialog
               id={clickedRow.id}
-              removeAction={deleteBookAction}
-              revalidatePath="/admin/books"
+              removeAction={deletePublisherAction}
+              revalidatePath="/admin/publishers"
               dialogTitle={
                 <>
-                  Czy na pewno chcesz usunąć <b>„{clickedRow.title}”</b>
+                  Czy na pewno chcesz usunąć <b>„{clickedRow.name}”</b>
                 </>
               }
               onSuccess={() => {
@@ -261,13 +250,13 @@ export default function AdminBooksTable({
           )}
         </Dialog>
       </div>
-      <div className="mt-10">
+      {/* <div className="mt-10">
         <PaginationWithLinks
           page={page}
           pageSize={pageSize}
           totalCount={totalCount}
         />
-      </div>
+      </div> */}
     </div>
   );
 }

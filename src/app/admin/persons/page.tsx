@@ -4,7 +4,7 @@ import { SearchBar } from '@/components/shared/SearchBar';
 
 import { getAllPersons } from '@/lib/persons';
 
-export default async function Books() {
+export default async function PersonsPage() {
   const response = await getAllPersons();
   console.log('responses', response);
 
@@ -18,7 +18,6 @@ export default async function Books() {
       </div>
 
       <div className="flex flex-1">
-        {/* <BookFilters bookGenres={bookGenres} genresParams={genresParams} /> */}
         <AdminPersonsTable persons={response} />
       </div>
     </div>

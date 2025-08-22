@@ -1,5 +1,5 @@
 import { EditionContributorRole, GenreSlug, MediaFormat } from '@prisma/client';
-import prisma from './prisma';
+import prisma from '@/lib/prisma';
 
 export type CreateEditionInput = {
   language: string; // 'pl' | 'en' ...
@@ -17,20 +17,6 @@ export type CreateEditionInput = {
     order?: number;
   }>;
 };
-
-async function findOrCreatePerson(name: string, sortName?: string) {
-  const existing = await prisma.person.findFirst({
-    where: { name: { equals: name, mode: 'insensitive' } },
-    select: { id: true },
-  });
-  if (existing) return existing.id;
-
-  const created = await prisma.person.create({
-    data: { name, sortName },
-    select: { id: true },
-  });
-  return created.id;
-}
 
 export async function createBookWithEditions(params: {
   title: string;

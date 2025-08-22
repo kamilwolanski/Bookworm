@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Book, User, PersonStanding } from 'lucide-react';
+import { Home, Book, User, PersonStanding, BookType } from 'lucide-react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import NavLink from '../nav/NavLink';
@@ -16,6 +16,11 @@ const menu = [
     href: '/admin/persons',
   },
   { name: 'Books', icon: <Book size={20} />, href: '/admin/books' },
+  {
+    name: 'Publishers',
+    icon: <BookType size={20} />,
+    href: '/admin/publishers',
+  },
   { name: 'Users', icon: <User size={20} />, href: '/admin/users' },
 ];
 

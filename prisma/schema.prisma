@@ -47,7 +47,7 @@ model Person {
   bio            String?
   imageUrl       String?
   imagePublicId  String?
-  birthDate     DateTime? 
+  birthDate      DateTime?
   deathDate      DateTime?
   nationality    String?
   imageCredit    String?
@@ -67,6 +67,9 @@ model Publisher {
   id   String @id @default(uuid())
   name String @unique
   slug String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   editions Edition[]
 

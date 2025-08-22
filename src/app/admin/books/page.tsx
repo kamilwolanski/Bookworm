@@ -18,7 +18,7 @@ type Props = {
 
 const ITEMS_PER_PAGE = 16;
 
-export default async function Books({ searchParams }: Props) {
+export default async function BooksPage({ searchParams }: Props) {
   const { page, search, genre, rating } = searchParams
     ? await searchParams
     : {};

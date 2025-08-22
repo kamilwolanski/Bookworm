@@ -80,3 +80,9 @@ export const personSchema = z.object({
 });
 
 export type PersonInput = z.infer<typeof personSchema>;
+
+export const publisherSchema = z.object({
+  name: z.string().min(1, 'Nazwa wydawcy jest wymagana'),
+});
+
+export type PublisherInput = z.infer<typeof publisherSchema>;

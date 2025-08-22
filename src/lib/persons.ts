@@ -1,5 +1,5 @@
 import { Person } from '@prisma/client';
-import prisma from './prisma';
+import prisma from '@/lib/prisma';
 
 export type CreatePersonData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>;
 
