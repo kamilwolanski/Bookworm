@@ -6,6 +6,8 @@ export type CreatePublisherData = Omit<
   'id' | 'createdAt' | 'updatedAt'
 >;
 
+export type UpdatePublisherData = Omit<Publisher, 'createdAt' | 'updatedAt'>;
+
 export async function getAllPublishers() {
   return prisma.publisher.findMany();
 }
@@ -13,6 +15,16 @@ export async function getAllPublishers() {
 export async function createPublisher(data: CreatePublisherData) {
   return prisma.publisher.create({
     data,
+    select: { id: true, name: true, slug: true },
+  });
+}
+
+export async function updatePublisher(data: UpdatePublisherData) {
+  const { id, name, slug } = data;
+
+  return prisma.publisher.update({
+    where: { id },
+    data: { name, slug },
     select: { id: true, name: true, slug: true },
   });
 }

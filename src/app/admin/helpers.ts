@@ -1,7 +1,25 @@
-import { PersonInput, personSchema } from '@/lib/validation';
+import {
+  PersonInput,
+  personSchema,
+  PublisherInput,
+  publisherSchema,
+} from '@/lib/validation';
 import { ActionError } from '@/types/actions';
+import { ZodError } from 'zod';
 
-export function parseFormData(formData: FormData):
+function buildActionError(e: ZodError): ActionError {
+  return {
+    isError: true,
+    status: 'validation_error',
+    httpStatus: 422,
+    fieldErrors: e.errors.map((err) => ({
+      field: err.path.join('.'),
+      message: err.message,
+    })),
+  };
+}
+
+export function parseFormPersonData(formData: FormData):
   | {
       success: true;
       data: PersonInput;
@@ -22,6 +40,29 @@ export function parseFormData(formData: FormData):
     bio: formData.get('bio') ?? undefined,
     nationality: formData.get('nationality') ?? undefined,
     aliases: formData.get('aliases')?.toString().split(',') ?? [],
+  });
+
+  if (!result.success) {
+    return {
+      success: false,
+      errorResponse: buildActionError(result.error),
+    };
+  }
+
+  return { success: true, data: result.data };
+}
+
+export function parseFormPublisherData(formData: FormData):
+  | {
+      success: true;
+      data: PublisherInput;
+    }
+  | {
+      success: false;
+      errorResponse: ActionError;
+    } {
+  const result = publisherSchema.safeParse({
+    name: formData.get('name'),
   });
 
   if (!result.success) {

@@ -30,11 +30,11 @@ import {
 } from '@/components/ui/table';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import { Trash2, Pencil } from 'lucide-react';
-import EditBtn from '@/components/shared/EditBtn';
 import { Publisher } from '@prisma/client';
 import { Dialog } from '@/components/ui/dialog';
 import { deletePublisherAction } from '@/app/admin/publishers/actions/publisherActions';
 import DeleteDialog from '@/components/forms/DeleteDialog';
+import EditPublisherDialog from '@/components/admin/publisher/EditPublisherDialog';
 
 export default function AdminPublishersTable({
   publishers,
@@ -44,7 +44,9 @@ export default function AdminPublishersTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [dialogType, setDialogType] = React.useState<null | 'delete'>(null);
+  const [dialogType, setDialogType] = React.useState<null | 'delete' | 'edit'>(
+    null
+  );
   const openDialog = dialogType !== null;
   const [clickedRow, setClickedRow] = React.useState<Publisher | null>(null);
 
@@ -140,6 +142,17 @@ export default function AdminPublishersTable({
                 >
                   <Trash2 size={16} />
                   Usuń z półki
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="px-2 py-1.5 text-sm flex items-center gap-2 text-secondary focus:text-secondary cursor-pointer"
+                  data-no-nav="true"
+                  onClick={() => {
+                    setDialogType('edit');
+                    setClickedRow(publisher);
+                  }}
+                >
+                  <Pencil size={16} />
+                  Zaktualizuj dane
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -242,6 +255,15 @@ export default function AdminPublishersTable({
                   Czy na pewno chcesz usunąć <b>„{clickedRow.name}”</b>
                 </>
               }
+              onSuccess={() => {
+                setClickedRow(null);
+                setDialogType(null);
+              }}
+            />
+          )}
+          {dialogType === 'edit' && clickedRow && (
+            <EditPublisherDialog
+              selectedPublisher={clickedRow}
               onSuccess={() => {
                 setClickedRow(null);
                 setDialogType(null);

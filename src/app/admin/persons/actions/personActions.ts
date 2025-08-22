@@ -12,7 +12,7 @@ import { getUserSession } from '@/lib/session';
 import { Role, Prisma } from '@prisma/client';
 import { v2 as cloudinary } from 'cloudinary';
 import slugify from 'slugify';
-import { parseFormData } from '@/app/admin/helpers';
+import { parseFormPersonData } from '@/app/admin/helpers';
 import {
   createPerson,
   CreatePersonData,
@@ -36,7 +36,7 @@ export const createPersonAction: Action<[unknown, FormData]> = async (
     return unauthorizedResponse();
   }
 
-  const parsed = parseFormData(formData);
+  const parsed = parseFormPersonData(formData);
   console.log('parsed', parsed);
   if (!parsed.success) {
     return parsed.errorResponse;

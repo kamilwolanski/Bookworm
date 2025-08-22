@@ -1,6 +1,6 @@
 'use server';
 
-import { Action } from '@/types/actions';
+import { Action, ActionResult } from '@/types/actions';
 import { revalidatePath } from 'next/cache';
 import {
   notFoundResponse,
@@ -10,11 +10,13 @@ import {
 import { getUserSession } from '@/lib/session';
 import { Role, Prisma } from '@prisma/client';
 import slugify from 'slugify';
-import { parseFormData } from '@/app/admin/helpers';
+import { parseFormPublisherData } from '@/app/admin/helpers';
 import {
   CreatePublisherData,
+  UpdatePublisherData,
   createPublisher,
   deletePublisher,
+  updatePublisher,
 } from '@/lib/publishers';
 
 export const createPublisherAction: Action<[unknown, FormData]> = async (
@@ -27,7 +29,7 @@ export const createPublisherAction: Action<[unknown, FormData]> = async (
     return unauthorizedResponse();
   }
 
-  const parsed = parseFormData(formData);
+  const parsed = parseFormPublisherData(formData);
 
   if (!parsed.success) {
     return parsed.errorResponse;
@@ -58,6 +60,36 @@ export const createPublisherAction: Action<[unknown, FormData]> = async (
     message: 'Wydawca został dodany',
   };
 };
+
+export async function updatePublisherAction(
+  publisherId: string, 
+  _currentState: unknown,
+  formData: FormData
+): Promise<ActionResult> {
+  const session = await getUserSession();
+  if (session.user.role !== Role.ADMIN) return unauthorizedResponse();
+
+  const parsed = parseFormPublisherData(formData); // bez id w schemacie
+  if (!parsed.success) return parsed.errorResponse;
+
+  const { name } = parsed.data;
+  const slug = slugify(name, { lower: true });
+
+  try {
+    await updatePublisher({ id: publisherId, name, slug });
+  } catch (e) {
+    console.error('Update publisher error:', e);
+    return serverErrorResponse();
+  }
+
+  revalidatePath('/admin/publishers');
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    message: 'Wydawca został zaktualizowany',
+  };
+}
 
 export const deletePublisherAction: Action<[unknown, string]> = async (
   _,
