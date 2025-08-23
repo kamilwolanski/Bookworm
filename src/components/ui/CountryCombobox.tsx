@@ -33,7 +33,7 @@ const COUNTRIES = [
   { code: 'sk', name: 'Słowacja', flag: '🇸🇰' },
 ] as const;
 
-type CountryCode = (typeof COUNTRIES)[number]['code'];
+export type CountryCode = (typeof COUNTRIES)[number]['code'];
 
 export const COUNTRY_CODES = [
   'pl',

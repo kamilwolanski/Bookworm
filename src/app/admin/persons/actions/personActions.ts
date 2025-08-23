@@ -1,6 +1,6 @@
 'use server';
 
-import { Action } from '@/types/actions';
+import { Action, ActionResult } from '@/types/actions';
 import { revalidatePath } from 'next/cache';
 import { handleImageUpload } from '@/app/(main)/books/helpers';
 import {
@@ -18,6 +18,8 @@ import {
   CreatePersonData,
   deletePerson,
   getPerson,
+  updatePerson,
+  UpdatePersonData,
 } from '@/lib/persons';
 
 cloudinary.config({
@@ -96,6 +98,90 @@ export const createPersonAction: Action<[unknown, FormData]> = async (
     status: 'success',
     httpStatus: 200,
     message: 'Osoba została dodana',
+  };
+};
+
+export const updatePersonAction = async (
+  personId: string,
+  personImageUrl: string | null,
+  personImagePublicId: string | null,
+  _currentState: unknown,
+  formData: FormData
+): Promise<ActionResult> => {
+  const session = await getUserSession();
+
+  if (session.user.role !== Role.ADMIN) {
+    return unauthorizedResponse();
+  }
+
+  const parsed = parseFormPersonData(formData);
+  console.log('parsed', parsed);
+  if (!parsed.success) {
+    return parsed.errorResponse;
+  }
+
+  const {
+    name,
+    file,
+    sortName,
+    aliases,
+    bio,
+    birthDate,
+    deathDate,
+    nationality,
+  } = parsed.data;
+
+  let imageUrl: string | null = personImageUrl;
+  let imagePublicId: string | null = personImagePublicId;
+  const slug = slugify(name, { lower: true });
+
+  console.log('slug', slug);
+  console.log('personImagePublicId', personImagePublicId);
+  console.log('file', file);
+
+  if (file && file.size > 0) {
+    console.log('weszlo', file);
+    const uploadResult = await handleImageUpload(
+      'PersonPictures',
+      file,
+      personImagePublicId
+    );
+    if (uploadResult.isError) return uploadResult;
+
+    imageUrl = uploadResult.imageUrl;
+    imagePublicId = uploadResult.imagePublicId;
+  }
+
+  const data: UpdatePersonData = {
+    id: personId,
+    name,
+    slug,
+    sortName: sortName ?? null,
+    aliases: aliases,
+    bio: bio ?? null,
+    imageUrl,
+    imagePublicId,
+    birthDate: birthDate ?? null,
+    deathDate: deathDate ?? null,
+    nationality: nationality ?? null,
+    imageCredit: null,
+    imageSourceUrl: null,
+  };
+
+  try {
+    await updatePerson(data);
+  } catch (error) {
+    console.error('Update person error:', error);
+    return serverErrorResponse();
+  }
+
+  revalidatePath('/admin/persons');
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    message: 'Dane osoby zostały zaktualizowane',
   };
 };
 

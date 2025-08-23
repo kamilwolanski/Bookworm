@@ -1,8 +1,7 @@
-import AddPersonForm from '@/components/admin/AddPersonForm';
-import AdminPersonsTable from '@/components/admin/AdminPersonsTable';
+import AdminPersonsTable from '@/components/admin/person/AdminPersonsTable';
 import { SearchBar } from '@/components/shared/SearchBar';
-
 import { getAllPersons } from '@/lib/persons';
+import AddPersonDialog from '@/components/admin/person/AddPersonDialog';
 
 export default async function PersonsPage() {
   const response = await getAllPersons();
@@ -11,7 +10,7 @@ export default async function PersonsPage() {
   return (
     <div className="min-h-full flex flex-col">
       <div className="flex">
-        <AddPersonForm />
+        <AddPersonDialog />
         <div className="ms-10 w-full">
           <SearchBar />
         </div>

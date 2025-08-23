@@ -62,7 +62,7 @@ export const createPublisherAction: Action<[unknown, FormData]> = async (
 };
 
 export async function updatePublisherAction(
-  publisherId: string, 
+  publisherId: string,
   _currentState: unknown,
   formData: FormData
 ): Promise<ActionResult> {
@@ -75,8 +75,14 @@ export async function updatePublisherAction(
   const { name } = parsed.data;
   const slug = slugify(name, { lower: true });
 
+  const data: UpdatePublisherData = {
+    id: publisherId,
+    name,
+    slug,
+  };
+
   try {
-    await updatePublisher({ id: publisherId, name, slug });
+    await updatePublisher(data);
   } catch (e) {
     console.error('Update publisher error:', e);
     return serverErrorResponse();

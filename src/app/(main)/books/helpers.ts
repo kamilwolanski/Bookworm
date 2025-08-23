@@ -53,7 +53,7 @@ export function parseFormData(formData: FormData):
 export async function handleImageUpload(
   folderName: string,
   file: File,
-  existingPublicId?: string
+  existingPublicId?: string | null
 ): Promise<
   ActionError | { isError: false; imageUrl: string; imagePublicId: string }
 > {

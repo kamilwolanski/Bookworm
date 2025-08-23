@@ -2,6 +2,7 @@ import { Person } from '@prisma/client';
 import prisma from '@/lib/prisma';
 
 export type CreatePersonData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>;
+export type UpdatePersonData = Omit<Person, 'createdAt' | 'updatedAt'>;
 
 export async function findPersonBySlug(slug: string) {
   return prisma.person.findUnique({
@@ -12,6 +13,16 @@ export async function findPersonBySlug(slug: string) {
 
 export async function createPerson(data: CreatePersonData) {
   return prisma.person.create({
+    data,
+    select: { id: true, name: true, sortName: true, slug: true },
+  });
+}
+
+export async function updatePerson(data: UpdatePersonData) {
+  return prisma.person.update({
+    where: {
+      id: data.id,
+    },
     data,
     select: { id: true, name: true, sortName: true, slug: true },
   });
