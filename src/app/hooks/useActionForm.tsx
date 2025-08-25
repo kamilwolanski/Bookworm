@@ -62,7 +62,7 @@ export function useActionForm<TFormInput extends FieldValues>({
         }
       }
     }
-    console.log('formData', formData.get('aliases'));
+    console.log('formData', formData.get('authors'));
     startTransition(() => {
       doAction(formData);
     });

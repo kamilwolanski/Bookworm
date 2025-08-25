@@ -58,3 +58,26 @@ export async function deletePerson(personId: string) {
 
   return book;
 }
+
+export type PersonOption = { value: string; label: string };
+
+export async function searchPersons(
+  q: string,
+  limit = 12
+): Promise<PersonOption[]> {
+  const query = q.trim();
+  if (!query) return [];
+  const people = await prisma.person.findMany({
+    where: {
+      OR: [
+        { name: { contains: query, mode: 'insensitive' } },
+        { sortName: { contains: query, mode: 'insensitive' } },
+        { aliases: { has: query } }, // exact match aliasu
+      ],
+    },
+    take: limit,
+    orderBy: { name: 'asc' },
+    select: { id: true, name: true },
+  });
+  return people.map((p) => ({ value: p.id, label: p.name }));
+}

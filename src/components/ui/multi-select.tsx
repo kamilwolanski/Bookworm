@@ -119,6 +119,9 @@ interface MultiSelectProps
   className?: string;
   showSelectedValues?: boolean;
   contentClassName?: string;
+  searchValue?: string;
+  onSearchChange?: (q: string) => void;
+  searchPlaceholder?: string;
 }
 
 export const MultiSelect = React.forwardRef<
@@ -139,6 +142,9 @@ export const MultiSelect = React.forwardRef<
       className,
       showSelectedValues = true,
       contentClassName,
+      searchValue,
+      onSearchChange,
+      searchPlaceholder,
       ...props
     },
     ref
@@ -162,11 +168,11 @@ export const MultiSelect = React.forwardRef<
       }
     };
 
-    React.useEffect(() => {
-      if (props.value) {
-        setSelectedValues(props.value);
-      }
-    }, [props.value]);
+    // React.useEffect(() => {
+    //   if (props.value) {
+    //     setSelectedValues(props.value);
+    //   }
+    // }, [props.value]);
 
     const toggleOption = (option: string) => {
       const newSelectedValues = selectedValues.includes(option)
@@ -300,7 +306,9 @@ export const MultiSelect = React.forwardRef<
         >
           <Command>
             <CommandInput
-              placeholder="Wyszukaj gatunek..."
+              placeholder={searchPlaceholder ?? 'Wyszukaj...'}
+              value={searchValue}
+              onValueChange={onSearchChange}
               onKeyDown={handleInputKeyDown}
             />
             <CommandList>
@@ -328,6 +336,7 @@ export const MultiSelect = React.forwardRef<
                   return (
                     <CommandItem
                       key={option.value}
+                      value={`${option.label} ${option.value}`}
                       onSelect={() => toggleOption(option.value)}
                       className="cursor-pointer"
                     >

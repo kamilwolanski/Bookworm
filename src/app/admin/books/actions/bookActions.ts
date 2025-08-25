@@ -3,7 +3,6 @@
 import {
   BookDetailsDTO,
   BookBasicDTO,
-  createBook,
   CreateBookData,
   getAllBooksBasic,
   getBook,
@@ -16,53 +15,20 @@ import {
   unauthorizedResponse,
 } from '@/lib/responses';
 import { Action } from '@/types/actions';
-import { GenreSlug, Prisma, Role } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 import { handleImageUpload, parseFormData } from '@/app/(main)/books/helpers';
 import { revalidatePath } from 'next/cache';
 import { getUserSession } from '@/lib/session';
 import { v2 as cloudinary } from 'cloudinary';
 import { deleteBook } from '@/lib/userbooks';
+import slugify from 'slugify';
+import { createBook, CreateBookInput } from '@/lib/adminBooks';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
   api_key: process.env.CLOUDINARY_API_KEY!,
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
-
-export const getAllBooksAction: Action<
-  [
-    {
-      currentPage: number;
-      genres: GenreSlug[];
-      ratings: string[];
-      booksPerPage?: number;
-      search?: string;
-    },
-  ],
-  {
-    books: BookBasicDTO[];
-    totalCount: number;
-  }
-> = async ({ currentPage, booksPerPage = 10, search, genres, ratings }) => {
-  try {
-    const books = await getAllBooksBasic(
-      currentPage,
-      booksPerPage,
-      genres,
-      ratings,
-      search
-    );
-
-    return {
-      isError: false,
-      status: 'success',
-      httpStatus: 200,
-      data: books,
-    };
-  } catch {
-    return serverErrorResponse('Problem przy odczycie danych');
-  }
-};
 
 export const getBookAction: Action<[string], BookDetailsDTO> = async (
   bookId
@@ -89,45 +55,28 @@ export const createBookAction: Action<[unknown, FormData]> = async (
   if (session.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
-
+  console.log('formData', formData.get('authors'))
   const parsed = parseFormData(formData);
   if (!parsed.success) {
     return parsed.errorResponse;
   }
 
-  const {
+  const { title, authors, genres, description, firstPublicationDate } =
+    parsed.data;
+
+  const slug = slugify(title, { lower: true });
+
+  const data: CreateBookInput = {
     title,
-    author,
-    file,
-    genres,
-    pageCount,
-    publicationYear,
-    description,
-  } = parsed.data;
-
-  let imageUrl: string | null = null;
-  let imagePublicId: string | null = null;
-
-  if (file && file.size > 0) {
-    const uploadResult = await handleImageUpload('BookCovers', file);
-    if (uploadResult.isError) return uploadResult;
-
-    imageUrl = uploadResult.imageUrl;
-    imagePublicId = uploadResult.imagePublicId;
-  }
-
-  const data: CreateBookData = {
-    title,
-    author,
+    slug,
+    authorIds: authors,
     description: description ?? null,
-    pageCount: pageCount ?? null,
-    publicationYear: publicationYear ?? null,
-    imageUrl,
-    imagePublicId,
+    firstPublicationDate: firstPublicationDate ?? null,
+    genreIds: genres,
   };
 
   try {
-    await createBook(data, genres);
+    await createBook(data);
   } catch (error) {
     console.error('Create book error:', error);
     return serverErrorResponse();

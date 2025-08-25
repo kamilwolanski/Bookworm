@@ -96,6 +96,7 @@ model User {
 // ---------- Books & editions ----------
 model Book {
   id                   String    @id @default(uuid())
+  slug                 String?    @unique
   title                String
   description          String?
   addedAt              DateTime  @default(now())

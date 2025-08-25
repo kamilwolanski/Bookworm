@@ -21,6 +21,7 @@ import {
   updatePerson,
   UpdatePersonData,
 } from '@/lib/persons';
+import { searchPersons } from '@/lib/persons';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -241,3 +242,7 @@ export const deletePersonAction: Action<[unknown, string]> = async (
     message: 'Książka została usunięta',
   };
 };
+
+export async function searchPersonsAction(q: string, limit = 12) {
+  return searchPersons(q, limit);
+}

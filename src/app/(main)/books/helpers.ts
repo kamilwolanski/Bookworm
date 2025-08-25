@@ -17,19 +17,13 @@ export function parseFormData(formData: FormData):
       ? rawGenres.split(',').map((g) => g.trim())
       : [];
 
-  const file = formData.get('file') as File | null;
   const result = bookSchema.safeParse({
     id: formData.get('id') ?? undefined,
     title: formData.get('title'),
-    author: formData.get('author'),
-    file,
-    pageCount: formData.get('pageCount') ?? undefined,
+    authors: formData.get('authors')?.toString().split(',') ?? [],
     genres,
-    publicationYear: formData.get('publicationYear') ?? undefined,
-    readingStatus: formData.get('readingStatus'),
-    rating: formData.get('rating') ?? undefined,
+    firstPublicationDate: formData.get('firstPublicationDate') ?? undefined,
     description: formData.get('description') ?? undefined,
-    imagePublicId: formData.get('imagePublicId') ?? undefined,
   });
 
   if (!result.success) {

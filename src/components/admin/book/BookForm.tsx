@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { bookSchema, BookInput } from '@/lib/validation';
@@ -24,18 +23,28 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
-import { Textarea } from '../ui/textarea';
+import { Textarea } from '../../ui/textarea';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { GenreDTO } from '@/lib/userbooks';
 import { UseFormReturn } from 'react-hook-form';
 import { createBookAction } from '@/app/admin/books/actions/bookActions';
+import { PersonOption } from '@/lib/persons';
+import { searchPersonsAction } from '@/app/admin/persons/actions/personActions';
+import { useDebounced } from '@/lib/utils';
+import { format } from 'date-fns';
 
 export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
+  const [query, setQuery] = useState('');
+  const debounced = useDebounced(query, 250);
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [authorOptions, setAuthorOptions] = useState<PersonOption[]>([]);
+  const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
+  const [loadingAuthors, setLoadingAuthors] = useState(false);
 
   const afterSuccess = (form: UseFormReturn<BookInput>) => {
     setOpen(false);
     setSelectedGenres([]);
+    setSelectedAuthors([]);
     setTimeout(() => {
       form.reset();
     }, 500);
@@ -45,7 +54,6 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
     schema: bookSchema,
     defaultValues: {
       title: '',
-      author: '',
       genres: [],
     },
     onSuccess: afterSuccess,
@@ -58,8 +66,31 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
   }));
 
   useEffect(() => {
-    form.setValue('genres', selectedGenres);
-  }, [selectedGenres]);
+    const run = async () => {
+      setLoadingAuthors(true);
+
+      try {
+        const data = await searchPersonsAction(debounced, 12);
+        setAuthorOptions(data);
+      } catch {
+        setAuthorOptions([]);
+      } finally {
+        setLoadingAuthors(false);
+      }
+    };
+
+    run();
+  }, [debounced]);
+
+  const handleValueAuthorChange = (ids: string[]) => {
+    setSelectedAuthors(ids);
+    form.setValue('authors', ids);
+  };
+
+  const handleGenres = (ids: string[]) => {
+    setSelectedGenres(ids);
+    form.setValue('genres', ids);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -87,29 +118,9 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
               <div>
                 <FormField
                   control={form.control}
-                  name="file"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Dodaj obrazek</FormLabel>
-                      <FormControl>
-                        <Input
-                          required={false}
-                          type="file"
-                          accept="image/*"
-                          multiple={false}
-                          onChange={(e) => field.onChange(e.target.files?.[0])}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
                   name="title"
                   render={({ field }) => (
-                    <FormItem className="mt-3">
+                    <FormItem>
                       <FormLabel>
                         Tytuł książki<span className="text-red-500 ">*</span>
                       </FormLabel>
@@ -121,21 +132,28 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="author"
-                  render={({ field }) => (
-                    <FormItem className="mt-3">
-                      <FormLabel>
-                        Autor<span className="text-red-500 ">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Autor" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                <div className="grid gap-2 mt-3">
+                  <FormLabel>Autorzy</FormLabel>
+
+                  <MultiSelect
+                    options={authorOptions}
+                    value={selectedAuthors}
+                    onValueChange={handleValueAuthorChange}
+                    searchValue={query}
+                    onSearchChange={setQuery}
+                    placeholder="Wybierz autorów"
+                    searchPlaceholder={
+                      loadingAuthors ? 'Szukam…' : 'Wpisz imię i nazwisko'
+                    }
+                    maxCount={3}
+                    showSelectedValues
+                  />
+                  {form.formState.errors.authors && (
+                    <FormMessage>
+                      {form.formState.errors.authors.message}
+                    </FormMessage>
                   )}
-                />
+                </div>
               </div>
             </div>
             <div>
@@ -145,8 +163,8 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
 
                   <MultiSelect
                     options={genresList}
-                    onValueChange={setSelectedGenres}
-                    defaultValue={selectedGenres}
+                    onValueChange={handleGenres}
+                    value={selectedGenres}
                     placeholder="Wybierz gatunek"
                     variant="inverted"
                     animation={0}
@@ -161,33 +179,20 @@ export default function BookForm({ bookGenres }: { bookGenres: GenreDTO[] }) {
 
                 <FormField
                   control={form.control}
-                  name="publicationYear"
+                  name="firstPublicationDate"
                   render={({ field }) => (
                     <FormItem className="mt-3">
-                      <FormLabel>Rok wydania</FormLabel>
+                      <FormLabel>Data pierwszego wydania</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Rok wydania"
-                          {...field}
-                          type="number"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="pageCount"
-                  render={({ field }) => (
-                    <FormItem className="mt-3">
-                      <FormLabel>Liczba stron</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Liczba stron"
-                          {...field}
-                          type="number"
+                          type="date"
+                          value={
+                            field.value ? format(field.value, 'yyyy-MM-dd') : ''
+                          }
+                          onChange={(e) => field.onChange(e.target.value)}
+                          placeholder="RRRR-MM-DD"
+                          min="1800-01-01"
+                          max="2100-12-31"
                         />
                       </FormControl>
                       <FormMessage />

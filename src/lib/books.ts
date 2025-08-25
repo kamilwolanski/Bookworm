@@ -143,7 +143,27 @@ export async function getAllBooksBasic(
     ? {
         OR: [
           { title: { contains: search, mode: 'insensitive' as const } },
-          { author: { contains: search, mode: 'insensitive' as const } },
+          {
+            authors: {
+              some: {
+                person: {
+                  OR: [
+                    {
+                      name: { contains: search, mode: 'insensitive' as const },
+                    },
+                    {
+                      sortName: {
+                        contains: search,
+                        mode: 'insensitive' as const,
+                      },
+                    },
+                    { aliases: { s } },
+                  ],
+                },
+              },
+            },
+          },
+          // wyszukiwanie po nazwie gatunku (PL)
           {
             genres: {
               some: {
@@ -151,10 +171,7 @@ export async function getAllBooksBasic(
                   translations: {
                     some: {
                       language: 'pl',
-                      name: {
-                        contains: search,
-                        mode: 'insensitive' as const,
-                      },
+                      name: { contains: search, mode: 'insensitive' as const },
                     },
                   },
                 },
@@ -168,13 +185,7 @@ export async function getAllBooksBasic(
   const where = {
     ...searchConditions,
     ...(genres.length > 0 && {
-      genres: {
-        some: {
-          genre: {
-            slug: { in: genres },
-          },
-        },
-      },
+      genres: { some: { genre: { slug: { in: genres } } } },
     }),
   };
 
@@ -187,15 +198,23 @@ export async function getAllBooksBasic(
       select: {
         id: true,
         title: true,
-        authors: true,
         addedAt: true,
         firstPublicationDate: true,
+        // ✅ zawęź select autorów do potrzebnych pól
+        authors: {
+          orderBy: { order: 'asc' },
+          select: {
+            order: true,
+            person: { select: { id: true, name: true, slug: true } },
+          },
+        },
         genres: {
           include: {
             genre: {
               include: {
                 translations: {
                   where: { language: 'pl' },
+                  select: { language: true, name: true },
                 },
               },
             },
@@ -207,26 +226,25 @@ export async function getAllBooksBasic(
   ]);
 
   const booksDto: BookBasicDTO[] = books.map((book) => {
-    const genresDto = book.genres.map((genreRelation) => {
-      const translation = genreRelation.genre.translations[0];
+    const genresDto = book.genres.map((gr) => {
+      const t = gr.genre.translations[0];
       return {
-        id: genreRelation.genre.id,
-        slug: genreRelation.genre.slug,
-        language: translation.language,
-        name: translation.name,
+        id: gr.genre.id,
+        slug: gr.genre.slug,
+        language: t?.language ?? 'pl',
+        name: t?.name ?? gr.genre.slug,
       };
     });
 
     return {
       ...book,
       genres: genresDto,
+      // jeśli BookBasicDTO oczekuje stringa autorów, możesz zmapować:
+      // authors: book.authors.map(a => a.person.name).join(', ')
     };
   });
 
-  return {
-    books: booksDto,
-    totalCount,
-  };
+  return { books: booksDto, totalCount };
 }
 
 export async function getBook(
