@@ -3,16 +3,22 @@ import { SearchBar } from '@/components/shared/SearchBar';
 import { getAllPublishers } from '@/lib/publishers';
 import AddPublisherDialog from '@/components/admin/publisher/AddPublisherDialog';
 
-export default async function PublishersPage() {
-  const response = await getAllPublishers();
-  console.log('responses', response);
+type Props = {
+  searchParams?: {
+    search?: string;
+  };
+};
+
+export default async function PublishersPage({ searchParams }: Props) {
+  const { search } = searchParams ? await searchParams : {};
+  const response = await getAllPublishers(search);
 
   return (
     <div className="min-h-full flex flex-col">
       <div className="flex">
         <AddPublisherDialog />
         <div className="ms-10 w-full">
-          <SearchBar />
+          <SearchBar placeholder="wyszukaj wydawcę" />
         </div>
       </div>
 

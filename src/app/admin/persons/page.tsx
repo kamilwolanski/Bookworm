@@ -3,8 +3,16 @@ import { SearchBar } from '@/components/shared/SearchBar';
 import { getAllPersons } from '@/lib/persons';
 import AddPersonDialog from '@/components/admin/person/AddPersonDialog';
 
-export default async function PersonsPage() {
-  const response = await getAllPersons();
+type Props = {
+  searchParams?: {
+    search?: string;
+  };
+};
+
+export default async function PersonsPage({ searchParams }: Props) {
+  const { search } = searchParams ? await searchParams : {};
+
+  const response = await getAllPersons(search);
   console.log('responses', response);
 
   return (
@@ -12,7 +20,7 @@ export default async function PersonsPage() {
       <div className="flex">
         <AddPersonDialog />
         <div className="ms-10 w-full">
-          <SearchBar />
+          <SearchBar placeholder="wyszukaj osobę" />
         </div>
       </div>
 

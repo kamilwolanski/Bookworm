@@ -8,8 +8,17 @@ export type CreatePublisherData = Omit<
 
 export type UpdatePublisherData = Omit<Publisher, 'createdAt' | 'updatedAt'>;
 
-export async function getAllPublishers() {
-  return prisma.publisher.findMany();
+export async function getAllPublishers(search?: string) {
+  const searchConditions = search
+    ? {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' as const } },
+          { slug: { contains: search, mode: 'insensitive' as const } },
+        ],
+      }
+    : {};
+
+  return prisma.publisher.findMany({ where: searchConditions });
 }
 
 export async function createPublisher(data: CreatePublisherData) {

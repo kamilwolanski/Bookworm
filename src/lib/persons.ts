@@ -28,8 +28,19 @@ export async function updatePerson(data: UpdatePersonData) {
   });
 }
 
-export async function getAllPersons() {
-  return prisma.person.findMany();
+export async function getAllPersons(search?: string) {
+  const searchConditions = search
+    ? {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' as const } },
+          { slug: { contains: search, mode: 'insensitive' as const } },
+          { sortName: { contains: search, mode: 'insensitive' as const } },
+        ],
+      }
+    : {};
+  return prisma.person.findMany({
+    where: searchConditions,
+  });
 }
 
 export async function getPerson(personId: string) {

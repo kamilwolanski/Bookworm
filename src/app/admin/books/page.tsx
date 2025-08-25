@@ -41,7 +41,7 @@ export default async function BooksPage({ searchParams }: Props) {
         <div className="flex">
           <BookForm bookGenres={bookGenres} />
           <div className="ms-10 w-full">
-            <SearchBar />
+            <SearchBar placeholder="wyszukaj książke" />
           </div>
         </div>
 

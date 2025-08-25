@@ -72,9 +72,7 @@ export default function AdminPersonsTable({ persons }: { persons: Person[] }) {
     {
       accessorKey: 'id',
       header: 'Id',
-      cell: ({ row }) => (
-        <div className="capitalize ">{row.getValue('id')}</div>
-      ),
+      cell: ({ row }) => <div>{row.getValue('id')}</div>,
     },
     {
       accessorKey: 'name',

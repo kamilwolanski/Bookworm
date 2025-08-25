@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { useEffect, useState } from 'react';
 
-export function SearchBar() {
+export function SearchBar({ placeholder }: { placeholder: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
@@ -29,7 +29,7 @@ export function SearchBar() {
   return (
     <div className="max-w-sm w-full ">
       <Input
-        placeholder="Wyszukaj książke..."
+        placeholder={placeholder}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         className="w-full"
