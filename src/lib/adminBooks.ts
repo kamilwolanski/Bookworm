@@ -229,3 +229,13 @@ export async function getAllBooksBasic(
 
   return { books: booksDto, totalCount };
 }
+
+export async function deleteBook(bookId: string) {
+  const book = await prisma.book.delete({
+    where: {
+      id: bookId,
+    },
+  });
+
+  return book;
+}

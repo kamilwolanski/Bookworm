@@ -35,7 +35,7 @@ import { GenreDTO } from '@/lib/userbooks';
 import DeleteDialog from '@/components/forms/DeleteDialog';
 import { Dialog } from '@/components/ui/dialog';
 import EditBookDialog from '@/components/admin/book/EditBookDialog';
-import { BookBasicDTO } from '@/lib/books';
+import { BookBasicDTO } from '@/lib/adminBooks';
 
 export default function AdminBooksTable({
   books,

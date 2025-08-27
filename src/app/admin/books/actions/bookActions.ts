@@ -1,13 +1,6 @@
 'use server';
 
-import {
-  BookDetailsDTO,
-  BookBasicDTO,
-  CreateBookData,
-  getBook,
-  updateBookWithTransaction,
-  EditBookData,
-} from '@/lib/books';
+import { BookDetailsDTO, getBook } from '@/lib/books';
 import {
   notFoundResponse,
   serverErrorResponse,
@@ -15,11 +8,10 @@ import {
 } from '@/lib/responses';
 import { Action, ActionResult } from '@/types/actions';
 import { Prisma, Role } from '@prisma/client';
-import { handleImageUpload } from '@/app/admin/helpers';
 import { revalidatePath } from 'next/cache';
 import { getUserSession } from '@/lib/session';
 import { v2 as cloudinary } from 'cloudinary';
-import { deleteBook } from '@/lib/userbooks';
+import { deleteBook } from '@/lib/adminBooks';
 import slugify from 'slugify';
 import {
   createBook,
