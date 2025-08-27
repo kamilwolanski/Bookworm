@@ -2,7 +2,7 @@
 
 import { Action, ActionResult } from '@/types/actions';
 import { revalidatePath } from 'next/cache';
-import { handleImageUpload } from '@/app/(main)/books/helpers';
+import { handleImageUpload } from '@/app/admin/helpers';
 import {
   notFoundResponse,
   serverErrorResponse,

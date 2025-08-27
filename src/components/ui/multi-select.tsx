@@ -168,11 +168,11 @@ export const MultiSelect = React.forwardRef<
       }
     };
 
-    // React.useEffect(() => {
-    //   if (props.value) {
-    //     setSelectedValues(props.value);
-    //   }
-    // }, [props.value]);
+    React.useEffect(() => {
+      if (props.value) {
+        setSelectedValues(props.value);
+      }
+    }, [props.value]);
 
     const toggleOption = (option: string) => {
       const newSelectedValues = selectedValues.includes(option)

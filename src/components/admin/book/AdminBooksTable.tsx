@@ -28,14 +28,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { BookBasicDTO } from '@/lib/books';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import { Pencil } from 'lucide-react';
-import EditBtn from '@/components/shared/EditBtn';
 import { deleteBookAction } from '@/app/admin/books/actions/bookActions';
 import { GenreDTO } from '@/lib/userbooks';
 import DeleteDialog from '@/components/forms/DeleteDialog';
 import { Dialog } from '@/components/ui/dialog';
+import EditBookDialog from '@/components/admin/book/EditBookDialog';
+import { BookBasicDTO } from '@/lib/books';
 
 export default function AdminBooksTable({
   books,
@@ -53,7 +53,9 @@ export default function AdminBooksTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [dialogType, setDialogType] = React.useState<null | 'delete'>(null);
+  const [dialogType, setDialogType] = React.useState<null | 'delete' | 'edit'>(
+    null
+  );
   const openDialog = dialogType !== null;
   const [clickedRow, setClickedRow] = React.useState<BookBasicDTO | null>(null);
 
@@ -145,15 +147,20 @@ export default function AdminBooksTable({
                 }}
               >
                 <Trash2 size={16} />
-                Usuń z półki
+                Usuń rekord
               </DropdownMenuItem>
 
-              <EditBtn bookGenres={bookGenres} bookData={book}>
-                <span className="cursor-pointer px-2 py-1.5 text-sm hover:bg-muted flex items-center gap-2">
-                  Edytuj
-                  <Pencil size={16} />
-                </span>
-              </EditBtn>
+              <DropdownMenuItem
+                className="px-2 py-1.5 text-sm flex items-center gap-2 text-secondary focus:text-secondary cursor-pointer"
+                data-no-nav="true"
+                onClick={() => {
+                  setDialogType('edit');
+                  setClickedRow(book);
+                }}
+              >
+                <Pencil size={16} />
+                Zaktualizuj dane
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -257,6 +264,16 @@ export default function AdminBooksTable({
                 setClickedRow(null);
                 setDialogType(null);
               }}
+            />
+          )}
+          {dialogType === 'edit' && clickedRow && (
+            <EditBookDialog
+              selectedBook={clickedRow}
+              onSuccess={() => {
+                setClickedRow(null);
+                setDialogType(null);
+              }}
+              bookGenres={bookGenres}
             />
           )}
         </Dialog>

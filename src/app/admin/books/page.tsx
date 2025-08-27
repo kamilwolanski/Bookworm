@@ -1,10 +1,10 @@
-import BookForm from '@/components/admin/book/BookForm';
 import { getBookGenres } from '@/lib/userbooks';
 import { SearchBar } from '@/components/shared/SearchBar';
 import BookFilters from '@/components/book/BookFilters';
 
 import AdminBooksTable from '@/components/admin/book/AdminBooksTable';
-import { getAllBooksBasic } from '@/lib/books';
+import AddBookDialog from '@/components/admin/book/AddBookDialog';
+import { getAllBooksBasic } from '@/lib/adminBooks';
 
 type Props = {
   searchParams?: {
@@ -37,7 +37,7 @@ export default async function BooksPage({ searchParams }: Props) {
   return (
     <div className="min-h-full flex flex-col">
       <div className="flex">
-        <BookForm bookGenres={bookGenres} />
+        <AddBookDialog bookGenres={bookGenres} />
         <div className="ms-10 w-full">
           <SearchBar placeholder="wyszukaj książke" />
         </div>

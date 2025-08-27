@@ -231,7 +231,7 @@ const EditPersonForm = ({
               disabled={isPending}
               className="cursor-pointer"
             >
-              {isPending ? 'Dodaję...' : 'Dodaj'}
+              {isPending ? 'Aktualizuje...' : 'Aktualizuj'}
             </Button>
           </DialogFooter>
 

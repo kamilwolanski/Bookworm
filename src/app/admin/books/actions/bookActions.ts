@@ -4,7 +4,6 @@ import {
   BookDetailsDTO,
   BookBasicDTO,
   CreateBookData,
-  getAllBooksBasic,
   getBook,
   updateBookWithTransaction,
   EditBookData,
@@ -14,15 +13,21 @@ import {
   serverErrorResponse,
   unauthorizedResponse,
 } from '@/lib/responses';
-import { Action } from '@/types/actions';
+import { Action, ActionResult } from '@/types/actions';
 import { Prisma, Role } from '@prisma/client';
-import { handleImageUpload, parseFormData } from '@/app/(main)/books/helpers';
+import { handleImageUpload } from '@/app/admin/helpers';
 import { revalidatePath } from 'next/cache';
 import { getUserSession } from '@/lib/session';
 import { v2 as cloudinary } from 'cloudinary';
 import { deleteBook } from '@/lib/userbooks';
 import slugify from 'slugify';
-import { createBook, CreateBookInput } from '@/lib/adminBooks';
+import {
+  createBook,
+  CreateBookInput,
+  updateBook,
+  UpdateBookData,
+} from '@/lib/adminBooks';
+import { parseFormBookData } from '@/app/admin/helpers';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -55,8 +60,8 @@ export const createBookAction: Action<[unknown, FormData]> = async (
   if (session.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
-  console.log('formData', formData.get('authors'))
-  const parsed = parseFormData(formData);
+
+  const parsed = parseFormBookData(formData);
   if (!parsed.success) {
     return parsed.errorResponse;
   }
@@ -92,6 +97,54 @@ export const createBookAction: Action<[unknown, FormData]> = async (
   };
 };
 
+export const updateBookAction = async (
+  bookId: string,
+  _currentState: unknown,
+  formData: FormData
+): Promise<ActionResult> => {
+  const session = await getUserSession();
+
+  if (session.user.role !== Role.ADMIN) {
+    return unauthorizedResponse();
+  }
+
+  const parsed = parseFormBookData(formData);
+  if (!parsed.success) {
+    return parsed.errorResponse;
+  }
+
+  const { title, authors, genres, description, firstPublicationDate } =
+    parsed.data;
+
+  const slug = slugify(title, { lower: true });
+
+  const data: UpdateBookData = {
+    id: bookId,
+    title,
+    slug,
+    authorIds: authors,
+    description: description ?? null,
+    firstPublicationDate: firstPublicationDate ?? null,
+    genreIds: genres,
+  };
+
+  try {
+    await updateBook(data);
+  } catch (error) {
+    console.error('Update book error:', error);
+    return serverErrorResponse();
+  }
+
+  revalidatePath('/admin/books');
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    message: 'Książka została zaktualizowana',
+  };
+};
+
 export const deleteBookAction: Action<[unknown, string]> = async (
   _,
   bookId
@@ -102,23 +155,7 @@ export const deleteBookAction: Action<[unknown, string]> = async (
     return unauthorizedResponse();
   }
 
-  const book = await getBook(bookId, session.user.id);
-
-  if (!book) return notFoundResponse(`Nie znaleziono książki o id: ${bookId}`);
-
   try {
-    if (book.imagePublicId) {
-      const result = await cloudinary.uploader.destroy(book.imagePublicId);
-      if (result.result !== 'ok' && result.result !== 'not found') {
-        return {
-          isError: true,
-          status: 'cloudinary_error',
-          httpStatus: 500,
-          message: 'Nie udało się usunąć pliku z Cloudinary.',
-        };
-      }
-    }
-
     await deleteBook(bookId);
   } catch (e) {
     console.error('Delete error:', e);
@@ -145,91 +182,5 @@ export const deleteBookAction: Action<[unknown, string]> = async (
     status: 'success',
     httpStatus: 200,
     message: 'Książka została usunięta',
-  };
-};
-
-export const editBookAction: Action<[unknown, FormData]> = async (
-  _,
-  formData
-) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) {
-    return unauthorizedResponse();
-  }
-
-  const parsed = parseFormData(formData);
-  if (!parsed.success) {
-    return parsed.errorResponse;
-  }
-
-  if (!parsed.data.id) {
-    return {
-      isError: true,
-      status: 'validation_error',
-      httpStatus: 422,
-      message: 'Brak ID książki',
-    };
-  }
-
-  const {
-    id,
-    title,
-    author,
-    file,
-    genres,
-    pageCount,
-    publicationYear,
-    description,
-    imagePublicId: existingImagePublicId,
-  } = parsed.data;
-
-  let imageUrl: string | null = null;
-  let imagePublicId: string | null = null;
-
-  if (file && file.size > 0) {
-    const uploadResult = await handleImageUpload(
-      'BookCovers',
-      file,
-      existingImagePublicId
-    );
-    if (uploadResult.isError) return uploadResult;
-
-    imageUrl = uploadResult.imageUrl;
-    imagePublicId = uploadResult.imagePublicId;
-  }
-
-  const updateData: EditBookData = {
-    title,
-    author,
-    description: description ?? null,
-    pageCount: pageCount ?? null,
-    publicationYear: publicationYear ?? null,
-    ...(imageUrl && imagePublicId && { imageUrl, imagePublicId }),
-  };
-
-  if (!id) {
-    return {
-      isError: true,
-      status: 'validation_error',
-      httpStatus: 422,
-      message: 'Brak id',
-    };
-  }
-
-  try {
-    await updateBookWithTransaction(id, updateData, genres);
-  } catch (err) {
-    console.error(err);
-    return serverErrorResponse();
-  }
-
-  revalidatePath(`/books/${id}`);
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    message: 'Książka została zaktualizowana',
   };
 };

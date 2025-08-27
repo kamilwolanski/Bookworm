@@ -139,7 +139,7 @@ export default function AdminPublishersTable({
                   }}
                 >
                   <Trash2 size={16} />
-                  Usuń z półki
+                  Usuń rekord
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="px-2 py-1.5 text-sm flex items-center gap-2 text-secondary focus:text-secondary cursor-pointer"

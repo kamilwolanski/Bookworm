@@ -140,7 +140,7 @@ export function BookCard({ book }: { book: BookWithUserData }) {
                       }}
                     >
                       <Trash2 size={16} />
-                      Usuń z półki
+                      Usuń rekord
                     </DropdownMenuItem>
                   ) : (
                     <DropdownMenuItem

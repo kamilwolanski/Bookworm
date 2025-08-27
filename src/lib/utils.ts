@@ -14,3 +14,9 @@ export function useDebounced<T>(value: T, delay = 250) {
   }, [value, delay]);
   return v;
 }
+
+export const dedupeByValue = <T extends { value: string }>(arr: T[]) => {
+  const m = new Map<string, T>();
+  for (const o of arr) if (!m.has(o.value)) m.set(o.value, o);
+  return [...m.values()];
+};

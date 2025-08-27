@@ -66,18 +66,26 @@ export async function searchPersons(
   limit = 12
 ): Promise<PersonOption[]> {
   const query = q.trim();
-  if (!query) return [];
-  const people = await prisma.person.findMany({
-    where: {
-      OR: [
-        { name: { contains: query, mode: 'insensitive' } },
-        { sortName: { contains: query, mode: 'insensitive' } },
-        { aliases: { has: query } }, // exact match aliasu
-      ],
-    },
-    take: limit,
-    orderBy: { name: 'asc' },
-    select: { id: true, name: true },
-  });
+  let people = [];
+  if (!query) {
+    people = await prisma.person.findMany({
+      take: 10,
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    });
+  } else {
+    people = await prisma.person.findMany({
+      where: {
+        OR: [
+          { name: { contains: query, mode: 'insensitive' } },
+          { sortName: { contains: query, mode: 'insensitive' } },
+          { aliases: { has: query } }, // exact match aliasu
+        ],
+      },
+      take: limit,
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true },
+    });
+  }
   return people.map((p) => ({ value: p.id, label: p.name }));
 }

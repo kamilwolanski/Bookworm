@@ -1,11 +1,4 @@
-import {
-  Book,
-  Comment,
-  GenreSlug,
-  ReadingStatus,
-  User,
-  UserBook,
-} from '@prisma/client';
+import { Book, Comment, ReadingStatus, User, UserBook } from '@prisma/client';
 import prisma from './prisma';
 
 export type EditBookData = Omit<
@@ -18,7 +11,7 @@ export type EditBookData = Omit<
 
 export type GenreDTO = {
   id: string;
-  slug: GenreSlug;
+  slug: string;
   language: string;
   name: string;
 };
