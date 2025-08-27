@@ -103,9 +103,32 @@ export default function AdminBooksTable({
       cell: ({ row }) => <div>{row.getValue('title')}</div>,
     },
     {
-      accessorKey: 'author',
-      header: 'Author',
-      cell: ({ row }) => <div>{row.getValue('author')}</div>,
+      accessorKey: 'authors',
+      header: 'Authors',
+      cell: ({ row }) => {
+        const authors: {
+          order: number | null;
+          person: {
+            id: string;
+            name: string;
+            slug: string;
+          };
+        }[] = row.getValue('authors') ?? [];
+        return (
+          <div className="space-y-1">
+            {authors.map((a) => (
+              <p key={a.person.id}>{a.person.name}</p>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: 'slug',
+      header: 'Slug',
+      cell: ({ row }) => {
+        return <div>{row.getValue('slug')}</div>;
+      },
     },
     {
       accessorKey: 'addedAt',
