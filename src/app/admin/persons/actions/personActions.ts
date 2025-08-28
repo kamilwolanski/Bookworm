@@ -60,8 +60,6 @@ export const createPersonAction: Action<[unknown, FormData]> = async (
   let imagePublicId: string | null = null;
   const slug = slugify(name, { lower: true });
 
-  console.log('slug', slug);
-
   if (file && file.size > 0) {
     const uploadResult = await handleImageUpload('PersonPictures', file);
     if (uploadResult.isError) return uploadResult;

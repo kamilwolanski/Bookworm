@@ -19,7 +19,8 @@ import { UseFormReturn } from 'react-hook-form';
 import { createPersonAction } from '@/app/admin/persons/actions/personActions';
 import { AliasesInput } from '@/components/ui/AliasesInput';
 import { format } from 'date-fns';
-import { CountryCombobox } from '../../ui/CountryCombobox';
+import { GenericCombobox } from '@/components/ui/GenericCombobox';
+import { COUNTRIES, CountryCode } from '@/app/admin/data';
 
 export default function AddPersonForm({
   setOpen,
@@ -109,10 +110,13 @@ export default function AddPersonForm({
                 <FormItem className="mt-3">
                   <FormLabel>Narodowość</FormLabel>
                   <FormControl>
-                    <CountryCombobox
+                    <GenericCombobox<CountryCode>
+                      items={COUNTRIES}
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Wybierz kraj..."
+                      searchPlaceholder="Szukaj kraju..."
+                      emptyText="Brak krajów."
                     />
                   </FormControl>
                   <FormMessage />

@@ -21,7 +21,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { createBookAction } from '@/app/admin/books/actions/bookActions';
 import { PersonOption } from '@/lib/persons';
 import { searchPersonsAction } from '@/app/admin/persons/actions/personActions';
-import { useDebounced } from '@/lib/utils';
+import { useDebounced } from '@/app/hooks/useDebounce';
 import { format } from 'date-fns';
 
 export default function BookForm({

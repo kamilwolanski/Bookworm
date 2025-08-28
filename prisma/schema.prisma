@@ -71,7 +71,7 @@ model Publisher {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  editions Edition[]
+  editions EditionPublisher[]
 
   @@index([name])
 }
@@ -96,7 +96,7 @@ model User {
 // ---------- Books & editions ----------
 model Book {
   id                   String    @id @default(uuid())
-  slug                 String?    @unique
+  slug                 String?   @unique
   title                String
   description          String?
   addedAt              DateTime  @default(now())
@@ -138,20 +138,17 @@ model Edition {
   isbn13 String? @unique
   isbn10 String? @unique
 
-  language    String
-  publisherId String?
-  publisher   Publisher? @relation(fields: [publisherId], references: [id], onDelete: SetNull)
-
+  language        String?
   publicationDate DateTime?
   pageCount       Int?
   format          MediaFormat?
   coverUrl        String?
   coverPublicId   String?
-
-  title    String?
-  subtitle String?
+  title           String?
+  subtitle        String?
 
   contributors EditionContributor[]
+  publishers   EditionPublisher[] 
 
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -161,6 +158,19 @@ model Edition {
   @@index([language])
   @@index([publicationDate])
   @@index([bookId, language, publicationDate])
+}
+
+model EditionPublisher {
+  editionId   String
+  publisherId String
+  order       Int?
+
+  edition   Edition   @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+
+  @@id([editionId, publisherId])
+  @@index([publisherId])
+  @@index([editionId, order])
 }
 
 model EditionContributor {

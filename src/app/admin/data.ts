@@ -1,0 +1,86 @@
+export const COUNTRIES = [
+  { value: 'pl', label: 'Polska', icon: '🇵🇱', meta: '(pl)' },
+  { value: 'de', label: 'Niemcy', icon: '🇩🇪', meta: '(de)' },
+  { value: 'us', label: 'Stany Zjednoczone', icon: '🇺🇸', meta: '(us)' },
+  { value: 'gb', label: 'Wielka Brytania', icon: '🇬🇧', meta: '(gb)' },
+  { value: 'fr', label: 'Francja', icon: '🇫🇷', meta: '(fr)' },
+  { value: 'es', label: 'Hiszpania', icon: '🇪🇸', meta: '(es)' },
+  { value: 'it', label: 'Włochy', icon: '🇮🇹', meta: '(it)' },
+  { value: 'ua', label: 'Ukraina', icon: '🇺🇦', meta: '(ua)' },
+  { value: 'cz', label: 'Czechy', icon: '🇨🇿', meta: '(cz)' },
+  { value: 'sk', label: 'Słowacja', icon: '🇸🇰', meta: '(sk)' },
+  { value: 'ru', label: 'Rosja', icon: '🇷🇺', meta: '(ru)' },
+  { value: 'cn', label: 'Chiny', icon: '🇨🇳', meta: '(cn)' },
+  { value: 'jp', label: 'Japonia', icon: '🇯🇵', meta: '(jp)' },
+  { value: 'kr', label: 'Korea Południowa', icon: '🇰🇷', meta: '(kr)' },
+  { value: 'br', label: 'Brazylia', icon: '🇧🇷', meta: '(br)' },
+  { value: 'ar', label: 'Argentyna', icon: '🇦🇷', meta: '(ar)' },
+  { value: 'ca', label: 'Kanada', icon: '🇨🇦', meta: '(ca)' },
+  { value: 'au', label: 'Australia', icon: '🇦🇺', meta: '(au)' },
+  { value: 'se', label: 'Szwecja', icon: '🇸🇪', meta: '(se)' },
+  { value: 'no', label: 'Norwegia', icon: '🇳🇴', meta: '(no)' },
+  { value: 'fi', label: 'Finlandia', icon: '🇫🇮', meta: '(fi)' },
+  { value: 'dk', label: 'Dania', icon: '🇩🇰', meta: '(dk)' },
+  { value: 'nl', label: 'Holandia', icon: '🇳🇱', meta: '(nl)' },
+  { value: 'be', label: 'Belgia', icon: '🇧🇪', meta: '(be)' },
+  { value: 'ch', label: 'Szwajcaria', icon: '🇨🇭', meta: '(ch)' },
+  { value: 'at', label: 'Austria', icon: '🇦🇹', meta: '(at)' },
+  { value: 'gr', label: 'Grecja', icon: '🇬🇷', meta: '(gr)' },
+  { value: 'tr', label: 'Turcja', icon: '🇹🇷', meta: '(tr)' },
+  { value: 'hu', label: 'Węgry', icon: '🇭🇺', meta: '(hu)' },
+  { value: 'ro', label: 'Rumunia', icon: '🇷🇴', meta: '(ro)' },
+  { value: 'bg', label: 'Bułgaria', icon: '🇧🇬', meta: '(bg)' },
+  { value: 'pt', label: 'Portugalia', icon: '🇵🇹', meta: '(pt)' },
+  { value: 'ie', label: 'Irlandia', icon: '🇮🇪', meta: '(ie)' },
+] as const;
+
+export type CountryCode = (typeof COUNTRIES)[number]['value'];
+
+export const BOOK_FORMATS = [
+  {
+    value: 'HARDCOVER',
+    label: 'Twarda oprawa',
+    icon: '📕',
+    meta: '(HARDCOVER)',
+  },
+  {
+    value: 'PAPERBACK',
+    label: 'Miękka oprawa',
+    icon: '📗',
+    meta: '(PAPERBACK)',
+  },
+  { value: 'EBOOK', label: 'E-book', icon: '📱', meta: '(EBOOK)' },
+  { value: 'AUDIOBOOK', label: 'Audiobook', icon: '🎧', meta: '(AUDIOBOOK)' },
+] as const;
+
+export type BookFormat = (typeof BOOK_FORMATS)[number]['value'];
+
+export const LANGUAGES = [
+  { value: 'pl', label: 'Polski', icon: '🇵🇱', meta: '(pl)' },
+  { value: 'en', label: 'Angielski', icon: '🇬🇧', meta: '(en)' },
+  { value: 'de', label: 'Niemiecki', icon: '🇩🇪', meta: '(de)' },
+  { value: 'fr', label: 'Francuski', icon: '🇫🇷', meta: '(fr)' },
+  { value: 'es', label: 'Hiszpański', icon: '🇪🇸', meta: '(es)' },
+  { value: 'it', label: 'Włoski', icon: '🇮🇹', meta: '(it)' },
+  { value: 'ru', label: 'Rosyjski', icon: '🇷🇺', meta: '(ru)' },
+  { value: 'uk', label: 'Ukraiński', icon: '🇺🇦', meta: '(uk)' },
+  { value: 'cs', label: 'Czeski', icon: '🇨🇿', meta: '(cs)' },
+  { value: 'sk', label: 'Słowacki', icon: '🇸🇰', meta: '(sk)' },
+  { value: 'zh', label: 'Chiński', icon: '🇨🇳', meta: '(zh)' },
+  { value: 'ja', label: 'Japoński', icon: '🇯🇵', meta: '(ja)' },
+  { value: 'ko', label: 'Koreański', icon: '🇰🇷', meta: '(ko)' },
+  { value: 'pt', label: 'Portugalski', icon: '🇵🇹', meta: '(pt)' },
+  { value: 'nl', label: 'Niderlandzki', icon: '🇳🇱', meta: '(nl)' },
+  { value: 'sv', label: 'Szwedzki', icon: '🇸🇪', meta: '(sv)' },
+  { value: 'no', label: 'Norweski', icon: '🇳🇴', meta: '(no)' },
+  { value: 'fi', label: 'Fiński', icon: '🇫🇮', meta: '(fi)' },
+  { value: 'da', label: 'Duński', icon: '🇩🇰', meta: '(da)' },
+  { value: 'el', label: 'Grecki', icon: '🇬🇷', meta: '(el)' },
+  { value: 'tr', label: 'Turecki', icon: '🇹🇷', meta: '(tr)' },
+  { value: 'hu', label: 'Węgierski', icon: '🇭🇺', meta: '(hu)' },
+  { value: 'ro', label: 'Rumuński', icon: '🇷🇴', meta: '(ro)' },
+  { value: 'bg', label: 'Bułgarski', icon: '🇧🇬', meta: '(bg)' },
+  { value: 'ar', label: 'Arabski', icon: '🇸🇦', meta: '(ar)' },
+] as const;
+
+export type LanguageCode = (typeof LANGUAGES)[number]['value'];

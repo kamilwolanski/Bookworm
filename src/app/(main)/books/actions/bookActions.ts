@@ -22,7 +22,7 @@ import {
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
 import type { Action, ActionResult } from '@/types/actions';
-import { handleImageUpload, parseFormData } from '../helpers';
+import { handleImageUpload, parseFormData } from '@/app/admin/helpers';
 import { v2 as cloudinary } from 'cloudinary';
 import { GenreSlug, Prisma, ReadingStatus } from '@prisma/client';
 import {

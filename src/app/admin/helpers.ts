@@ -1,6 +1,8 @@
 import {
   BookInput,
   bookSchema,
+  EditionInput,
+  editionSchema,
   PersonInput,
   personSchema,
   PublisherInput,
@@ -114,6 +116,39 @@ export function parseFormPublisherData(formData: FormData):
           message: e.message,
         })),
       },
+    };
+  }
+
+  return { success: true, data: result.data };
+}
+
+export function parseFormEditionData(formData: FormData):
+  | {
+      success: true;
+      data: EditionInput;
+    }
+  | {
+      success: false;
+      errorResponse: ActionError;
+    } {
+  const file = formData.get('file') as File | null;
+  const result = editionSchema.safeParse({
+    title: formData.get('title') ?? undefined,
+    subtitle: formData.get('subtitle') ?? undefined,
+    file,
+    isbn13: formData.get('isbn13') ?? undefined,
+    isbn10: formData.get('isbn10') ?? undefined,
+    language: formData.get('language') ?? undefined,
+    publicationDate: formData.get('publicationDate') ?? undefined,
+    pageCount: formData.get('pageCount') ?? undefined,
+    format: formData.get('format') ?? undefined,
+    publishers: formData.get('publishers')?.toString().split(',') ?? [],
+  });
+
+  if (!result.success) {
+    return {
+      success: false,
+      errorResponse: buildActionError(result.error),
     };
   }
 

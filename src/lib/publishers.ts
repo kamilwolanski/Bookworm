@@ -47,3 +47,30 @@ export async function deletePublisher(publisherId: string) {
 
   return book;
 }
+
+export type PublisherOption = { value: string; label: string };
+
+export async function searchPublishers(
+  q: string,
+  limit = 12
+): Promise<PublisherOption[]> {
+  const query = q.trim();
+  let publishers = [];
+  if (!query) {
+    publishers = await prisma.publisher.findMany({
+      take: 10,
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    });
+  } else {
+    publishers = await prisma.publisher.findMany({
+      where: {
+        OR: [{ name: { contains: query, mode: 'insensitive' } }],
+      },
+      take: limit,
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true },
+    });
+  }
+  return publishers.map((p) => ({ value: p.id, label: p.name }));
+}

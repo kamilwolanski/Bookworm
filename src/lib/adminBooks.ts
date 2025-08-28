@@ -239,3 +239,17 @@ export async function deleteBook(bookId: string) {
 
   return book;
 }
+
+export async function getBookBySlug(slug: string) {
+  const book = await prisma.book.findFirstOrThrow({
+    where: {
+      slug,
+    },
+    select: {
+      id: true,
+      title: true,
+    },
+  });
+
+  return book;
+}

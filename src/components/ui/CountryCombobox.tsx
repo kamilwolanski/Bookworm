@@ -58,19 +58,6 @@ const COUNTRIES = [
 
 export type CountryCode = (typeof COUNTRIES)[number]['code'];
 
-export const COUNTRY_CODES = [
-  'pl',
-  'de',
-  'us',
-  'gb',
-  'fr',
-  'es',
-  'it',
-  'ua',
-  'cz',
-  'sk',
-];
-
 // --- Sam kombajn (standalone), kontrolowany z zewnątrz przez value/onChange ---
 type CountryComboboxProps = {
   value?: CountryCode;

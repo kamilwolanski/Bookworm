@@ -21,7 +21,8 @@ import { UseFormReturn } from 'react-hook-form';
 import { updateBookAction } from '@/app/admin/books/actions/bookActions';
 import { PersonOption } from '@/lib/persons';
 import { searchPersonsAction } from '@/app/admin/persons/actions/personActions';
-import { dedupeByValue, useDebounced } from '@/lib/utils';
+import { dedupeByValue } from '@/lib/utils';
+import { useDebounced } from '@/app/hooks/useDebounce';
 import { format } from 'date-fns';
 import { BookBasicDTO } from '@/lib/adminBooks';
 

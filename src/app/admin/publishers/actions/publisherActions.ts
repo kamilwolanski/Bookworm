@@ -16,6 +16,7 @@ import {
   UpdatePublisherData,
   createPublisher,
   deletePublisher,
+  searchPublishers,
   updatePublisher,
 } from '@/lib/publishers';
 
@@ -136,3 +137,7 @@ export const deletePublisherAction: Action<[unknown, string]> = async (
     message: 'Wydawca został usunięty',
   };
 };
+
+export async function searchPublishersAction(q: string, limit = 12) {
+  return searchPublishers(q, limit);
+}

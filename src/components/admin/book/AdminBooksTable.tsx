@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   ColumnDef,
   flexRender,
@@ -100,7 +101,18 @@ export default function AdminBooksTable({
           </Button>
         );
       },
-      cell: ({ row }) => <div>{row.getValue('title')}</div>,
+      cell: ({ row }) => {
+        return row.original.slug ? (
+          <Link
+            href={`/admin/books/${row.original.slug}`}
+            className="text-link"
+          >
+            {row.getValue('title')}
+          </Link>
+        ) : (
+          <div>{row.getValue('title')}</div>
+        );
+      },
     },
     {
       accessorKey: 'authors',
@@ -209,10 +221,10 @@ export default function AdminBooksTable({
       },
     },
   });
-  const selectedIds = table
-    .getSelectedRowModel()
-    .rows.map((row) => row.original.id);
-  console.log('selectedIds', selectedIds);
+  // const selectedIds = table
+  //   .getSelectedRowModel()
+  //   .rows.map((row) => row.original.id);
+  // console.log('selectedIds', selectedIds);
   return (
     <div className="w-full">
       <div className="flex items-center py-4"></div>
