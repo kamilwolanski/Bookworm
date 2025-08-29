@@ -49,3 +49,11 @@ export async function createEdition(data: CreateEditionData) {
     },
   });
 }
+
+export async function getAllEditionsBasic(bookId: string) {
+  return prisma.edition.findMany({
+    where: {
+      bookId: bookId,
+    },
+  });
+}
