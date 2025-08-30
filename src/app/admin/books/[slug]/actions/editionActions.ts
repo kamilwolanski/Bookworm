@@ -1,14 +1,20 @@
 'use server';
 
 import { handleImageUpload, parseFormEditionData } from '@/app/admin/helpers';
-import { serverErrorResponse, unauthorizedResponse } from '@/lib/responses';
+import {
+  notFoundResponse,
+  serverErrorResponse,
+  unauthorizedResponse,
+} from '@/lib/responses';
 import { revalidatePath } from 'next/cache';
 import { getUserSession } from '@/lib/session';
 import { ActionResult } from '@/types/actions';
-import { Role } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 import {
   createEdition,
   CreateEditionData,
+  deleteEdition,
+  getEdition,
   updateEdition,
   UpdateEditionData,
 } from '@/lib/editions';
@@ -171,5 +177,62 @@ export async function updateEditionAction(
     status: 'success',
     httpStatus: 200,
     message: 'Wydanie zostało zaktualizowane',
+  };
+}
+
+export async function deleteEditionAction(
+  _currentState: unknown,
+  editionId: string
+): Promise<ActionResult> {
+  const session = await getUserSession();
+
+  if (session.user.role !== Role.ADMIN) {
+    return unauthorizedResponse();
+  }
+
+  const edition = await getEdition(editionId);
+
+  if (!edition)
+    return notFoundResponse(`Nie znaleziono wydania o id: ${editionId}`);
+
+  try {
+    if (edition.coverPublicId) {
+      const result = await cloudinary.uploader.destroy(edition.coverPublicId);
+      if (result.result !== 'ok' && result.result !== 'not found') {
+        return {
+          isError: true,
+          status: 'cloudinary_error',
+          httpStatus: 500,
+          message: 'Nie udało się usunąć pliku z Cloudinary.',
+        };
+      }
+    }
+
+    await deleteEdition(edition.id);
+  } catch (e) {
+    console.error('Delete error:', e);
+
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError &&
+      e.code === 'P2025'
+    ) {
+      return notFoundResponse(`Edycja o id: ${edition.id} już nie istnieje`);
+    }
+
+    return {
+      isError: true,
+      status: 'server_error',
+      httpStatus: 500,
+      message: 'Wystąpił błąd serwera',
+    };
+  }
+
+  revalidatePath(`/admin/books/${edition.book.slug}`);
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    message: 'Książka została usunięta',
   };
 }

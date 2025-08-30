@@ -30,12 +30,12 @@ import {
 } from '@/components/ui/table';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import { Trash2, Pencil } from 'lucide-react';
-import { Edition } from '@prisma/client';
 import { Dialog } from '@/components/ui/dialog';
 import { deletePersonAction } from '@/app/admin/persons/actions/personActions';
 import DeleteDialog from '@/components/forms/DeleteDialog';
 import EditEditionDialog from '@/components/admin/edition/EditEditionDialog';
 import { EditionDto } from '@/lib/editions';
+import { deleteEditionAction } from '@/app/admin/books/[slug]/actions/editionActions';
 
 export default function AdminEditionsTable({
   bookId,
@@ -53,9 +53,9 @@ export default function AdminEditionsTable({
     null
   );
   const openDialog = dialogType !== null;
-  const [clickedRow, setClickedRow] = React.useState<Edition | null>(null);
+  const [clickedRow, setClickedRow] = React.useState<EditionDto | null>(null);
 
-  const columns: ColumnDef<Edition>[] = [
+  const columns: ColumnDef<EditionDto>[] = [
     {
       id: 'select',
       header: ({ table }) => (
@@ -272,11 +272,11 @@ export default function AdminEditionsTable({
           {dialogType === 'delete' && clickedRow && (
             <DeleteDialog
               id={clickedRow.id}
-              removeAction={deletePersonAction}
-              revalidatePath="/admin/persons"
+              removeAction={deleteEditionAction}
+              revalidatePath={`/admin/books/${bookSlug}`}
               dialogTitle={
                 <>
-                  Czy na pewno chcesz usunąć <b>„{clickedRow.name}”</b>
+                  Czy na pewno chcesz usunąć <b>„{clickedRow.title}”</b>
                 </>
               }
               onSuccess={() => {

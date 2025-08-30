@@ -114,3 +114,30 @@ export async function getAllEditionsBasic(bookId: string) {
     },
   });
 }
+
+export async function getEdition(editionId: string) {
+  return prisma.edition.findFirst({
+    where: {
+      id: editionId,
+    },
+    select: {
+      id: true,
+      coverPublicId: true,
+      book: {
+        select: {
+          slug: true,
+        },
+      },
+    },
+  });
+}
+
+export async function deleteEdition(editionId: string) {
+  const book = await prisma.edition.delete({
+    where: {
+      id: editionId,
+    },
+  });
+
+  return book;
+}
