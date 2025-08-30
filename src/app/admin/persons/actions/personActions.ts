@@ -114,7 +114,7 @@ export const updatePersonAction = async (
   }
 
   const parsed = parseFormPersonData(formData);
-  console.log('parsed', parsed);
+
   if (!parsed.success) {
     return parsed.errorResponse;
   }
@@ -134,12 +134,7 @@ export const updatePersonAction = async (
   let imagePublicId: string | null = personImagePublicId;
   const slug = slugify(name, { lower: true });
 
-  console.log('slug', slug);
-  console.log('personImagePublicId', personImagePublicId);
-  console.log('file', file);
-
   if (file && file.size > 0) {
-    console.log('weszlo', file);
     const uploadResult = await handleImageUpload(
       'PersonPictures',
       file,

@@ -34,12 +34,17 @@ import { Edition } from '@prisma/client';
 import { Dialog } from '@/components/ui/dialog';
 import { deletePersonAction } from '@/app/admin/persons/actions/personActions';
 import DeleteDialog from '@/components/forms/DeleteDialog';
-import EditPersonDialog from '@/components/admin/person/EditPersonDialog';
+import EditEditionDialog from '@/components/admin/edition/EditEditionDialog';
+import { EditionDto } from '@/lib/editions';
 
 export default function AdminEditionsTable({
+  bookId,
+  bookSlug,
   editions,
 }: {
-  editions: Edition[];
+  bookId: string;
+  bookSlug: string;
+  editions: EditionDto[];
 }) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -281,8 +286,10 @@ export default function AdminEditionsTable({
             />
           )}
           {dialogType === 'edit' && clickedRow && (
-            <EditPersonDialog
-              selectedPublisher={clickedRow}
+            <EditEditionDialog
+              bookId={bookId}
+              bookSlug={bookSlug}
+              selectedEdition={clickedRow}
               onSuccess={() => {
                 setClickedRow(null);
                 setDialogType(null);

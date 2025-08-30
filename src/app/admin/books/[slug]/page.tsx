@@ -31,7 +31,11 @@ export default async function BookEdition({ params }: BookPageProps) {
         <b>{book.title}</b>
       </h1>
       <div className="flex flex-1">
-        <AdminEditionsTable editions={response} />
+        <AdminEditionsTable
+          editions={response}
+          bookId={book.id}
+          bookSlug={slug}
+        />
       </div>
     </div>
   );

@@ -171,7 +171,7 @@ export const languageSchema = z.enum([
   'bg', // Bułgarski
   'ar', // Arabski
 ]);
-
+export type LanguageInput = z.infer<typeof languageSchema>;
 // Schema dla Edition (tylko pola, które podałeś)
 export const editionSchema = z.object({
   isbn13: z
