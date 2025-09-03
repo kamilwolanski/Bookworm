@@ -58,16 +58,14 @@ export const createBookAction: Action<[unknown, FormData]> = async (
     return parsed.errorResponse;
   }
 
-  const { title, authors, genres, description, firstPublicationDate } =
-    parsed.data;
+  const { title, authors, genres, firstPublicationDate } = parsed.data;
 
-  const slug = slugify(title, { lower: true });
+  const slug = slugify(title, { lower: true, remove: /[*+~.()'"!:@,]/g });
 
   const data: CreateBookInput = {
     title,
     slug,
     authorIds: authors,
-    description: description ?? null,
     firstPublicationDate: firstPublicationDate ?? null,
     genreIds: genres,
   };
@@ -105,17 +103,15 @@ export const updateBookAction = async (
     return parsed.errorResponse;
   }
 
-  const { title, authors, genres, description, firstPublicationDate } =
-    parsed.data;
+  const { title, authors, genres, firstPublicationDate } = parsed.data;
 
-  const slug = slugify(title, { lower: true });
+  const slug = slugify(title, { lower: true, remove: /[*+~.()'"!:@,]/g });
 
   const data: UpdateBookData = {
     id: bookId,
     title,
     slug,
     authorIds: authors,
-    description: description ?? null,
     firstPublicationDate: firstPublicationDate ?? null,
     genreIds: genres,
   };

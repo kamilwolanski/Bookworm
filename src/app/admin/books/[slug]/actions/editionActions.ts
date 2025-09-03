@@ -54,6 +54,7 @@ export async function createEditionAction(
     isbn13,
     pageCount,
     publishers,
+    description,
   } = parsed.data;
 
   let coverUrl: string | null = null;
@@ -80,6 +81,7 @@ export async function createEditionAction(
     isbn10: isbn10 ?? null,
     isbn13: isbn13 ?? null,
     pageCount: pageCount ?? null,
+    description: description ?? null,
   };
 
   try {
@@ -130,6 +132,7 @@ export async function updateEditionAction(
     isbn13,
     pageCount,
     publishers,
+    description,
   } = parsed.data;
 
   let coverUrl: string | null = editionCoverUrl;
@@ -161,6 +164,7 @@ export async function updateEditionAction(
     isbn10: isbn10 ?? null,
     isbn13: isbn13 ?? null,
     pageCount: pageCount ?? null,
+    description: description ?? null,
   };
 
   try {

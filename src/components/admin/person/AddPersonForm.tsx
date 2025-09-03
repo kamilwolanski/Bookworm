@@ -141,8 +141,8 @@ export default function AddPersonForm({
                       }
                       onChange={(e) => field.onChange(e.target.value)}
                       placeholder="RRRR-MM-DD"
-                      min="1800-01-01"
-                      max="2100-12-31"
+                      min="100-01-01"
+                      max="100-12-31"
                     />
                   </FormControl>
                   <FormMessage />
@@ -164,8 +164,8 @@ export default function AddPersonForm({
                       }
                       onChange={(e) => field.onChange(e.target.value)}
                       placeholder="RRRR-MM-DD"
-                      min="1800-01-01"
-                      max="2100-12-31"
+                      min="100-01-01"
+                      max="100-12-31"
                     />
                   </FormControl>
                   <FormMessage />

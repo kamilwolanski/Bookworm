@@ -28,6 +28,7 @@ import { MultiSelect } from '@/components/ui/multi-select';
 import { PublisherOption } from '@/lib/publishers';
 import { useDebounced } from '@/app/hooks/useDebounce';
 import { searchPublishersAction } from '@/app/admin/publishers/actions/publisherActions';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function BookForm({
   bookId,
@@ -153,8 +154,8 @@ export default function BookForm({
                       }
                       onChange={(e) => field.onChange(e.target.value)}
                       placeholder="RRRR-MM-DD"
-                      min="1800-01-01"
-                      max="2100-12-31"
+                      min="100-01-01"
+                      max="100-12-31"
                     />
                   </FormControl>
                   <FormMessage />
@@ -236,7 +237,7 @@ export default function BookForm({
                 <FormItem className="mt-3">
                   <FormLabel>Liczba stron</FormLabel>
                   <FormControl>
-                    <Input placeholder="Podtytuł" {...field} />
+                    <Input placeholder="Liczba stron" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -279,6 +280,26 @@ export default function BookForm({
               )}
             />
           </div>
+        </div>
+
+        <div className="col-span-2">
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem className="mt-3">
+                <FormLabel>Opis</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Dodaj opis książki"
+                    className="resize-none"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <div className="col-span-1 col-start-2">

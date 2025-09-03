@@ -32,6 +32,7 @@ export const COUNTRIES = [
   { value: 'bg', label: 'Bułgaria', icon: '🇧🇬', meta: '(bg)' },
   { value: 'pt', label: 'Portugalia', icon: '🇵🇹', meta: '(pt)' },
   { value: 'ie', label: 'Irlandia', icon: '🇮🇪', meta: '(ie)' },
+  { value: 'il', label: 'Izrael', icon: '🇮🇱', meta: '(il)' },
 ] as const;
 
 export type CountryCode = (typeof COUNTRIES)[number]['value'];

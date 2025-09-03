@@ -29,6 +29,7 @@ export async function createEdition(data: CreateEditionData) {
     language,
     format,
     subtitle,
+    description,
   } = data;
 
   return await prisma.edition.create({
@@ -43,6 +44,7 @@ export async function createEdition(data: CreateEditionData) {
       coverPublicId: coverPublicId,
       isbn10: isbn10,
       isbn13: isbn13,
+      description: description,
       language,
       publishers: {
         create: publisherIds.map((publisherId, index) => ({
@@ -72,6 +74,7 @@ export async function updateEdition(data: UpdateEditionData) {
     language,
     format,
     subtitle,
+    description,
   } = data;
 
   return await prisma.edition.update({
@@ -89,6 +92,7 @@ export async function updateEdition(data: UpdateEditionData) {
       coverPublicId: coverPublicId,
       isbn10: isbn10,
       isbn13: isbn13,
+      description: description,
       language,
       publishers: {
         deleteMany: {},

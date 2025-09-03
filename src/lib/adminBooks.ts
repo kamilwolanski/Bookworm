@@ -37,20 +37,12 @@ export type BookBasicDTO = Omit<
 };
 
 export async function createBook(input: CreateBookInput) {
-  const {
-    slug,
-    title,
-    authorIds,
-    genreIds,
-    firstPublicationDate,
-    description,
-  } = input;
+  const { slug, title, authorIds, genreIds, firstPublicationDate } = input;
 
   return await prisma.book.create({
     data: {
       slug,
       title,
-      description: description ?? undefined,
       firstPublicationDate: firstPublicationDate,
       authors: {
         create: authorIds.map((personId, index) => ({
@@ -72,22 +64,13 @@ export async function createBook(input: CreateBookInput) {
 }
 
 export async function updateBook(data: UpdateBookData) {
-  const {
-    id,
-    slug,
-    title,
-    authorIds,
-    genreIds,
-    firstPublicationDate,
-    description,
-  } = data;
+  const { id, slug, title, authorIds, genreIds, firstPublicationDate } = data;
 
   return await prisma.book.update({
     where: { id },
     data: {
       slug,
       title,
-      description: description ?? undefined,
       firstPublicationDate,
       authors: {
         deleteMany: {},
@@ -183,7 +166,6 @@ export async function getAllBooksBasic(
         title: true,
         addedAt: true,
         firstPublicationDate: true,
-        description: true,
         slug: true,
         // ✅ zawęź select autorów do potrzebnych pól
         authors: {

@@ -40,7 +40,6 @@ export const bookSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(1, 'Tytuł jest wymagany'),
   authors: z.array(z.string()),
-  description: z.string().max(1000).optional(),
   genres: z.array(z.string()).default([]),
   firstPublicationDate: z.coerce.date().optional(),
 });
@@ -81,6 +80,7 @@ export const COUNTRY_CODES = [
   'bg',
   'pt',
   'ie',
+  'il',
 ] as const;
 
 export const personSchema = z.object({
@@ -177,10 +177,13 @@ export const editionSchema = z.object({
   isbn13: z
     .string()
     .regex(/^\d{13}$/, 'ISBN-13 musi mieć 13 cyfr')
+    .or(z.literal(''))
     .optional(),
+
   isbn10: z
     .string()
     .regex(/^\d{10}$/, 'ISBN-10 musi mieć 10 cyfr')
+    .or(z.literal(''))
     .optional(),
   language: languageSchema.optional(),
   file: z
@@ -199,6 +202,7 @@ export const editionSchema = z.object({
   title: z.string().optional(),
   subtitle: z.string().optional(),
   publishers: z.array(z.string()),
+  description: z.string().max(3000).optional(),
   // contributors: z.array(editionContributorSchema).optional().default([]),
 });
 

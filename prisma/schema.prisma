@@ -98,7 +98,6 @@ model Book {
   id                   String    @id @default(uuid())
   slug                 String?   @unique
   title                String
-  description          String?
   addedAt              DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
   firstPublicationDate DateTime?
@@ -146,6 +145,7 @@ model Edition {
   coverPublicId   String?
   title           String?
   subtitle        String?
+  description     String?
 
   contributors EditionContributor[]
   publishers   EditionPublisher[] 

@@ -54,6 +54,7 @@ const COUNTRIES = [
   { code: 'bg', name: 'Bułgaria', flag: '🇧🇬' },
   { code: 'pt', name: 'Portugalia', flag: '🇵🇹' },
   { code: 'ie', name: 'Irlandia', flag: '🇮🇪' },
+  { code: 'il', name: 'Izrael', flag: '🇮🇱' },
 ] as const;
 
 export type CountryCode = (typeof COUNTRIES)[number]['code'];

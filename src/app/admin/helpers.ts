@@ -132,6 +132,7 @@ export function parseFormEditionData(formData: FormData):
       errorResponse: ActionError;
     } {
   const file = formData.get('file') as File | null;
+
   const result = editionSchema.safeParse({
     title: formData.get('title') ?? undefined,
     subtitle: formData.get('subtitle') ?? undefined,
@@ -142,9 +143,10 @@ export function parseFormEditionData(formData: FormData):
     publicationDate: formData.get('publicationDate') ?? undefined,
     pageCount: formData.get('pageCount') ?? undefined,
     format: formData.get('format') ?? undefined,
+    description: formData.get('description') ?? undefined,
     publishers: formData.get('publishers')?.toString().split(',') ?? [],
   });
-
+  console.log('result', result)
   if (!result.success) {
     return {
       success: false,
