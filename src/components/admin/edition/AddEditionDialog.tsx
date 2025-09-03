@@ -26,12 +26,7 @@ const AddEditionDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="text-black cursor-pointer self-start"
-        >
-          Dodaj wydanie +
-        </Button>
+        <Button className="cursor-pointer self-start">Dodaj wydanie +</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[825px]">
         <DialogHeader>

@@ -18,12 +18,7 @@ export default function AddPublisherDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="text-black cursor-pointer self-start"
-        >
-          Dodaj osobę +
-        </Button>
+        <Button className="cursor-pointer self-start">Dodaj osobę +</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[825px]">
         <DialogHeader>
