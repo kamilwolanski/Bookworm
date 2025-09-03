@@ -36,7 +36,17 @@ import { deletePersonAction } from '@/app/admin/persons/actions/personActions';
 import DeleteDialog from '@/components/forms/DeleteDialog';
 import EditPersonDialog from '@/components/admin/person/EditPersonDialog';
 
-export default function AdminPersonsTable({ persons }: { persons: Person[] }) {
+export default function AdminPersonsTable({
+  pageSize,
+  page,
+  totalCount,
+  persons,
+}: {
+  pageSize: number;
+  page: number;
+  totalCount: number;
+  persons: Person[];
+}) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
@@ -172,11 +182,11 @@ export default function AdminPersonsTable({ persons }: { persons: Person[] }) {
       columnVisibility,
       rowSelection,
     },
-    // initialState: {
-    //   pagination: {
-    //     pageSize,
-    //   },
-    // },
+    initialState: {
+      pagination: {
+        pageSize,
+      },
+    },
   });
   // const selectedIds = table
   //   .getSelectedRowModel()
@@ -270,13 +280,13 @@ export default function AdminPersonsTable({ persons }: { persons: Person[] }) {
           )}
         </Dialog>
       </div>
-      {/* <div className="mt-10">
+      <div className="mt-10">
         <PaginationWithLinks
           page={page}
           pageSize={pageSize}
           totalCount={totalCount}
         />
-      </div> */}
+      </div>
     </div>
   );
 }

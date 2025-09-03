@@ -28,7 +28,13 @@ export async function updatePerson(data: UpdatePersonData) {
   });
 }
 
-export async function getAllPersons(search?: string) {
+export async function getAllPersons(
+  currentPage: number,
+  personsPerPage: number,
+  search?: string
+) {
+  const skip = (currentPage - 1) * personsPerPage;
+
   const searchConditions = search
     ? {
         OR: [
@@ -38,9 +44,16 @@ export async function getAllPersons(search?: string) {
         ],
       }
     : {};
-  return prisma.person.findMany({
-    where: searchConditions,
-  });
+  const [persons, totalCount] = await Promise.all([
+    prisma.person.findMany({
+      skip,
+      take: personsPerPage,
+      where: searchConditions,
+    }),
+    prisma.person.count({ where: searchConditions }),
+  ]);
+
+  return { persons, totalCount };
 }
 
 export async function getPerson(personId: string) {

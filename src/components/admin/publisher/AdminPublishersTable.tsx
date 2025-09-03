@@ -37,8 +37,14 @@ import DeleteDialog from '@/components/forms/DeleteDialog';
 import EditPublisherDialog from '@/components/admin/publisher/EditPublisherDialog';
 
 export default function AdminPublishersTable({
+  pageSize,
+  page,
+  totalCount,
   publishers,
 }: {
+  pageSize: number;
+  page: number;
+  totalCount: number;
   publishers: Publisher[];
 }) {
   const [columnVisibility, setColumnVisibility] =
@@ -270,13 +276,13 @@ export default function AdminPublishersTable({
           )}
         </Dialog>
       </div>
-      {/* <div className="mt-10">
+      <div className="mt-10">
         <PaginationWithLinks
           page={page}
           pageSize={pageSize}
           totalCount={totalCount}
         />
-      </div> */}
+      </div>
     </div>
   );
 }

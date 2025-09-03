@@ -8,7 +8,12 @@ export type CreatePublisherData = Omit<
 
 export type UpdatePublisherData = Omit<Publisher, 'createdAt' | 'updatedAt'>;
 
-export async function getAllPublishers(search?: string) {
+export async function getAllPublishers(
+  currentPage: number,
+  publishersPerPage: number,
+  search?: string
+) {
+  const skip = (currentPage - 1) * publishersPerPage;
   const searchConditions = search
     ? {
         OR: [
@@ -18,7 +23,16 @@ export async function getAllPublishers(search?: string) {
       }
     : {};
 
-  return prisma.publisher.findMany({ where: searchConditions });
+  const [publishers, totalCount] = await Promise.all([
+    prisma.publisher.findMany({
+      skip,
+      take: publishersPerPage,
+      where: searchConditions,
+    }),
+    prisma.publisher.count({ where: searchConditions }),
+  ]);
+
+  return { publishers, totalCount };
 }
 
 export async function createPublisher(data: CreatePublisherData) {

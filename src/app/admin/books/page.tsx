@@ -1,6 +1,5 @@
 import { getBookGenres } from '@/lib/userbooks';
 import { SearchBar } from '@/components/shared/SearchBar';
-import BookFilters from '@/components/book/BookFilters';
 
 import AdminBooksTable from '@/components/admin/book/AdminBooksTable';
 import AddBookDialog from '@/components/admin/book/AddBookDialog';
@@ -44,7 +43,6 @@ export default async function BooksPage({ searchParams }: Props) {
       </div>
 
       <div className="flex flex-1">
-        {/* <BookFilters bookGenres={bookGenres} genresParams={genresParams} /> */}
         <AdminBooksTable
           books={response.books}
           page={currentPage}
