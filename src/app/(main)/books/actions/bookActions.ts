@@ -2,16 +2,11 @@
 
 import {
   UserBookDetailsDTO,
-  UserBookDTO,
-  deleteBook,
   EditBookData,
   getBook,
-  getBooks,
   getRecentBooksExcludingCurrent,
   RecentBookDto,
   updateBookWithTransaction,
-  getBooksAll,
-  BookWithUserData,
 } from '@/lib/userbooks';
 import {
   forbiddenResponse,
@@ -23,132 +18,12 @@ import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
 import type { Action, ActionResult } from '@/types/actions';
 import { handleImageUpload, parseFormData } from '@/app/admin/helpers';
-import { v2 as cloudinary } from 'cloudinary';
-import { GenreSlug, Prisma, ReadingStatus } from '@prisma/client';
 import {
   findUniqueBook,
   RateData,
   RatePayload,
   updateBookRating,
 } from '@/lib/books';
-
-export const removeUserBookAction: Action<[unknown, string]> = async (
-  _,
-  bookId
-) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) {
-    return unauthorizedResponse();
-  }
-
-  const book = await getBook(bookId, session.user.id);
-
-  if (!book) return notFoundResponse(`Nie znaleziono książki o id: ${bookId}`);
-
-  if (book.userId !== session.user.id)
-    return forbiddenResponse(
-      `Brak uprawnień do usunięcia książki o id: ${bookId}`
-    );
-
-  try {
-    if (book.imagePublicId) {
-      const result = await cloudinary.uploader.destroy(book.imagePublicId);
-      if (result.result !== 'ok' && result.result !== 'not found') {
-        return {
-          isError: true,
-          status: 'cloudinary_error',
-          httpStatus: 500,
-          message: 'Nie udało się usunąć pliku z Cloudinary.',
-        };
-      }
-    }
-
-    await deleteBook(bookId, session.user.id);
-  } catch (e) {
-    console.error('Delete error:', e);
-
-    if (
-      e instanceof Prisma.PrismaClientKnownRequestError &&
-      e.code === 'P2025'
-    ) {
-      return notFoundResponse(`Książka o id: ${bookId} już nie istnieje`);
-    }
-
-    return {
-      isError: true,
-      status: 'server_error',
-      httpStatus: 500,
-      message: 'Wystąpił błąd serwera',
-    };
-  }
-
-  // revalidatePath('/books');
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    message: 'Książka została usunięta',
-  };
-};
-
-export const getBooksAction: Action<
-  [
-    {
-      currentPage: number;
-      genres: GenreSlug[];
-      userRatings: string[];
-      statuses: ReadingStatus[];
-      myShelf: boolean;
-      booksPerPage?: number;
-      search?: string;
-    },
-  ],
-  {
-    books: BookWithUserData[];
-    totalCount: number;
-  }
-> = async ({
-  currentPage,
-  booksPerPage = 10,
-  search,
-  genres,
-  myShelf,
-  userRatings,
-  statuses,
-}) => {
-  const session = await getUserSession();
-
-  if (myShelf) {
-    if (!session?.user?.id) {
-      return unauthorizedResponse();
-    }
-  }
-
-  try {
-    const books = await getBooksAll(
-      currentPage,
-      booksPerPage,
-      genres,
-      myShelf,
-      userRatings,
-      statuses,
-      search,
-      session?.user?.id
-    );
-
-    return {
-      isError: false,
-      status: 'success',
-      httpStatus: 200,
-      data: books,
-    };
-  } catch (e) {
-    console.log('e', e);
-    return serverErrorResponse('Problem przy odczycie danych');
-  }
-};
 
 export const getBookAction: Action<[string], UserBookDetailsDTO> = async (
   bookId

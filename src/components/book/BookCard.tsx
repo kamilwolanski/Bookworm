@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Star, Trash2, MoreVertical, Check, Plus, BookA } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { BookWithUserData } from '@/lib/userbooks';
+import { BookWithUserDataAndDisplay } from '@/lib/userbooks';
 import { removeUserBookAction } from '@/app/(main)/books/actions/bookActions';
 import {
   DropdownMenu,
@@ -15,12 +15,12 @@ import {
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { Dialog } from '@/components/ui/dialog';
-import RateBookBtn from './ratebook/RateBookBtn'; // <-- import
+import RateBookBtn from './ratebook/RateBookBtn';
 import userIcon from '@/app/assets/icons/user.svg';
 import multipleUsersIcon from '@/app/assets/icons/multiple_users.svg';
 import DeleteDialog from '@/components/forms/DeleteDialog';
 
-export function BookCard({ book }: { book: BookWithUserData }) {
+export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
   const router = useRouter();
 
   const [dialogType, setDialogType] = React.useState<null | 'delete' | 'rate'>(
@@ -47,10 +47,10 @@ export function BookCard({ book }: { book: BookWithUserData }) {
       key={book.id}
     >
       <div className="relative aspect-[3/4] w-full">
-        {book.imageUrl ? (
+        {book.displayCoverUrl ? (
           <Image
-            src={book.imageUrl}
-            alt={`Okładka książki ${book.title}`}
+            src={book.displayCoverUrl}
+            alt={`Okładka książki ${book.displayEdition?.title}`}
             fill
             className="object-cover rounded-lg"
             sizes="(max-width: 768px) 100vw, 33vw"
@@ -175,7 +175,7 @@ export function BookCard({ book }: { book: BookWithUserData }) {
             {dialogType === 'rate' && (
               <RateBookBtn
                 bookId={book.id}
-                rating={book.myRating ?? 0} // domyślnie 0, jeśli brak oceny
+                rating={book.myRating ?? 0}
                 revalidatePath="/books"
                 dialogTitle={book.myRating ? 'Zmień ocenę' : 'Oceń książkę'}
                 onSuccess={() => setDialogType(null)}
@@ -188,15 +188,19 @@ export function BookCard({ book }: { book: BookWithUserData }) {
           <div className="flex justify-between w-full">
             <div className="w-full flex flex-col justify-between">
               <div className="pb-1">
-                <h3 className="font-semibold text-lg">{book.title}</h3>
-                <p className="text-md">{book.author}</p>
+                <h3 className="font-semibold text-lg">
+                  {book.displayEdition?.title}
+                </h3>
+                <p className="text-md">
+                  {book.authors.map((author) => author.person.name)}
+                </p>
               </div>
 
               <div className="flex gap-2 pt-1 border-gray-300/30 border-t">
                 <div className="flex gap-1">
                   <Image src={multipleUsersIcon} alt="icon" />
                   <span className="flex items-center gap-1 text-sm">
-                    {book.averageRating}/5{' '}
+                    {book.averageRating ?? 0}/5{' '}
                     <Star className="w-3 h-3 fill-current text-yellow-400" />
                   </span>
                 </div>

@@ -1,4 +1,12 @@
-import { Book, Comment, ReadingStatus, User, UserBook } from '@prisma/client';
+import {
+  Book,
+  Comment,
+  GenreTranslation,
+  MediaFormat,
+  ReadingStatus,
+  User,
+  UserBook,
+} from '@prisma/client';
 import prisma from './prisma';
 
 export type EditBookData = Omit<
@@ -59,58 +67,120 @@ interface AddRatingInput {
   value: number;
 }
 
-export type BookWithUserData = Book & {
-  userBook?: UserBook;
+export interface DisplayEdition {
+  id: string;
+  title: string | null;
+  subtitle: string | null;
+  coverUrl: string | null;
+  language: string | null;
+  publicationDate: Date | null;
+  format: MediaFormat | null;
+}
+
+export interface BookGenreWithTranslations {
+  genre: {
+    translations: GenreTranslation[];
+  };
+}
+
+export interface BookAuthorForList {
+  bookId: string;
+  personId: string;
+  order: number | null;
+  person: { name: string }; // bo selectujesz tylko name
+}
+
+export interface BookWithUserDataAndDisplay extends Book {
+  genres: BookGenreWithTranslations[];
+  authors: BookAuthorForList[];
+  userBook?: UserBook[];
+  userRatings?: { rating: number }[];
   isOnShelf: boolean;
   myRating: number | null;
-};
+  displayEdition?: DisplayEdition;
+  displayTitle: string; // edition.title ?? book.title
+  displayCoverUrl: string | null; // edition.coverUrl ?? null
+}
+
+export interface GetBooksAllResponse {
+  books: BookWithUserDataAndDisplay[];
+  totalCount: number;
+}
 
 export async function getBooksAll(
   currentPage: number,
   booksPerPage: number,
-  genres: GenreSlug[],
+  genres: string[],
   myShelf: boolean,
   userRatings: string[],
   statuses: ReadingStatus[],
   search?: string,
   userId?: string
-): Promise<{
-  books: BookWithUserData[];
-  totalCount: number;
-}> {
+): Promise<GetBooksAllResponse> {
   const skip = (currentPage - 1) * booksPerPage;
 
   const includeUnrated = userRatings.includes('none');
   const numericRatings = userRatings.filter((r) => r !== 'none').map(Number);
-  const ratingFilters = [];
+  const ratingFilters: unknown[] = [];
 
   if (numericRatings.length > 0 && userId) {
     ratingFilters.push({
       userRatings: { some: { userId, rating: { in: numericRatings } } },
     });
   }
-
   if (includeUnrated && userId) {
-    ratingFilters.push({
-      userRatings: { none: { userId } },
-    });
+    ratingFilters.push({ userRatings: { none: { userId } } });
   }
 
-  const searchConditions = search
+  const searchConditions = search?.trim()
     ? {
         OR: [
+          // 1) Oryginalny tytuł książki
+          { title: { contains: search, mode: 'insensitive' as const } },
+
+          // 2) Tytuł/subtytuł edycji po polsku
           {
-            title: {
-              contains: search,
-              mode: 'insensitive' as const,
+            editions: {
+              some: {
+                language: 'pl',
+                OR: [
+                  { title: { contains: search, mode: 'insensitive' as const } },
+                  {
+                    subtitle: {
+                      contains: search,
+                      mode: 'insensitive' as const,
+                    },
+                  },
+                ],
+              },
             },
           },
+
+          // 3) Autor (Person) powiązany z Book
           {
-            author: {
-              contains: search,
-              mode: 'insensitive' as const,
+            authors: {
+              some: {
+                person: {
+                  OR: [
+                    {
+                      name: { contains: search, mode: 'insensitive' as const },
+                    },
+                    {
+                      sortName: {
+                        contains: search,
+                        mode: 'insensitive' as const,
+                      },
+                    },
+                    // Uwaga: aliases to String[] — operator 'has' sprawdza pełny element, nie "contains".
+                    // Przyda się dla dokładnych aliasów (np. "J.K. Rowling"), ale nie dla fraz typu "Rowl".
+                    { aliases: { has: search } },
+                  ],
+                },
+              },
             },
           },
+
+          // 4) Nazwy gatunków PL (jak masz już)
           {
             genres: {
               some: {
@@ -118,10 +188,7 @@ export async function getBooksAll(
                   translations: {
                     some: {
                       language: 'pl',
-                      name: {
-                        contains: search,
-                        mode: 'insensitive' as const,
-                      },
+                      name: { contains: search, mode: 'insensitive' as const },
                     },
                   },
                 },
@@ -135,33 +202,17 @@ export async function getBooksAll(
   const where = {
     ...searchConditions,
     ...(genres.length > 0 && {
-      genres: {
-        some: {
-          genre: {
-            slug: { in: genres },
-          },
-        },
-      },
+      genres: { some: { genre: { slug: { in: genres } } } },
     }),
-    ...(myShelf &&
-      userId && {
-        userBook: { some: { userId } },
-      }),
+    ...(myShelf && userId && { userBook: { some: { userId } } }),
     ...(ratingFilters.length > 0 && { OR: ratingFilters }),
     ...(statuses.length > 0 &&
       userId && {
-        userBook: {
-          some: {
-            readingStatus: {
-              in: statuses,
-            },
-          },
-        },
+        userBook: { some: { readingStatus: { in: statuses } } },
       }),
   };
 
-  console.log('where', where);
-
+  // 1) Książki + total
   const [books, totalCount] = await Promise.all([
     prisma.book.findMany({
       skip,
@@ -169,30 +220,28 @@ export async function getBooksAll(
       where,
       orderBy: { addedAt: 'desc' },
       include: {
-        genres: {
+        authors: {
           include: {
-            genre: {
-              include: {
-                translations: {
-                  where: { language: 'pl' },
-                },
+            person: {
+              select: {
+                name: true,
               },
             },
           },
         },
-        ...(userId && {
-          userBook: {
-            where: {
-              userId: userId,
+        genres: {
+          include: {
+            genre: {
+              include: { translations: { where: { language: 'pl' } } },
             },
           },
-        }),
+        },
+        ...(userId && { userBook: { where: { userId } } }),
         ...(userId && {
           userRatings: {
-            // <--- nazwa relacji w liczbie mnogiej
             where: { userId },
-            select: { rating: true }, // bierz tylko to, co potrzebne
-            take: 1, // bo i tak będzie max 1 rekord (PK: bookId+userId)
+            select: { rating: true },
+            take: 1,
           },
         }),
       },
@@ -200,23 +249,73 @@ export async function getBooksAll(
     prisma.book.count({ where }),
   ]);
 
-  const bookDtos = books.map((book) => {
+  const bookIds = books.map((b) => b.id);
+  if (bookIds.length === 0) {
+    return { books: [], totalCount };
+  }
+
+  // 2) Wszystkie edycje dla książek z bieżącej strony (1 zapytanie)
+  const editions = await prisma.edition.findMany({
+    where: { bookId: { in: bookIds } },
+    select: {
+      id: true,
+      bookId: true,
+      title: true,
+      subtitle: true,
+      coverUrl: true,
+      language: true,
+      publicationDate: true,
+      format: true,
+    },
+  });
+
+  const rank = (e: (typeof editions)[number]) => {
+    const lang = e.language === 'pl' ? 1 : 0;
+    const hasCover = e.coverUrl ? 1 : 0;
+    const pub = e.publicationDate ? e.publicationDate.getTime() : -Infinity;
+    // większy = lepszy
+    // ważymy jak w SQL: PL > ma okładkę > format > najnowsza
+    return lang * 1e12 + hasCover * 1e10 + pub;
+  };
+
+  const bestEditionByBook = new Map<string, (typeof editions)[number]>();
+  for (const e of editions) {
+    const cur = bestEditionByBook.get(e.bookId);
+    if (!cur || rank(e) > rank(cur)) bestEditionByBook.set(e.bookId, e);
+  }
+
+  // 4) DTO do UI: displayTitle/cover z najlepszej edycji
+  const dto = books.map((book) => {
     const userData = Array.isArray(book.userBook)
       ? book.userBook[0]
       : undefined;
     const myRating = book.userRatings?.[0]?.rating ?? null;
+
+    const best = bestEditionByBook.get(book.id);
+    const displayEdition = best
+      ? {
+          id: best.id,
+          title: best.title,
+          subtitle: best.subtitle,
+          coverUrl: best.coverUrl,
+          language: best.language,
+          publicationDate: best.publicationDate,
+          format: best.format,
+        }
+      : undefined;
+
     return {
       ...book,
       userBook: userData,
       isOnShelf: !!userData,
-      myRating, // <-- ocena zalogowanego użytkownika
+      myRating,
+      displayEdition,
+      displayTitle: displayEdition?.title ?? book.title,
+      displayCoverUrl: displayEdition?.coverUrl ?? null,
     };
   });
 
-  return {
-    books: bookDtos,
-    totalCount,
-  };
+  return { books: dto, totalCount };
 }
 
 export async function getBooks(

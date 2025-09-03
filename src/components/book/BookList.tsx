@@ -1,14 +1,13 @@
 import { BookCard } from './BookCard';
-import { UserBookDTO } from '@/lib/userbooks';
+import { BookWithUserDataAndDisplay } from '@/lib/userbooks';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
-import { BookDTO } from '@/lib/books';
 import { SearchBar } from '../shared/SearchBar';
 import ShelfSwitch from '@/components/book/ShelfSwitch';
 import { getUserSession } from '@/lib/session';
 import NoResults from '@/components/states/NoResults';
 
 type BookListProps = {
-  books: UserBookDTO[] | BookDTO[];
+  books: BookWithUserDataAndDisplay[];
   totalCount: number;
   pageSize: number;
   page: number;
@@ -21,7 +20,7 @@ export async function BookList(props: BookListProps) {
   return (
     <div className="ms-16 flex flex-col min-h-[80vh] w-full">
       <div className="flex items-center mb-10 gap-3">
-        <SearchBar />
+        <SearchBar placeholder="Wyszukaj książkę" />
         {session && <ShelfSwitch />}
       </div>
       {books.length > 0 ? (

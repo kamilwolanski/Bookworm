@@ -148,7 +148,7 @@ model Edition {
   description     String?
 
   contributors EditionContributor[]
-  publishers   EditionPublisher[] 
+  publishers   EditionPublisher[]
 
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -158,6 +158,8 @@ model Edition {
   @@index([language])
   @@index([publicationDate])
   @@index([bookId, language, publicationDate])
+  @@index([bookId, language, title])
+  @@index([bookId, language, subtitle])
 }
 
 model EditionPublisher {
