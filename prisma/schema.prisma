@@ -272,16 +272,16 @@ model CommentRating {
 model UserBook {
   userId        String
   bookId        String
-  editionId     String?
+  editionId     String
   readingStatus ReadingStatus @default(WANT_TO_READ)
   addedAt       DateTime      @default(now())
   note          String?
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  book    Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  edition Edition? @relation(fields: [editionId], references: [id], onDelete: SetNull)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book    Book    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  edition Edition @relation(fields: [editionId], references: [id])
 
-  @@id([bookId, userId])
+  @@id([bookId, userId, editionId])
   @@index([editionId])
   @@index([userId, addedAt])
   @@index([userId, readingStatus, addedAt])

@@ -17,6 +17,7 @@ export type BookDetailsDTO = Book & {
 };
 
 export type RatePayload = { bookId: string; rating: number };
+
 export type RateData = {
   averageRating: number;
   ratingCount: number;

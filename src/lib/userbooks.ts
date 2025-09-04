@@ -1,6 +1,7 @@
 import {
   Book,
   Comment,
+  Edition,
   GenreTranslation,
   MediaFormat,
   ReadingStatus,
@@ -93,11 +94,11 @@ export interface BookAuthorForList {
 export interface BookWithUserDataAndDisplay extends Book {
   genres: BookGenreWithTranslations[];
   authors: BookAuthorForList[];
-  userBook?: UserBook[];
+  userBook?: UserBook;
   userRatings?: { rating: number }[];
   isOnShelf: boolean;
   myRating: number | null;
-  displayEdition?: DisplayEdition;
+  displayEdition: DisplayEdition;
   displayTitle: string; // edition.title ?? book.title
   displayCoverUrl: string | null; // edition.coverUrl ?? null
 }
@@ -106,6 +107,26 @@ export interface GetBooksAllResponse {
   books: BookWithUserDataAndDisplay[];
   totalCount: number;
 }
+
+export interface RatingFilter {
+  userRatings?:
+    | {
+        some: {
+          userId: string;
+          rating: {
+            in: number[];
+          };
+        };
+      }
+    | {
+        none: {
+          userId: string;
+        };
+      };
+}
+
+export type AddBookToShelfPayload = { bookId: string; editionId: string };
+export type RemoveBookFromShelfPayload = { bookId: string; editionId: string };
 
 export async function getBooksAll(
   currentPage: number,
@@ -121,7 +142,7 @@ export async function getBooksAll(
 
   const includeUnrated = userRatings.includes('none');
   const numericRatings = userRatings.filter((r) => r !== 'none').map(Number);
-  const ratingFilters: unknown[] = [];
+  const ratingFilters: RatingFilter[] = [];
 
   if (numericRatings.length > 0 && userId) {
     ratingFilters.push({
@@ -254,7 +275,7 @@ export async function getBooksAll(
     return { books: [], totalCount };
   }
 
-  // 2) Wszystkie edycje dla książek z bieżącej strony (1 zapytanie)
+  // wszystkie edycje dla bieżących książek
   const editions = await prisma.edition.findMany({
     where: { bookId: { in: bookIds } },
     select: {
@@ -269,40 +290,60 @@ export async function getBooksAll(
     },
   });
 
-  const rank = (e: (typeof editions)[number]) => {
-    const lang = e.language === 'pl' ? 1 : 0;
-    const hasCover = e.coverUrl ? 1 : 0;
-    const pub = e.publicationDate ? e.publicationDate.getTime() : -Infinity;
-    // większy = lepszy
-    // ważymy jak w SQL: PL > ma okładkę > format > najnowsza
-    return lang * 1e12 + hasCover * 1e10 + pub;
-  };
+  // helper do wybrania najlepszej edycji z listy
+  function pickBestEdition(
+    editions: Pick<
+      Edition,
+      | 'id'
+      | 'bookId'
+      | 'title'
+      | 'subtitle'
+      | 'coverUrl'
+      | 'language'
+      | 'publicationDate'
+      | 'format'
+    >[]
+  ): (typeof editions)[number] {
+    return editions.reduce((best, e) => {
+      const lang = e.language === 'pl' ? 1 : 0;
+      const hasCover = e.coverUrl ? 1 : 0;
+      const pub = e.publicationDate ? e.publicationDate.getTime() : -Infinity;
+      const score = lang * 1e12 + hasCover * 1e10 + pub;
 
-  const bestEditionByBook = new Map<string, (typeof editions)[number]>();
-  for (const e of editions) {
-    const cur = bestEditionByBook.get(e.bookId);
-    if (!cur || rank(e) > rank(cur)) bestEditionByBook.set(e.bookId, e);
+      const bestScore = (() => {
+        const lang = best.language === 'pl' ? 1 : 0;
+        const hasCover = best.coverUrl ? 1 : 0;
+        const pub = best.publicationDate
+          ? best.publicationDate.getTime()
+          : -Infinity;
+        return lang * 1e12 + hasCover * 1e10 + pub;
+      })();
+
+      return score > bestScore ? e : best;
+    });
   }
 
-  // 4) DTO do UI: displayTitle/cover z najlepszej edycji
   const dto = books.map((book) => {
     const userData = Array.isArray(book.userBook)
       ? book.userBook[0]
       : undefined;
     const myRating = book.userRatings?.[0]?.rating ?? null;
 
-    const best = bestEditionByBook.get(book.id);
-    const displayEdition = best
-      ? {
-          id: best.id,
-          title: best.title,
-          subtitle: best.subtitle,
-          coverUrl: best.coverUrl,
-          language: best.language,
-          publicationDate: best.publicationDate,
-          format: best.format,
-        }
-      : undefined;
+    const bookEds = editions.filter((e) => e.bookId === book.id);
+    if (bookEds.length === 0) {
+      throw new Error(`Book ${book.id} has no editions!`);
+    }
+    const best = pickBestEdition(bookEds);
+
+    const displayEdition: DisplayEdition = {
+      id: best.id,
+      title: best.title,
+      subtitle: best.subtitle,
+      coverUrl: best.coverUrl,
+      language: best.language,
+      publicationDate: best.publicationDate,
+      format: best.format,
+    };
 
     return {
       ...book,
@@ -310,177 +351,27 @@ export async function getBooksAll(
       isOnShelf: !!userData,
       myRating,
       displayEdition,
-      displayTitle: displayEdition?.title ?? book.title,
-      displayCoverUrl: displayEdition?.coverUrl ?? null,
+      displayTitle: displayEdition.title ?? book.title,
+      displayCoverUrl: displayEdition.coverUrl ?? null,
     };
   });
 
   return { books: dto, totalCount };
 }
 
-export async function getBooks(
+export async function removeBookFromShelf(
   userId: string,
-  currentPage: number,
-  booksPerPage: number,
-  genres: GenreSlug[],
-  ratings: string[],
-  statuses: ReadingStatus[],
-  search?: string
-): Promise<{
-  books: UserBookDTO[];
-  totalCount: number;
-}> {
-  const skip = (currentPage - 1) * booksPerPage;
-
-  const numericRatings = ratings.filter((r) => r !== 'none').map(Number);
-  const includeNull = ratings.includes('none');
-  const ratingFilters = [];
-
-  if (numericRatings.length > 0) {
-    ratingFilters.push({ rating: { in: numericRatings } });
-  }
-
-  if (includeNull) {
-    ratingFilters.push({ rating: null });
-  }
-
-  // Search conditions (for title, author, genre)
-  const searchConditions = search
-    ? {
-        OR: [
-          {
-            book: {
-              title: {
-                contains: search,
-                mode: 'insensitive' as const,
-              },
-            },
-          },
-          {
-            book: {
-              author: {
-                contains: search,
-                mode: 'insensitive' as const,
-              },
-            },
-          },
-          {
-            book: {
-              genres: {
-                some: {
-                  genre: {
-                    translations: {
-                      some: {
-                        language: 'pl',
-                        name: {
-                          contains: search,
-                          mode: 'insensitive' as const,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        ],
-      }
-    : {};
-
-  const where = {
-    userId,
-    ...(statuses.length > 0 && {
-      readingStatus: {
-        in: statuses,
-      },
-    }),
-    ...(ratingFilters.length > 0 && { OR: ratingFilters }),
-    ...searchConditions,
-    ...(genres.length > 0 && {
-      book: {
-        genres: {
-          some: {
-            genre: {
-              slug: { in: genres },
-            },
-          },
-        },
-      },
-    }),
-  };
-
-  const [userBooks, totalCount] = await Promise.all([
-    prisma.userBook.findMany({
-      skip,
-      take: booksPerPage,
-      where,
-      orderBy: {
-        addedAt: 'desc',
-      },
-      include: {
-        book: {
-          include: {
-            genres: {
-              include: {
-                genre: {
-                  include: {
-                    translations: {
-                      where: { language: 'pl' },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    }),
-
-    prisma.userBook.count({
-      where,
-    }),
-  ]);
-
-  // Map to DTO
-  const booksDto: UserBookDTO[] = userBooks.map((userBook) => {
-    const book = userBook.book;
-
-    const genresDto = book.genres.map((genreRelation) => {
-      const translation = genreRelation.genre.translations[0];
-      return {
-        id: genreRelation.genre.id,
-        slug: genreRelation.genre.slug,
-        language: translation.language,
-        name: translation.name,
-      };
-    });
-
-    return {
-      ...book,
-      rating: userBook.rating,
-      readingStatus: userBook.readingStatus,
-      genres: genresDto,
-      userNote: userBook.note,
-    };
-  });
-
-  return {
-    books: booksDto,
-    totalCount,
-  };
-}
-
-export async function deleteBook(bookId: string, userId: string) {
-  const book = await prisma.userBook.delete({
+  { bookId, editionId }: RemoveBookFromShelfPayload
+): Promise<void> {
+  await prisma.userBook.delete({
     where: {
-      bookId_userId: {
-        bookId: bookId,
-        userId: userId,
+      bookId_userId_editionId: {
+        userId,
+        bookId,
+        editionId,
       },
     },
   });
-
-  return book;
 }
 
 export async function getBook(
@@ -694,27 +585,15 @@ export async function addOrUpdateRating(input: AddRatingInput) {
   });
 }
 
-export async function getRecentBooksExcludingCurrent(
+export async function addBookToShelf(
   userId: string,
-  currentBookId: string
-): Promise<RecentBookDto[]> {
-  return await prisma.userBook.findMany({
-    where: {
+  { bookId, editionId }: AddBookToShelfPayload
+): Promise<UserBook> {
+  return await prisma.userBook.create({
+    data: {
+      bookId,
+      editionId,
       userId,
-      bookId: { not: currentBookId },
     },
-    select: {
-      book: {
-        select: {
-          id: true,
-          title: true,
-          imageUrl: true,
-        },
-      },
-    },
-    orderBy: {
-      addedAt: 'desc',
-    },
-    take: 8,
   });
 }

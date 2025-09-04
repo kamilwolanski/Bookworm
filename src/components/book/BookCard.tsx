@@ -1,12 +1,24 @@
 'use client';
 
-import * as React from 'react';
+import {
+  useRef,
+  useActionState,
+  useState,
+  useOptimistic,
+  startTransition,
+} from 'react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Star, Trash2, MoreVertical, Check, Plus, BookA } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { BookWithUserDataAndDisplay } from '@/lib/userbooks';
-import { removeUserBookAction } from '@/app/(main)/books/actions/bookActions';
+import {
+  BookWithUserDataAndDisplay,
+  RemoveBookFromShelfPayload,
+} from '@/lib/userbooks';
+import {
+  addBookToShelfAction,
+  removeBookFromShelfAction,
+} from '@/app/(main)/books/actions/bookActions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,17 +31,61 @@ import RateBookBtn from './ratebook/RateBookBtn';
 import userIcon from '@/app/assets/icons/user.svg';
 import multipleUsersIcon from '@/app/assets/icons/multiple_users.svg';
 import DeleteDialog from '@/components/forms/DeleteDialog';
+import { ActionResult } from '@/types/actions';
+import { AddBookToShelfPayload } from '@/lib/userbooks';
+import { UserBook } from '@prisma/client';
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '../ui/button';
 
 export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
   const router = useRouter();
+  const [state, addBook, isPending] = useActionState<
+    ActionResult<UserBook>,
+    AddBookToShelfPayload
+  >(addBookToShelfAction, { isError: false });
 
-  const [dialogType, setDialogType] = React.useState<null | 'delete' | 'rate'>(
-    null
+  const [stateRemoveBook, removeBook, removeBookIsPending] = useActionState<
+    ActionResult<void>,
+    RemoveBookFromShelfPayload
+  >(removeBookFromShelfAction, { isError: false });
+
+  const [optimisticBook, setOptimisticBook] = useOptimistic(
+    book,
+    (
+      current,
+      action: {
+        type: 'ADD' | 'REMOVE' | 'ROLLBACK';
+        payload?: Partial<BookWithUserDataAndDisplay>;
+      }
+    ) => {
+      switch (action.type) {
+        case 'ADD':
+          return {
+            ...current,
+            isOnShelf: true,
+          };
+        case 'REMOVE':
+          return { ...current, isOnShelf: false };
+        case 'ROLLBACK':
+          return { ...current, ...action.payload };
+        default:
+          return current;
+      }
+    }
   );
+
+  const [dialogType, setDialogType] = useState<null | 'delete' | 'rate'>(null);
   const openDialog = dialogType !== null;
 
   // guard na nawigację karty (click-through fix)
-  const startedOnCardRef = React.useRef(false);
+  const startedOnCardRef = useRef(false);
   const isInteractiveTarget = (el: EventTarget | null) =>
     !!(el as HTMLElement | null)?.closest(
       '[data-no-nav="true"],a,button,[role="button"],input,textarea,select,label'
@@ -40,6 +96,38 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
     router.push(`/books/${book.id}`);
   };
 
+  const handleAdd = () => {
+    const snapshot = optimisticBook;
+    setOptimisticBook({ type: 'ADD' });
+    startTransition(() => {
+      addBook({
+        bookId: book.id,
+        editionId: book.displayEdition.id,
+      });
+
+      if (state.isError) {
+        setOptimisticBook({ type: 'ROLLBACK', payload: snapshot });
+        console.error('Nie udało się dodać na półkę');
+      }
+    });
+  };
+
+  const handleRemove = () => {
+    const snapshot = optimisticBook;
+    setOptimisticBook({ type: 'REMOVE' });
+    startTransition(() => {
+      removeBook({
+        bookId: book.id,
+        editionId: book.displayEdition.id,
+      });
+      setDialogType(null);
+      if (stateRemoveBook.isError) {
+        setOptimisticBook({ type: 'ROLLBACK', payload: snapshot });
+        console.error('Nie udało się usunąć na półkę');
+      }
+    });
+  };
+
   return (
     <Card
       className="cursor-pointer border-none h-full shadow-md hover:shadow-xl p-1 rounded-xl"
@@ -47,10 +135,10 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
       key={book.id}
     >
       <div className="relative aspect-[3/4] w-full">
-        {book.displayCoverUrl ? (
+        {optimisticBook.displayCoverUrl ? (
           <Image
-            src={book.displayCoverUrl}
-            alt={`Okładka książki ${book.displayEdition?.title}`}
+            src={optimisticBook.displayCoverUrl}
+            alt={`Okładka książki ${optimisticBook.displayEdition?.title}`}
             fill
             className="object-cover rounded-lg"
             sizes="(max-width: 768px) 100vw, 33vw"
@@ -62,18 +150,22 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
         )}
 
         <div className="absolute top-0 left-0 p-2 w-full flex justify-between items-center">
-          {book.isOnShelf ? (
+          {optimisticBook.isOnShelf ? (
             <div className="bg-primary text-primary-foreground px-3 py-1 rounded-2xl">
               <div className="flex items-center gap-2">
                 <span className="text-sm">Na półce</span> <Check size={16} />
               </div>
             </div>
           ) : (
-            <div className="bg-secondary text-secondary-foreground px-3 py-1 rounded-2xl">
+            <button
+              className="bg-secondary text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer"
+              onClick={handleAdd}
+              disabled={isPending}
+            >
               <div className="flex items-center gap-2">
                 <span className="text-sm">Dodaj</span> <Plus size={16} />
               </div>
-            </div>
+            </button>
           )}
 
           <Dialog
@@ -97,7 +189,7 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="start" data-no-nav="true">
-                  {book.userBook && (
+                  {optimisticBook.userBook && (
                     <>
                       <DropdownMenuItem
                         className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
@@ -123,15 +215,15 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
                     }}
                   >
                     <Star
-                      className={`w-4 h-4 ${book.myRating ? 'fill-current text-yellow-400' : ''}`}
+                      className={`w-4 h-4 ${optimisticBook.myRating ? 'fill-current text-yellow-400' : ''}`}
                     />
-                    {book.myRating ? 'Zmień ocenę' : 'Oceń'}
+                    {optimisticBook.myRating ? 'Zmień ocenę' : 'Oceń'}
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
 
                   {/* DELETE */}
-                  {book.userBook ? (
+                  {optimisticBook.userBook ? (
                     <DropdownMenuItem
                       className="px-2 py-1.5 text-sm flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
                       data-no-nav="true"
@@ -147,6 +239,12 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
                       onSelect={(e) => e.preventDefault()}
                       className="px-2 py-1.5 text-sm flex items-center gap-2 text-secondary focus:text-secondary cursor-pointer"
                       data-no-nav="true"
+                      onClick={() =>
+                        addBook({
+                          bookId: optimisticBook.id,
+                          editionId: optimisticBook.displayEdition?.id,
+                        })
+                      }
                     >
                       <Plus size={16} />
                       Dodaj na półkę
@@ -157,27 +255,55 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
             </div>
 
             {/* Treści dialogów */}
-            {dialogType === 'delete' && book.userBook && (
-              <DeleteDialog
-                id={book.id}
-                removeAction={removeUserBookAction}
-                revalidatePath="/books"
-                dialogTitle={
-                  <>
-                    Czy na pewno chcesz usunąć <b>„{book.title}”</b> ze swojej
-                    półki?
-                  </>
-                }
-                onSuccess={() => setDialogType(null)}
-              />
+            {dialogType === 'delete' && optimisticBook.userBook && (
+              <DialogContent
+                onSelect={(e) => e.preventDefault()}
+                className="
+        sm:max-w-md p-6 rounded-2xl
+    border border-border
+    shadow-2xl
+    bg-background/95 backdrop-blur
+    supports-[backdrop-filter]:bg-background/80 
+    "
+              >
+                <DialogHeader>
+                  <DialogTitle>Usun</DialogTitle>
+                  <DialogDescription>
+                    Usunięcie jest trwałe i nie będzie można go cofnąć.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="cursor-pointer"
+                    >
+                      Anuluj
+                    </Button>
+                  </DialogClose>
+
+                  <Button
+                    type="button"
+                    disabled={removeBookIsPending}
+                    className="cursor-pointer"
+                    onClick={handleRemove}
+                  >
+                    {isPending ? 'Usuwanie...' : 'Usuń'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
             )}
 
             {dialogType === 'rate' && (
               <RateBookBtn
-                bookId={book.id}
-                rating={book.myRating ?? 0}
+                bookId={optimisticBook.id}
+                rating={optimisticBook.myRating ?? 0}
                 revalidatePath="/books"
-                dialogTitle={book.myRating ? 'Zmień ocenę' : 'Oceń książkę'}
+                dialogTitle={
+                  optimisticBook.myRating ? 'Zmień ocenę' : 'Oceń książkę'
+                }
                 onSuccess={() => setDialogType(null)}
               />
             )}
@@ -189,10 +315,10 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
             <div className="w-full flex flex-col justify-between">
               <div className="pb-1">
                 <h3 className="font-semibold text-lg">
-                  {book.displayEdition?.title}
+                  {optimisticBook.displayEdition?.title}
                 </h3>
                 <p className="text-md">
-                  {book.authors.map((author) => author.person.name)}
+                  {optimisticBook.authors.map((author) => author.person.name)}
                 </p>
               </div>
 
@@ -200,15 +326,15 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
                 <div className="flex gap-1">
                   <Image src={multipleUsersIcon} alt="icon" />
                   <span className="flex items-center gap-1 text-sm">
-                    {book.averageRating ?? 0}/5{' '}
+                    {optimisticBook.averageRating ?? 0}/5{' '}
                     <Star className="w-3 h-3 fill-current text-yellow-400" />
                   </span>
                 </div>
-                {book.myRating && (
+                {optimisticBook.myRating && (
                   <div className="flex gap-1">
                     <Image src={userIcon} alt="icon" />
                     <span className="flex items-center gap-1 text-sm">
-                      {book.myRating}/5{' '}
+                      {optimisticBook.myRating}/5{' '}
                       <Star className="w-3 h-3 fill-current text-yellow-400" />
                     </span>
                   </div>
