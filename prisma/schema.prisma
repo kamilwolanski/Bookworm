@@ -87,10 +87,10 @@ model User {
 
   role Role @default(USER)
 
-  books          UserBook[]
-  comments       Comment[]
-  commentRatings CommentRating[]
-  userRatings    UserRating[]
+  books UserBook[]
+
+  reviews     Review[]
+  reviewVotes ReviewVote[]
 }
 
 // ---------- Books & editions ----------
@@ -107,10 +107,8 @@ model Book {
   authors  BookAuthor[]
   editions Edition[]
 
-  genres      BookGenre[]
-  comments    Comment[]
-  userBook    UserBook[]
-  userRatings UserRating[]
+  genres   BookGenre[]
+  UserBook UserBook[]
 
   @@index([addedAt])
   @@index([title])
@@ -152,7 +150,8 @@ model Edition {
 
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  UserBook  UserBook[]
+  userBook  UserBook[]
+  reviews   Review[]
 
   @@index([bookId])
   @@index([language])
@@ -219,52 +218,43 @@ model BookGenre {
   @@index([genreId])
 }
 
-// ---------- Ratings & comments ----------
-model UserRating {
+// ---- Recenzje wydania ----
+model Review {
+  id        String @id @default(uuid())
   userId    String
-  bookId    String
-  rating    Int      @db.SmallInt // enforce 1..5 via DB CHECK or w aplikacji
+  editionId String
+
+  rating   Int     @db.SmallInt // 1..5 (ograniczenie waliduj w kodzie albo CHECK w DB)
+  body     String // treść recenzji (plain/markdown)
+  spoilers Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  edition Edition @relation(fields: [editionId], references: [id], onDelete: Cascade)
 
-  @@id([bookId, userId])
-  @@index([bookId])
-  @@index([userId])
+  votes ReviewVote[]
+
+  // dokładnie jedna recenzja użytkownika na jedno wydanie
+  @@unique([userId, editionId])
+  // przydatne indeksy do list i profili
+  @@index([editionId, createdAt])
+  @@index([userId, createdAt])
+  @@index([rating])
 }
 
-model Comment {
-  id        String          @id @default(uuid())
-  content   String
-  addedAt   DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  authorId  String
-  author    User            @relation(fields: [authorId], references: [id])
-  parentId  String?
-  parent    Comment?        @relation("CommentReplies", fields: [parentId], references: [id])
-  replies   Comment[]       @relation("CommentReplies")
-  ratings   CommentRating[]
+model ReviewVote {
+  id        String   @id @default(uuid())
+  reviewId  String
+  userId    String
+  value     Int // +1 / -1 (waliduj w kodzie lub CHECK)
+  createdAt DateTime @default(now())
 
-  bookId String
-  book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
-
-  @@index([bookId, addedAt])
-  @@index([parentId])
-}
-
-model CommentRating {
-  id        String  @id @default(uuid())
-  commentId String
-  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
-
-  userId String
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  value Int // +1 / -1; dodaj DB CHECK lub walidację w kodzie
-
-  @@unique([commentId, userId])
+  @@unique([reviewId, userId])
   @@index([userId])
 }
 
