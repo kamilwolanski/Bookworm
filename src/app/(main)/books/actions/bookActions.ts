@@ -25,6 +25,7 @@ import {
   updateBookRating,
 } from '@/lib/books';
 import { UserBook } from '@prisma/client';
+import { parseFormBookRateData } from '@/app/admin/helpers';
 
 export const getBookAction: Action<[string], UserBookDetailsDTO> = async (
   bookId
@@ -48,39 +49,35 @@ export const getBookAction: Action<[string], UserBookDetailsDTO> = async (
   };
 };
 
-export const getRecentBooksAction: Action<
-  [ActionResult<RecentBookDto[]>, string],
-  RecentBookDto[]
-> = async (_prev, currentBookId) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) return unauthorizedResponse();
-
-  const recentBooks = await getRecentBooksExcludingCurrent(
-    session.user.id,
-    currentBookId
-  );
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    data: recentBooks,
-  };
-};
-
-export const rateBookAction: Action<
-  [ActionResult<RateData>, RatePayload],
-  RateData
-> = async (_prev, { bookId, rating }) => {
+export const rateBookAction = async (
+  bookId: string,
+  editionId: string,
+  _currentState: unknown,
+  formData: FormData
+): Promise<ActionResult> => {
   const session = await getUserSession();
   if (!session?.user?.id) return unauthorizedResponse();
+
+  const parsed = parseFormBookRateData(formData);
+  if (!parsed.success) {
+    return parsed.errorResponse;
+  }
+
+  const { body, rating } = parsed.data;
 
   const bookExists = await findUniqueBook(bookId);
   if (!bookExists) return notFoundResponse(`książki o id: ${bookId}`);
 
   try {
-    const result = await updateBookRating(session.user.id, { bookId, rating });
+    const result = await updateBookRating(session.user.id, {
+      bookId,
+      editionId,
+      rating,
+      body,
+    });
+
+    revalidatePath(`/books`);
+
     return {
       isError: false,
       status: 'success',

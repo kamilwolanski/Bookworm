@@ -8,6 +8,7 @@ import {
   PublisherInput,
   publisherSchema,
 } from '@/lib/validation';
+import { AddReviewInput, addReviewSchema } from '@/lib/rateBookValidation';
 import { ActionError } from '@/types/actions';
 import { ZodError } from 'zod';
 import { v2 as cloudinary } from 'cloudinary';
@@ -22,6 +23,30 @@ function buildActionError(e: ZodError): ActionError {
       message: err.message,
     })),
   };
+}
+
+export function parseFormBookRateData(formData: FormData):
+  | {
+      success: true;
+      data: AddReviewInput;
+    }
+  | {
+      success: false;
+      errorResponse: ActionError;
+    } {
+  const result = addReviewSchema.safeParse({
+    rating: Number(formData.get('rating')),
+    body: formData.get('body') ?? undefined,
+  });
+
+  if (!result.success) {
+    return {
+      success: false,
+      errorResponse: buildActionError(result.error),
+    };
+  }
+
+  return { success: true, data: result.data };
 }
 
 export function parseFormBookData(formData: FormData):
@@ -146,7 +171,7 @@ export function parseFormEditionData(formData: FormData):
     description: formData.get('description') ?? undefined,
     publishers: formData.get('publishers')?.toString().split(',') ?? [],
   });
-  console.log('result', result)
+  console.log('result', result);
   if (!result.success) {
     return {
       success: false,

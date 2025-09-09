@@ -9,12 +9,16 @@ import {
 } from 'react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
-import { Star, Trash2, MoreVertical, Check, Plus, BookA } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import {
-  BookWithUserDataAndDisplay,
-  RemoveBookFromShelfPayload,
-} from '@/lib/userbooks';
+  Star,
+  Trash2,
+  MoreVertical,
+  Plus,
+  BookA,
+  LibraryBig,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { BookCardDTO, RemoveBookFromShelfPayload } from '@/lib/userbooks';
 import {
   addBookToShelfAction,
   removeBookFromShelfAction,
@@ -27,7 +31,7 @@ import {
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { Dialog } from '@/components/ui/dialog';
-import RateBookBtn from './ratebook/RateBookBtn';
+import RatingDialogContent from '@/components/book/ratebook/RatingDialogContent';
 import userIcon from '@/app/assets/icons/user.svg';
 import multipleUsersIcon from '@/app/assets/icons/multiple_users.svg';
 import DeleteDialog from '@/components/forms/DeleteDialog';
@@ -44,7 +48,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
 
-export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
+export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   const router = useRouter();
   const [state, addBook, isPending] = useActionState<
     ActionResult<UserBook>,
@@ -56,13 +60,14 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
     RemoveBookFromShelfPayload
   >(removeBookFromShelfAction, { isError: false });
 
+  const { book, representativeEdition } = bookItem;
   const [optimisticBook, setOptimisticBook] = useOptimistic(
-    book,
+    bookItem,
     (
       current,
       action: {
         type: 'ADD' | 'REMOVE' | 'ROLLBACK';
-        payload?: Partial<BookWithUserDataAndDisplay>;
+        payload?: Partial<BookCardDTO>;
       }
     ) => {
       switch (action.type) {
@@ -102,7 +107,7 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
     startTransition(() => {
       addBook({
         bookId: book.id,
-        editionId: book.displayEdition.id,
+        editionId: representativeEdition.id,
       });
 
       if (state.isError) {
@@ -118,7 +123,7 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
     startTransition(() => {
       removeBook({
         bookId: book.id,
-        editionId: book.displayEdition.id,
+        editionId: representativeEdition.id,
       });
       setDialogType(null);
       if (stateRemoveBook.isError) {
@@ -135,10 +140,10 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
       key={book.id}
     >
       <div className="relative aspect-[3/4] w-full">
-        {optimisticBook.displayCoverUrl ? (
+        {optimisticBook.representativeEdition.coverUrl ? (
           <Image
-            src={optimisticBook.displayCoverUrl}
-            alt={`Okładka książki ${optimisticBook.displayEdition?.title}`}
+            src={optimisticBook.representativeEdition.coverUrl}
+            alt={`Okładka książki ${optimisticBook.representativeEdition.title}`}
             fill
             className="object-cover rounded-lg"
             sizes="(max-width: 768px) 100vw, 33vw"
@@ -149,16 +154,26 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
           </div>
         )}
 
-        <div className="absolute top-0 left-0 p-2 w-full flex justify-between items-center">
-          {optimisticBook.isOnShelf ? (
-            <div className="bg-primary text-primary-foreground px-3 py-1 rounded-2xl">
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Na półce</span> <Check size={16} />
+        <div className="absolute top-0 left-0 p-2 w-full flex justify-between items-center gap-2">
+          {optimisticBook.badges.onShelf ? (
+            optimisticBook.badges.hasOtherEdition ? (
+              <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Na półce (inne wyd.)</span>{' '}
+                  <LibraryBig size={16} />
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-badge-owned text-primary-foreground px-3 py-1 rounded-2xl">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Na półce</span>{' '}
+                  <LibraryBig size={16} />
+                </div>
+              </div>
+            )
           ) : (
             <button
-              className="bg-secondary text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer"
+              className="bg-badge-new text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer"
               onClick={handleAdd}
               disabled={isPending}
             >
@@ -189,7 +204,7 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="start" data-no-nav="true">
-                  {optimisticBook.userBook && (
+                  {optimisticBook.badges.onShelf && (
                     <>
                       <DropdownMenuItem
                         className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
@@ -215,15 +230,17 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
                     }}
                   >
                     <Star
-                      className={`w-4 h-4 ${optimisticBook.myRating ? 'fill-current text-yellow-400' : ''}`}
+                      className={`w-4 h-4 ${optimisticBook.ratings.user.rating ? 'fill-current text-yellow-400' : ''}`}
                     />
-                    {optimisticBook.myRating ? 'Zmień ocenę' : 'Oceń'}
+                    {optimisticBook.ratings.user.rating
+                      ? 'Zmień ocenę'
+                      : 'Oceń'}
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
 
                   {/* DELETE */}
-                  {optimisticBook.userBook ? (
+                  {optimisticBook.userState.byEdition.length > 0 ? (
                     <DropdownMenuItem
                       className="px-2 py-1.5 text-sm flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
                       data-no-nav="true"
@@ -241,8 +258,8 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
                       data-no-nav="true"
                       onClick={() =>
                         addBook({
-                          bookId: optimisticBook.id,
-                          editionId: optimisticBook.displayEdition?.id,
+                          bookId: optimisticBook.book.id,
+                          editionId: optimisticBook.representativeEdition.id,
                         })
                       }
                     >
@@ -255,54 +272,57 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
             </div>
 
             {/* Treści dialogów */}
-            {dialogType === 'delete' && optimisticBook.userBook && (
-              <DialogContent
-                onSelect={(e) => e.preventDefault()}
-                className="
+            {dialogType === 'delete' &&
+              optimisticBook.userState.byEdition.length > 0 && (
+                <DialogContent
+                  onSelect={(e) => e.preventDefault()}
+                  className="
         sm:max-w-md p-6 rounded-2xl
     border border-border
     shadow-2xl
     bg-background/95 backdrop-blur
     supports-[backdrop-filter]:bg-background/80 
     "
-              >
-                <DialogHeader>
-                  <DialogTitle>Usun</DialogTitle>
-                  <DialogDescription>
-                    Usunięcie jest trwałe i nie będzie można go cofnąć.
-                  </DialogDescription>
-                </DialogHeader>
+                >
+                  <DialogHeader>
+                    <DialogTitle>Usun</DialogTitle>
+                    <DialogDescription>
+                      Usunięcie jest trwałe i nie będzie można go cofnąć.
+                    </DialogDescription>
+                  </DialogHeader>
 
-                <DialogFooter>
-                  <DialogClose asChild>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="cursor-pointer"
+                      >
+                        Anuluj
+                      </Button>
+                    </DialogClose>
+
                     <Button
                       type="button"
-                      variant="outline"
+                      disabled={removeBookIsPending}
                       className="cursor-pointer"
+                      onClick={handleRemove}
                     >
-                      Anuluj
+                      {isPending ? 'Usuwanie...' : 'Usuń'}
                     </Button>
-                  </DialogClose>
-
-                  <Button
-                    type="button"
-                    disabled={removeBookIsPending}
-                    className="cursor-pointer"
-                    onClick={handleRemove}
-                  >
-                    {isPending ? 'Usuwanie...' : 'Usuń'}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            )}
+                  </DialogFooter>
+                </DialogContent>
+              )}
 
             {dialogType === 'rate' && (
-              <RateBookBtn
-                bookId={optimisticBook.id}
-                rating={optimisticBook.myRating ?? 0}
-                revalidatePath="/books"
+              <RatingDialogContent
+                bookId={optimisticBook.book.id}
+                editionId={optimisticBook.representativeEdition.id}
+                initialRating={optimisticBook.ratings.user.rating ?? undefined}
                 dialogTitle={
-                  optimisticBook.myRating ? 'Zmień ocenę' : 'Oceń książkę'
+                  optimisticBook.ratings.user.rating
+                    ? 'Zmień ocenę'
+                    : 'Oceń książkę'
                 }
                 onSuccess={() => setDialogType(null)}
               />
@@ -315,10 +335,10 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
             <div className="w-full flex flex-col justify-between">
               <div className="pb-1">
                 <h3 className="font-semibold text-lg">
-                  {optimisticBook.displayEdition?.title}
+                  {optimisticBook.representativeEdition.title}
                 </h3>
                 <p className="text-md">
-                  {optimisticBook.authors.map((author) => author.person.name)}
+                  {optimisticBook.book.authors.map((author) => author.name)}
                 </p>
               </div>
 
@@ -326,15 +346,15 @@ export function BookCard({ book }: { book: BookWithUserDataAndDisplay }) {
                 <div className="flex gap-1">
                   <Image src={multipleUsersIcon} alt="icon" />
                   <span className="flex items-center gap-1 text-sm">
-                    {optimisticBook.averageRating ?? 0}/5{' '}
+                    {optimisticBook.ratings.bookAverage ?? 0}/5{' '}
                     <Star className="w-3 h-3 fill-current text-yellow-400" />
                   </span>
                 </div>
-                {optimisticBook.myRating && (
+                {optimisticBook.ratings.user.rating && (
                   <div className="flex gap-1">
                     <Image src={userIcon} alt="icon" />
                     <span className="flex items-center gap-1 text-sm">
-                      {optimisticBook.myRating}/5{' '}
+                      {optimisticBook.ratings.user.rating}/5{' '}
                       <Star className="w-3 h-3 fill-current text-yellow-400" />
                     </span>
                   </div>

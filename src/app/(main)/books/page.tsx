@@ -36,7 +36,7 @@ export default async function ShelfBooks({ searchParams }: Props) {
     redirect('/login'); // albo wyświetl 401
   }
 
-  const { books, totalCount } = await getBooksAll(
+  const { items, totalCount } = await getBooksAll(
     currentPage,
     ITEMS_PER_PAGE,
     genresParams,
@@ -47,8 +47,7 @@ export default async function ShelfBooks({ searchParams }: Props) {
     userId
   );
 
-  console.log('bboks', books)
-
+  console.log('bboks', items);
   // const response = await getBooksAction({
   //   currentPage: currentPage,
   //   booksPerPage: ITEMS_PER_PAGE,
@@ -65,7 +64,7 @@ export default async function ShelfBooks({ searchParams }: Props) {
       <div className="mt-5 flex flex-1">
         <BookFilters bookGenres={bookGenres} genresParams={genresParams} />
         <BookList
-          books={books}
+          bookItems={items}
           page={currentPage}
           pageSize={ITEMS_PER_PAGE}
           totalCount={totalCount}

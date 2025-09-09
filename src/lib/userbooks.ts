@@ -5,6 +5,7 @@ import {
   GenreTranslation,
   MediaFormat,
   ReadingStatus,
+  Review,
   User,
   UserBook,
 } from '@prisma/client';
@@ -91,42 +92,93 @@ export interface BookAuthorForList {
   person: { name: string }; // bo selectujesz tylko name
 }
 
-export interface BookWithUserDataAndDisplay extends Book {
-  genres: BookGenreWithTranslations[];
-  authors: BookAuthorForList[];
-  userBook?: UserBook;
-  userRatings?: { rating: number }[];
-  isOnShelf: boolean;
-  myRating: number | null;
-  displayEdition: DisplayEdition;
-  displayTitle: string; // edition.title ?? book.title
-  displayCoverUrl: string | null; // edition.coverUrl ?? null
-}
-
-export interface GetBooksAllResponse {
-  books: BookWithUserDataAndDisplay[];
-  totalCount: number;
-}
-
 export interface RatingFilter {
-  userRatings?:
+  editions?:
     | {
         some: {
-          userId: string;
-          rating: {
-            in: number[];
+          reviews: {
+            some: {
+              userId: string;
+              rating: {
+                in: number[];
+              };
+            };
           };
         };
       }
     | {
         none: {
-          userId: string;
+          reviews: {
+            some: {
+              userId: string;
+            };
+          };
         };
       };
 }
 
 export type AddBookToShelfPayload = { bookId: string; editionId: string };
 export type RemoveBookFromShelfPayload = { bookId: string; editionId: string };
+
+export type BookCardDTO = {
+  book: {
+    id: string;
+    title: string;
+    slug: string | null;
+    authors: { id: string; name: string }[];
+    genres: string[];
+    firstPublicationDate: string | null;
+  };
+  representativeEdition: {
+    id: string;
+    language: string | null;
+    format: MediaFormat | null;
+    publicationDate: string | null;
+    title: string | null;
+    subtitle: string | null;
+    coverUrl: string | null;
+  };
+  ratings: {
+    bookAverage: number | null;
+    bookRatingCount: number | null;
+    user: {
+      rating: number | null;
+    };
+  };
+  userState: {
+    hasAnyEdition: boolean;
+    ownedEditionCount: number;
+    ownedEditionIds: string[];
+    primaryStatus: ReadingStatus | null;
+    byEdition: { editionId: string; readingStatus: ReadingStatus }[];
+    notePreview?: string | null;
+  };
+  badges: {
+    onShelf: boolean;
+    hasOtherEdition: boolean;
+  };
+};
+
+export type GetBooksAllResponse = {
+  items: BookCardDTO[];
+  totalCount: number;
+};
+
+function statusPriority(s: ReadingStatus): number {
+  // READING > WANT_TO_READ > READ > ABANDONED
+  switch (s) {
+    case 'READING':
+      return 4;
+    case 'WANT_TO_READ':
+      return 3;
+    case 'READ':
+      return 2;
+    case 'ABANDONED':
+      return 1;
+    default:
+      return 0;
+  }
+}
 
 export async function getBooksAll(
   currentPage: number,
@@ -146,20 +198,25 @@ export async function getBooksAll(
 
   if (numericRatings.length > 0 && userId) {
     ratingFilters.push({
-      userRatings: { some: { userId, rating: { in: numericRatings } } },
+      editions: {
+        some: {
+          reviews: { some: { userId, rating: { in: numericRatings } } },
+        },
+      },
     });
   }
   if (includeUnrated && userId) {
-    ratingFilters.push({ userRatings: { none: { userId } } });
+    ratingFilters.push({
+      editions: {
+        none: { reviews: { some: { userId } } },
+      },
+    });
   }
 
   const searchConditions = search?.trim()
     ? {
         OR: [
-          // 1) Oryginalny tytuł książki
           { title: { contains: search, mode: 'insensitive' as const } },
-
-          // 2) Tytuł/subtytuł edycji po polsku
           {
             editions: {
               some: {
@@ -176,8 +233,6 @@ export async function getBooksAll(
               },
             },
           },
-
-          // 3) Autor (Person) powiązany z Book
           {
             authors: {
               some: {
@@ -192,16 +247,12 @@ export async function getBooksAll(
                         mode: 'insensitive' as const,
                       },
                     },
-                    // Uwaga: aliases to String[] — operator 'has' sprawdza pełny element, nie "contains".
-                    // Przyda się dla dokładnych aliasów (np. "J.K. Rowling"), ale nie dla fraz typu "Rowl".
                     { aliases: { has: search } },
                   ],
                 },
               },
             },
           },
-
-          // 4) Nazwy gatunków PL (jak masz już)
           {
             genres: {
               some: {
@@ -229,134 +280,186 @@ export async function getBooksAll(
     ...(ratingFilters.length > 0 && { OR: ratingFilters }),
     ...(statuses.length > 0 &&
       userId && {
-        userBook: { some: { readingStatus: { in: statuses } } },
+        userBook: { some: { userId, readingStatus: { in: statuses } } },
       }),
   };
 
-  // 1) Książki + total
+  // --- query ---
   const [books, totalCount] = await Promise.all([
     prisma.book.findMany({
       skip,
       take: booksPerPage,
       where,
       orderBy: { addedAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        firstPublicationDate: true,
+        averageRating: true,
+        ratingCount: true,
         authors: {
-          include: {
-            person: {
+          select: {
+            personId: true,
+            order: true,
+            person: { select: { id: true, name: true } },
+          },
+        },
+        genres: {
+          select: {
+            genre: {
               select: {
-                name: true,
+                translations: {
+                  where: { language: 'pl' },
+                  select: { name: true },
+                },
               },
             },
           },
         },
-        genres: {
-          include: {
-            genre: {
-              include: { translations: { where: { language: 'pl' } } },
-            },
+        editions: {
+          select: {
+            id: true,
+            language: true,
+            publicationDate: true,
+            format: true,
+            title: true,
+            subtitle: true,
+            coverUrl: true,
+            reviews: userId
+              ? {
+                  where: { userId },
+                  select: {
+                    id: true,
+                    rating: true,
+                    updatedAt: true,
+                    userId: true,
+                    editionId: true,
+                  },
+                }
+              : false,
           },
         },
-        ...(userId && { userBook: { where: { userId } } }),
-        ...(userId && {
-          userRatings: {
-            where: { userId },
-            select: { rating: true },
-            take: 1,
-          },
-        }),
+        userEditions: userId
+          ? {
+              where: { userId },
+              select: { editionId: true, readingStatus: true, note: true },
+            }
+          : false,
       },
     }),
     prisma.book.count({ where }),
   ]);
 
-  const bookIds = books.map((b) => b.id);
-  if (bookIds.length === 0) {
-    return { books: [], totalCount };
+  if (books.length === 0) {
+    return { items: [], totalCount };
   }
 
-  // wszystkie edycje dla bieżących książek
-  const editions = await prisma.edition.findMany({
-    where: { bookId: { in: bookIds } },
-    select: {
-      id: true,
-      bookId: true,
-      title: true,
-      subtitle: true,
-      coverUrl: true,
-      language: true,
-      publicationDate: true,
-      format: true,
+  // helper: wybór najlepszej edycji
+  function pickBestEdition<
+    T extends {
+      id: string;
+      language: string | null;
+      publicationDate: Date | null;
+      coverUrl: string | null;
+      format: MediaFormat | null;
+      title: string | null;
+      subtitle: string | null;
+      reviews?: { rating: number; editionId: string; updatedAt?: Date }[];
     },
-  });
-
-  // helper do wybrania najlepszej edycji z listy
-  function pickBestEdition(
-    editions: Pick<
-      Edition,
-      | 'id'
-      | 'bookId'
-      | 'title'
-      | 'subtitle'
-      | 'coverUrl'
-      | 'language'
-      | 'publicationDate'
-      | 'format'
-    >[]
-  ): (typeof editions)[number] {
+  >(editions: T[]): T {
     return editions.reduce((best, e) => {
       const lang = e.language === 'pl' ? 1 : 0;
       const hasCover = e.coverUrl ? 1 : 0;
       const pub = e.publicationDate ? e.publicationDate.getTime() : -Infinity;
       const score = lang * 1e12 + hasCover * 1e10 + pub;
 
-      const bestScore = (() => {
-        const lang = best.language === 'pl' ? 1 : 0;
-        const hasCover = best.coverUrl ? 1 : 0;
-        const pub = best.publicationDate
-          ? best.publicationDate.getTime()
-          : -Infinity;
-        return lang * 1e12 + hasCover * 1e10 + pub;
-      })();
+      const bestLang = best.language === 'pl' ? 1 : 0;
+      const bestHasCover = best.coverUrl ? 1 : 0;
+      const bestPub = best.publicationDate
+        ? best.publicationDate.getTime()
+        : -Infinity;
+      const bestScore = bestLang * 1e12 + bestHasCover * 1e10 + bestPub;
 
       return score > bestScore ? e : best;
-    });
+    }, editions[0]);
   }
 
-  const dto = books.map((book) => {
-    const userData = Array.isArray(book.userBook)
-      ? book.userBook[0]
-      : undefined;
-    const myRating = book.userRatings?.[0]?.rating ?? null;
+  const items: BookCardDTO[] = books.map((b) => {
+    // representative edition
+    const best = pickBestEdition(b.editions);
+    const userRating = userId ? (best.reviews?.[0]?.rating ?? null) : null;
 
-    const bookEds = editions.filter((e) => e.bookId === book.id);
-    if (bookEds.length === 0) {
-      throw new Error(`Book ${book.id} has no editions!`);
-    }
-    const best = pickBestEdition(bookEds);
+    // user state
+    const userEditions = b.userEditions ?? [];
+    const hasAnyEdition = userEditions.length > 0;
+    const byEdition = userEditions.map((ub) => ({
+      editionId: ub.editionId as string,
+      readingStatus: ub.readingStatus as ReadingStatus,
+    }));
+    const primaryStatus =
+      byEdition.length > 0
+        ? byEdition.reduce(
+            (acc, cur) =>
+              statusPriority(cur.readingStatus) > statusPriority(acc)
+                ? cur.readingStatus
+                : acc,
+            byEdition[0].readingStatus
+          )
+        : null;
 
-    const displayEdition: DisplayEdition = {
-      id: best.id,
-      title: best.title,
-      subtitle: best.subtitle,
-      coverUrl: best.coverUrl,
-      language: best.language,
-      publicationDate: best.publicationDate,
-      format: best.format,
-    };
+    const ownedEditionIds = byEdition.map((x) => x.editionId);
+    const notePreview = userEditions.find((x) => x.note)?.note ?? null;
 
     return {
-      ...book,
-      userBook: userData,
-      isOnShelf: !!userData,
-      myRating,
-      displayEdition,
-      displayTitle: displayEdition.title ?? book.title,
-      displayCoverUrl: displayEdition.coverUrl ?? null,
+      book: {
+        id: b.id,
+        title: b.title,
+        slug: b.slug,
+        authors: b.authors
+          .sort((a, c) => (a.order ?? 0) - (c.order ?? 0))
+          .map((a) => ({ id: a.person.id, name: a.person.name })),
+        genres: b.genres.flatMap((g) =>
+          g.genre.translations.map((t) => t.name)
+        ),
+        firstPublicationDate: b.firstPublicationDate
+          ? b.firstPublicationDate.toISOString()
+          : null,
+      },
+      representativeEdition: {
+        id: best.id,
+        language: best.language,
+        format: best.format,
+        publicationDate: best.publicationDate
+          ? best.publicationDate.toISOString()
+          : null,
+        title: best.title,
+        subtitle: best.subtitle,
+        coverUrl: best.coverUrl,
+      },
+      ratings: {
+        bookAverage: b.averageRating ?? null,
+        bookRatingCount: b.ratingCount ?? null,
+        user: {
+          rating: userRating,
+        },
+      },
+      userState: {
+        hasAnyEdition,
+        ownedEditionCount: ownedEditionIds.length,
+        ownedEditionIds,
+        primaryStatus,
+        byEdition,
+        notePreview,
+      },
+      badges: {
+        onShelf: hasAnyEdition,
+        hasOtherEdition: hasAnyEdition && !ownedEditionIds.includes(best.id),
+      },
     };
   });
 
-  return { books: dto, totalCount };
+  return { items, totalCount };
 }
 
 export async function removeBookFromShelf(

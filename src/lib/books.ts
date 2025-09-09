@@ -16,7 +16,12 @@ export type BookDetailsDTO = Book & {
   comments: CommentDto[];
 };
 
-export type RatePayload = { bookId: string; rating: number };
+export type RatePayload = {
+  bookId: string;
+  editionId: string;
+  rating: number;
+  body?: string;
+};
 
 export type RateData = {
   averageRating: number;
@@ -226,25 +231,25 @@ export async function findUniqueBook(bookId: string) {
 
 export async function updateBookRating(
   userId: string,
-  { bookId, rating }: RatePayload
-): Promise<RateData> {
+  { editionId, bookId, rating, body }: RatePayload
+): Promise<void> {
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     throw new Error('Rating must be an integer between 1 and 5.');
   }
 
   return prisma.$transaction(async (tx) => {
     // Upsert oceny użytkownika
-    await tx.userRating.upsert({
+    await tx.review.upsert({
       where: {
-        bookId_userId: { bookId, userId },
+        userId_editionId: { userId, editionId },
       },
-      create: { bookId, userId, rating },
+      create: { editionId, userId, rating, body },
       update: { rating },
     });
 
     // Agregaty po zmianie
-    const aggs = await tx.userRating.aggregate({
-      where: { bookId },
+    const aggs = await tx.review.aggregate({
+      where: { editionId },
       _avg: { rating: true },
       _count: { rating: true },
     });
@@ -261,7 +266,5 @@ export async function updateBookRating(
         ratingCount: count,
       },
     });
-
-    return { averageRating: avg, ratingCount: count, userRating: rating };
   });
 }

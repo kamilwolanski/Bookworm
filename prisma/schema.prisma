@@ -108,7 +108,7 @@ model Book {
   editions Edition[]
 
   genres   BookGenre[]
-  UserBook UserBook[]
+  userEditions UserBook[]
 
   @@index([addedAt])
   @@index([title])
@@ -150,7 +150,7 @@ model Edition {
 
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  userBook  UserBook[]
+  userBooks  UserBook[]
   reviews   Review[]
 
   @@index([bookId])
@@ -225,7 +225,7 @@ model Review {
   editionId String
 
   rating   Int     @db.SmallInt // 1..5 (ograniczenie waliduj w kodzie albo CHECK w DB)
-  body     String // treść recenzji (plain/markdown)
+  body     String? // treść recenzji (plain/markdown)
   spoilers Boolean @default(false)
 
   createdAt DateTime @default(now())
