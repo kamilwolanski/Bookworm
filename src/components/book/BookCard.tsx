@@ -16,6 +16,7 @@ import {
   Plus,
   BookA,
   LibraryBig,
+  BookCopy,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { BookCardDTO, RemoveBookFromShelfPayload } from '@/lib/userbooks';
@@ -34,7 +35,7 @@ import { Dialog } from '@/components/ui/dialog';
 import RatingDialogContent from '@/components/book/ratebook/RatingDialogContent';
 import userIcon from '@/app/assets/icons/user.svg';
 import multipleUsersIcon from '@/app/assets/icons/multiple_users.svg';
-import DeleteDialog from '@/components/forms/DeleteDialog';
+// import DeleteDialog from '@/components/forms/DeleteDialog';
 import { ActionResult } from '@/types/actions';
 import { AddBookToShelfPayload } from '@/lib/userbooks';
 import { UserBook } from '@prisma/client';
@@ -47,6 +48,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
+import OtherBookDialog from '@/components/book/otherBooks/OtherBooksDialog';
 
 export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   const router = useRouter();
@@ -72,9 +74,19 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
     ) => {
       switch (action.type) {
         case 'ADD':
+          const userState = action.payload?.userState;
           return {
             ...current,
-            isOnShelf: true,
+            userState: userState ? userState : current.userState,
+            badges: {
+              ...current.badges,
+              onShelf:
+                userState?.ownedEditionIds.includes(representativeEdition.id) ??
+                false,
+              hasOtherEdition: !userState?.ownedEditionIds.includes(
+                representativeEdition.id
+              ),
+            },
           };
         case 'REMOVE':
           return { ...current, isOnShelf: false };
@@ -86,7 +98,9 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
     }
   );
 
-  const [dialogType, setDialogType] = useState<null | 'delete' | 'rate'>(null);
+  const [dialogType, setDialogType] = useState<
+    null | 'delete' | 'rate' | 'showOtherEditions'
+  >(null);
   const openDialog = dialogType !== null;
 
   // guard na nawigację karty (click-through fix)
@@ -101,13 +115,30 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
     router.push(`/books/${book.id}`);
   };
 
-  const handleAdd = () => {
-    const snapshot = optimisticBook;
-    setOptimisticBook({ type: 'ADD' });
+  const handleAdd = (editionId: string) => {
     startTransition(() => {
+      const snapshot = optimisticBook;
+      setOptimisticBook({
+        type: 'ADD',
+        payload: {
+          userState: {
+            ownedEditionIds: [...snapshot.userState.ownedEditionIds, editionId],
+            hasAnyEdition: true,
+            ownedEditionCount: snapshot.userState.ownedEditionCount + 1,
+            primaryStatus: 'WANT_TO_READ',
+            byEdition: [
+              ...snapshot.userState.byEdition,
+              {
+                editionId,
+                readingStatus: 'WANT_TO_READ',
+              },
+            ],
+          },
+        },
+      });
       addBook({
         bookId: book.id,
-        editionId: representativeEdition.id,
+        editionId: editionId,
       });
 
       if (state.isError) {
@@ -172,15 +203,12 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
               </div>
             )
           ) : (
-            <button
-              className="bg-badge-new text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer"
-              onClick={handleAdd}
-              disabled={isPending}
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Dodaj</span> <Plus size={16} />
-              </div>
-            </button>
+            <OtherBookDialog
+              editions={book.editions}
+              dialogTitle="Wybierz wydanie"
+              handleAdd={handleAdd}
+              userEditions={optimisticBook.userState.byEdition}
+            />
           )}
 
           <Dialog
@@ -219,10 +247,20 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                       <DropdownMenuSeparator />
                     </>
                   )}
-
-                  {/* RATE */}
-
                   <DropdownMenuItem
+                    className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
+                    data-no-nav="true"
+                    onClick={() => {
+                      setDialogType('showOtherEditions');
+                    }}
+                  >
+                    <BookCopy className={`w-4 h-4`} />
+                    Pokaż inne wydania
+                  </DropdownMenuItem>
+                  {/* RATE */}
+                  <DropdownMenuSeparator />
+
+                  {/* <DropdownMenuItem
                     className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
                     data-no-nav="true"
                     onClick={() => {
@@ -237,7 +275,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                       : 'Oceń'}
                   </DropdownMenuItem>
 
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator /> */}
 
                   {/* DELETE */}
                   {optimisticBook.userState.byEdition.length > 0 ? (
@@ -249,7 +287,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                       }}
                     >
                       <Trash2 size={16} />
-                      Usuń rekord
+                      Usuń wydanie z półki
                     </DropdownMenuItem>
                   ) : (
                     <DropdownMenuItem
@@ -325,6 +363,16 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                     : 'Oceń książkę'
                 }
                 onSuccess={() => setDialogType(null)}
+              />
+            )}
+
+            {dialogType === 'showOtherEditions' && (
+              <OtherBookDialog
+                editions={book.editions}
+                dialogTitle="Inne wydania"
+                handleAdd={handleAdd}
+                onlyContent={true}
+                userEditions={optimisticBook.userState.byEdition}
               />
             )}
           </Dialog>

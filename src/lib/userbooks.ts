@@ -119,6 +119,30 @@ export interface RatingFilter {
 
 export type AddBookToShelfPayload = { bookId: string; editionId: string };
 export type RemoveBookFromShelfPayload = { bookId: string; editionId: string };
+export type EditionDto = {
+  id: string;
+  language: string | null;
+  format: MediaFormat | null;
+  publicationDate: Date | null;
+  title: string | null;
+  subtitle: string | null;
+  coverUrl: string | null;
+  isbn13: string | null;
+  isbn10: string | null;
+  publishers: {
+    editionId: string;
+    order: number;
+    publisher: {
+      name: string;
+    };
+    publisherId: string;
+  }[];
+};
+
+export type UserEditionDto = {
+  editionId: string;
+  readingStatus: ReadingStatus;
+};
 
 export type BookCardDTO = {
   book: {
@@ -127,17 +151,10 @@ export type BookCardDTO = {
     slug: string | null;
     authors: { id: string; name: string }[];
     genres: string[];
-    firstPublicationDate: string | null;
+    firstPublicationDate: Date | null;
+    editions: EditionDto[];
   };
-  representativeEdition: {
-    id: string;
-    language: string | null;
-    format: MediaFormat | null;
-    publicationDate: string | null;
-    title: string | null;
-    subtitle: string | null;
-    coverUrl: string | null;
-  };
+  representativeEdition: EditionDto;
   ratings: {
     bookAverage: number | null;
     bookRatingCount: number | null;
@@ -150,7 +167,7 @@ export type BookCardDTO = {
     ownedEditionCount: number;
     ownedEditionIds: string[];
     primaryStatus: ReadingStatus | null;
-    byEdition: { editionId: string; readingStatus: ReadingStatus }[];
+    byEdition: UserEditionDto[];
     notePreview?: string | null;
   };
   badges: {
@@ -326,6 +343,17 @@ export async function getBooksAll(
             title: true,
             subtitle: true,
             coverUrl: true,
+            isbn13: true,
+            isbn10: true,
+            publishers: {
+              include: {
+                publisher: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
             reviews: userId
               ? {
                   where: { userId },
@@ -423,16 +451,15 @@ export async function getBooksAll(
           g.genre.translations.map((t) => t.name)
         ),
         firstPublicationDate: b.firstPublicationDate
-          ? b.firstPublicationDate.toISOString()
+          ? b.firstPublicationDate
           : null,
+        editions: b.editions,
       },
       representativeEdition: {
         id: best.id,
         language: best.language,
         format: best.format,
-        publicationDate: best.publicationDate
-          ? best.publicationDate.toISOString()
-          : null,
+        publicationDate: best.publicationDate ? best.publicationDate : null,
         title: best.title,
         subtitle: best.subtitle,
         coverUrl: best.coverUrl,
