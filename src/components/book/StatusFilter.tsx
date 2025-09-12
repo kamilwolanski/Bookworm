@@ -21,6 +21,7 @@ const StatusFilter = () => {
   const router = useRouter();
 
   const handleOnChange = (id: ReadingStatus) => {
+    console.log('weszlo')
     const updatedStatuses = selectedStatuses.includes(id)
       ? selectedStatuses.filter((item) => item !== id)
       : [...selectedStatuses, id];

@@ -1,6 +1,9 @@
 import { rateBookAction } from '@/app/(main)/books/actions/bookActions';
 import { useActionForm } from '@/app/hooks/useActionForm';
-import { AddReviewInput, addReviewSchema } from '@/lib/rateBookValidation';
+import {
+  AddReviewInput,
+  addReviewSchema,
+} from '@/lib/validations/addBookToShelfValidation';
 import {
   Form,
   FormField,

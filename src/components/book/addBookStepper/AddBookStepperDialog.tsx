@@ -1,0 +1,71 @@
+'use client';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Plus } from 'lucide-react';
+import { EditionDto, UserEditionDto } from '@/lib/userbooks';
+import AddBookForm from '@/components/book/addBookStepper/AddBookForm';
+import { useState } from 'react';
+
+const AddBookStepperDialog = ({
+  bookId,
+  editions,
+  dialogTitle,
+  onlyContent = false,
+  userEditions = [],
+}: {
+  bookId: string;
+  editions: EditionDto[];
+  dialogTitle: string;
+  handleAdd: (editionId: string) => void;
+  onlyContent?: boolean;
+  userEditions?: UserEditionDto[];
+}) => {
+  const [open, setOpen] = useState(false);
+  const closeDialog = () => setOpen(false);
+  const Content = (
+    <DialogContent
+      className="sm:max-w-[625px] p-6 rounded-2xl
+      border border-border
+      shadow-2xl
+      bg-background/95 backdrop-blur
+      supports-[backdrop-filter]:bg-background/80 "
+    >
+      <DialogHeader>
+        <DialogTitle className="text-xl font-semibold tracking-tight text-dialog-foreground">
+          {dialogTitle}
+        </DialogTitle>
+      </DialogHeader>
+
+      <AddBookForm
+        bookId={bookId}
+        editions={editions}
+        userEditions={userEditions}
+        afterSuccess={closeDialog}
+      />
+    </DialogContent>
+  );
+
+  if (onlyContent) {
+    return Content;
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button className="bg-badge-new text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer">
+          <div className="flex items-center gap-2">
+            <span className="text-sm">Dodaj</span> <Plus size={16} />
+          </div>
+        </button>
+      </DialogTrigger>
+      {Content}
+    </Dialog>
+  );
+};
+
+export default AddBookStepperDialog;

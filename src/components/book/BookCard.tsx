@@ -49,6 +49,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
 import OtherBookDialog from '@/components/book/otherBooks/OtherBooksDialog';
+import AddBookStepperDialog from './addBookStepper/AddBookStepperDialog';
 
 export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   const router = useRouter();
@@ -203,9 +204,17 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
               </div>
             )
           ) : (
-            <OtherBookDialog
+            // <OtherBookDialog
+            //   editions={book.editions}
+            //   dialogTitle="Wybierz wydanie"
+            //   handleAdd={handleAdd}
+            //   userEditions={optimisticBook.userState.byEdition}
+            // />
+
+            <AddBookStepperDialog
+              bookId={book.id}
               editions={book.editions}
-              dialogTitle="Wybierz wydanie"
+              dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
               handleAdd={handleAdd}
               userEditions={optimisticBook.userState.byEdition}
             />

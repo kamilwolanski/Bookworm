@@ -224,7 +224,7 @@ model Review {
   userId    String
   editionId String
 
-  rating   Int     @db.SmallInt // 1..5 (ograniczenie waliduj w kodzie albo CHECK w DB)
+  rating   Int?     @db.SmallInt // 1..5 (ograniczenie waliduj w kodzie albo CHECK w DB)
   body     String? // treść recenzji (plain/markdown)
   spoilers Boolean @default(false)
 

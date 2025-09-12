@@ -117,7 +117,14 @@ export interface RatingFilter {
       };
 }
 
-export type AddBookToShelfPayload = { bookId: string; editionId: string };
+export type AddBookToShelfPayload = {
+  bookId: string;
+  editionId: string;
+  readingStatus: ReadingStatus;
+  rating?: number;
+  body?: string;
+};
+
 export type RemoveBookFromShelfPayload = { bookId: string; editionId: string };
 export type EditionDto = {
   id: string;
@@ -293,7 +300,7 @@ export async function getBooksAll(
     ...(genres.length > 0 && {
       genres: { some: { genre: { slug: { in: genres } } } },
     }),
-    ...(myShelf && userId && { userBook: { some: { userId } } }),
+    ...(myShelf && userId && { userEditions: { some: { userId } } }),
     ...(ratingFilters.length > 0 && { OR: ratingFilters }),
     ...(statuses.length > 0 &&
       userId && {
@@ -725,5 +732,55 @@ export async function addBookToShelf(
       editionId,
       userId,
     },
+  });
+}
+
+export async function addBookToShelfWithReview(
+  userId: string,
+  { bookId, editionId, readingStatus, rating, body }: AddBookToShelfPayload
+): Promise<void> {
+  console.log('rating', rating);
+  if (rating !== undefined && (rating < 1 || rating > 5)) {
+    throw new Error('Rating must be between 1 and 5.');
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const ub = await tx.userBook.create({
+      data: {
+        bookId,
+        editionId,
+        userId,
+        readingStatus,
+      },
+    });
+
+    if (rating || body) {
+      await tx.review.upsert({
+        where: {
+          userId_editionId: { userId, editionId },
+        },
+        create: { editionId, userId, rating, body },
+        update: { rating },
+      });
+
+      const aggs = await tx.review.aggregate({
+        where: { editionId },
+        _avg: { rating: true },
+        _count: { rating: true },
+      });
+
+      const avg = Number((aggs._avg.rating ?? 0).toFixed(2));
+      const count = aggs._count.rating;
+
+      await tx.book.update({
+        where: { id: bookId },
+        data: {
+          averageRating: avg,
+          ratingCount: count,
+        },
+      });
+    }
+
+    return ub;
   });
 }

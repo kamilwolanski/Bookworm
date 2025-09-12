@@ -3,11 +3,9 @@
 import {
   UserBookDetailsDTO,
   getBook,
-  RecentBookDto,
-  addBookToShelf,
-  AddBookToShelfPayload,
   RemoveBookFromShelfPayload,
   removeBookFromShelf,
+  addBookToShelfWithReview,
 } from '@/lib/userbooks';
 import {
   forbiddenResponse,
@@ -18,14 +16,12 @@ import {
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
 import type { Action, ActionResult } from '@/types/actions';
-import {
-  findUniqueBook,
-  RateData,
-  RatePayload,
-  updateBookRating,
-} from '@/lib/books';
+import { findUniqueBook, updateBookRating } from '@/lib/books';
 import { UserBook } from '@prisma/client';
-import { parseFormBookRateData } from '@/app/admin/helpers';
+import {
+  parseFormAddBookToShelfData,
+  parseFormBookRateData,
+} from '@/app/admin/helpers';
 
 export const getBookAction: Action<[string], UserBookDetailsDTO> = async (
   bookId
@@ -90,15 +86,31 @@ export const rateBookAction = async (
   }
 };
 
-export const addBookToShelfAction: Action<
-  [ActionResult<UserBook>, AddBookToShelfPayload],
-  UserBook
-> = async (_prev, { bookId, editionId }) => {
+export const addBookToShelfAction = async (
+  bookId: string,
+  _currentState: unknown,
+  formData: FormData
+): Promise<ActionResult> => {
   const session = await getUserSession();
+  console.log('weszlo action');
   if (!session?.user?.id) return unauthorizedResponse();
 
+  const parsed = parseFormAddBookToShelfData(formData);
+
+  if (!parsed.success) {
+    return parsed.errorResponse;
+  }
+
+  const { editionId, readingStatus, body, rating } = parsed.data;
+
   try {
-    const result = await addBookToShelf(session.user.id, { bookId, editionId });
+    const result = await addBookToShelfWithReview(session.user.id, {
+      bookId,
+      editionId,
+      readingStatus,
+      body,
+      rating,
+    });
     console.log('result', result);
     revalidatePath(`/books`);
     return {

@@ -5,6 +5,7 @@ import { getBooksAction } from '@/app/(main)/books/actions/bookActions';
 import { getUserSession } from '@/lib/session';
 import BookFilters from '@/components/book/BookFilters';
 import { ReadingStatus } from '@prisma/client';
+import { MyFirstStepper } from '@/components/MyFirstStepper';
 
 type Props = {
   searchParams?: {
@@ -70,6 +71,7 @@ export default async function ShelfBooks({ searchParams }: Props) {
           totalCount={totalCount}
         />
       </div>
+      {/* <MyFirstStepper /> */}
     </div>
   );
 }

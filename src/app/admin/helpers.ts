@@ -8,7 +8,12 @@ import {
   PublisherInput,
   publisherSchema,
 } from '@/lib/validation';
-import { AddReviewInput, addReviewSchema } from '@/lib/rateBookValidation';
+import {
+  AddBookToShelfInput,
+  addBookToShelfSchema,
+  AddReviewInput,
+  addReviewSchema,
+} from '@/lib/validations/addBookToShelfValidation';
 import { ActionError } from '@/types/actions';
 import { ZodError } from 'zod';
 import { v2 as cloudinary } from 'cloudinary';
@@ -172,6 +177,33 @@ export function parseFormEditionData(formData: FormData):
     publishers: formData.get('publishers')?.toString().split(',') ?? [],
   });
   console.log('result', result);
+  if (!result.success) {
+    return {
+      success: false,
+      errorResponse: buildActionError(result.error),
+    };
+  }
+
+  return { success: true, data: result.data };
+}
+
+export function parseFormAddBookToShelfData(formData: FormData):
+  | {
+      success: true;
+      data: AddBookToShelfInput;
+    }
+  | {
+      success: false;
+      errorResponse: ActionError;
+    } {
+  const rawRating = formData.get('rating');
+  const result = addBookToShelfSchema.safeParse({
+    editionId: formData.get('editionId'),
+    readingStatus: formData.get('readingStatus'),
+    rating: rawRating ? Number(rawRating) : undefined,
+    body: formData.get('body') ?? undefined,
+  });
+
   if (!result.success) {
     return {
       success: false,
