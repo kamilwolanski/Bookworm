@@ -1,48 +1,51 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { LibraryBig, Plus } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 import { EditionDto, UserEditionDto } from '@/lib/userbooks';
+import { AddBookToShelfInput } from '@/lib/validations/addBookToShelfValidation';
 import Image from 'next/image';
 import { LANGUAGES } from '@/app/admin/data';
 import Emoji from '@/components/shared/Emoji';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { FormField, FormItem } from '@/components/ui/form';
+import { ControllerRenderProps, UseFormReturn } from 'react-hook-form';
+import { Check, LibraryBig } from 'lucide-react';
 
-const OpenBookDialog = ({
+const ChooseEditonRadioComponent = ({
+  form,
   editions,
-  dialogTitle,
-  handleAdd,
-  onlyContent = false,
   userEditions = [],
 }: {
+  form: UseFormReturn<AddBookToShelfInput>;
   editions: EditionDto[];
-  dialogTitle: string;
-  handleAdd: (editionId: string) => void;
-  onlyContent?: boolean;
   userEditions?: UserEditionDto[];
 }) => {
-  // Zbuduj szybki lookup, czy wydanie jest już na półce
   const userEditionIds = new Set(userEditions.map((e) => e.editionId));
 
-  const renderEditionRow = (edition: EditionDto) => {
+  const renderEditionRow = (
+    edition: EditionDto,
+    field: ControllerRenderProps<AddBookToShelfInput, 'editionId'>
+  ) => {
     const isOnShelf = userEditionIds.has(edition.id);
+    const isDisabled = isOnShelf;
+    const isSelected = field.value === edition.id;
 
+    const radioId = `edition-${edition.id}`;
     return (
-      <div
+      <Label
         key={edition.id}
-        className={`relative flex items-start gap-4 rounded-md p-3 border transition cursor-pointer hover:border-primary/50 bg-white/30 hover:bg-white/50
-   
-    `}
+        htmlFor={radioId}
+        className={`relative flex items-start gap-4 rounded-md p-3 border transition
+    ${isSelected ? 'border-primary bg-primary/20' : 'border-muted bg-white/50'}
+    ${isDisabled ? 'pointer-events-none' : 'cursor-pointer hover:border-primary/50'}`}
       >
+        {/* BADGES – poza wrapperem z opacity, więc zawsze w 100% widoczne */}
+        {isSelected && (
+          <div className="absolute top-4 right-4 bg-primary text-white rounded-full p-1 z-10">
+            <Check size={14} strokeWidth={3} />
+          </div>
+        )}
+
         {isOnShelf && (
           <div className="absolute right-4 top-4 z-10 bg-badge-owned text-primary-foreground px-3 py-1 rounded-2xl">
             <div className="flex items-center gap-2">
@@ -53,7 +56,15 @@ const OpenBookDialog = ({
         )}
 
         {/* WRAPPER – tylko jego dotyczy opacity dla disabled */}
-        <div>
+        <div className={isDisabled ? 'opacity-50' : ''}>
+          <RadioGroupItem
+            id={radioId}
+            value={edition.id}
+            className="hidden"
+            disabled={isDisabled}
+            type="button"
+          />
+
           {edition.coverUrl ? (
             <div className="flex">
               <div className="relative aspect-[2/3] w-24 rounded-md overflow-hidden">
@@ -133,53 +144,23 @@ const OpenBookDialog = ({
             </div>
           )}
         </div>
-      </div>
+      </Label>
     );
   };
 
-  const Content = (
-    <DialogContent
-      className="sm:max-w-[625px] p-6 rounded-2xl
-      border border-border
-      shadow-2xl
-      bg-background/95 backdrop-blur
-      supports-[backdrop-filter]:bg-background/80 "
-    >
-      <DialogHeader>
-        <DialogTitle className="text-xl font-semibold tracking-tight text-dialog-foreground">
-          {dialogTitle}
-        </DialogTitle>
-        <Separator />
-      </DialogHeader>
-
-      {editions.map(renderEditionRow)}
-
-      <DialogFooter>
-        <DialogClose asChild>
-          <Button variant="outline" className="cursor-pointer">
-            Zamknij
-          </Button>
-        </DialogClose>
-      </DialogFooter>
-    </DialogContent>
-  );
-
-  if (onlyContent) {
-    return Content;
-  }
-
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <button className="bg-badge-new text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer">
-          <div className="flex items-center gap-2">
-            <span className="text-sm">Dodaj</span> <Plus size={16} />
-          </div>
-        </button>
-      </DialogTrigger>
-      {Content}
-    </Dialog>
+    <FormField
+      control={form.control}
+      name="editionId"
+      render={({ field }) => (
+        <FormItem>
+          <RadioGroup onValueChange={field.onChange} defaultValue={field.value}>
+            {editions.map((edition) => renderEditionRow(edition, field))}
+          </RadioGroup>
+        </FormItem>
+      )}
+    />
   );
 };
 
-export default OpenBookDialog;
+export default ChooseEditonRadioComponent;

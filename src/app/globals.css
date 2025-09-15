@@ -51,6 +51,7 @@
   --color-label: var(--label);
   --color-dialog-foreground: var(--dialog-foreground);
   --color-badge-new: var(--badge-new);
+  --color-badge-new-hover: var(--badge-new-hover);
   --color-badge-owned: var(--badge-owned);
   --color-badge-other-edition: var(--badge-other-edition);
   --radius-sm: calc(var(--radius) - 4px);
@@ -102,6 +103,7 @@
   --card-menu-trigger-hover: oklch(1 0 0);
   --label: oklch(23.929% 0.00003 271.152);
   --badge-new: oklch(0.6 0.12 260);
+--badge-new-hover: oklch(51.515% 0.09572 258.294);
   --badge-owned: oklch(0.5234 0.1347 144.17);
   --badge-other-edition: oklch(0.6176 0.0988 200.17);
 }
@@ -147,6 +149,7 @@
   --card-menu-trigger-hover: oklch(13.441% 0.00002 271.152);
   --label: oklch(1 0 0);
   --badge-new: oklch(0.6 0.12 260);
+  --badge-new-hover: oklch(51.515% 0.09572 258.294);
   --badge-owned: oklch(0.5234 0.1347 144.17);
   --badge-other-edition: oklch(0.6176 0.0988 200.17);
 }

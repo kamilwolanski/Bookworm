@@ -17,6 +17,7 @@ import {
   BookA,
   LibraryBig,
   BookCopy,
+  BookPlus,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { BookCardDTO, RemoveBookFromShelfPayload } from '@/lib/userbooks';
@@ -241,21 +242,6 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="start" data-no-nav="true">
-                  {optimisticBook.badges.onShelf && (
-                    <>
-                      <DropdownMenuItem
-                        className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
-                        data-no-nav="true"
-                        onSelect={() => {
-                          setDialogType('rate');
-                        }}
-                      >
-                        <BookA size={18} />
-                        Zmień status
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                  )}
                   <DropdownMenuItem
                     className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
                     data-no-nav="true"
@@ -263,7 +249,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                       setDialogType('showOtherEditions');
                     }}
                   >
-                    <BookCopy className={`w-4 h-4`} />
+                    <BookPlus className={`w-4 h-4`} />
                     Pokaż inne wydania
                   </DropdownMenuItem>
                   {/* RATE */}
@@ -376,12 +362,15 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
             )}
 
             {dialogType === 'showOtherEditions' && (
-              <OtherBookDialog
+              <AddBookStepperDialog
+                bookId={book.id}
                 editions={book.editions}
-                dialogTitle="Inne wydania"
+                dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
                 handleAdd={handleAdd}
-                onlyContent={true}
                 userEditions={optimisticBook.userState.byEdition}
+                onlyContent={true}
+                otherEditionsMode={true}
+                afterSuccess={() => setDialogType(null)}
               />
             )}
           </Dialog>

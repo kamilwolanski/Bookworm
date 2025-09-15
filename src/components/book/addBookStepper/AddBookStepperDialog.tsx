@@ -16,14 +16,18 @@ const AddBookStepperDialog = ({
   editions,
   dialogTitle,
   onlyContent = false,
+  otherEditionsMode = false,
   userEditions = [],
+  afterSuccess,
 }: {
   bookId: string;
   editions: EditionDto[];
   dialogTitle: string;
   handleAdd: (editionId: string) => void;
   onlyContent?: boolean;
+  otherEditionsMode?: boolean;
   userEditions?: UserEditionDto[];
+  afterSuccess?: () => void;
 }) => {
   const [open, setOpen] = useState(false);
   const closeDialog = () => setOpen(false);
@@ -45,7 +49,8 @@ const AddBookStepperDialog = ({
         bookId={bookId}
         editions={editions}
         userEditions={userEditions}
-        afterSuccess={closeDialog}
+        otherEditionsMode={otherEditionsMode}
+        afterSuccess={afterSuccess ? afterSuccess : closeDialog}
       />
     </DialogContent>
   );
@@ -57,7 +62,7 @@ const AddBookStepperDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="bg-badge-new text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer">
+        <button className="bg-badge-new text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer hover:bg-badge-new-hover">
           <div className="flex items-center gap-2">
             <span className="text-sm">Dodaj</span> <Plus size={16} />
           </div>

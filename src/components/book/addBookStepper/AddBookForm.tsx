@@ -4,7 +4,8 @@ import { defineStepper } from '@/components/ui/Stepper';
 import { Form } from '@/components/ui/form';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import { Separator } from '@/components/ui/separator';
-import ChooseEditonComponent from '@/components/book/addBookStepper/ChooseEditonComponent';
+import ChooseEditonRadioComponent from '@/components/book/addBookStepper/ChooseEditonRadioComponent';
+import ChooseEditonComponent from '@/components/book/addBookStepper/ChooseEditionComponent';
 import ReviewEditionComponent from '@/components/book/addBookStepper/ReviewEditionComponent';
 import { EditionDto, UserEditionDto } from '@/lib/userbooks';
 import { addBookToShelfAction } from '@/app/(main)/books/actions/bookActions';
@@ -27,11 +28,13 @@ const AddBookForm = ({
   bookId,
   editions,
   userEditions = [],
+  otherEditionsMode,
   afterSuccess,
 }: {
   bookId: string;
   editions: EditionDto[];
   userEditions?: UserEditionDto[];
+  otherEditionsMode: boolean;
   afterSuccess: () => void;
 }) => {
   const boundAction = addBookToShelfAction.bind(null, bookId);
@@ -59,52 +62,61 @@ const AddBookForm = ({
             className="flex items-center justify-between gap-2"
             aria-orientation="horizontal"
           >
-            {stepper.all.map((step, index, array) => (
-              <React.Fragment key={step.id}>
-                <li className="flex items-center gap-4 flex-shrink-0">
-                  <Button
-                    type="button"
-                    role="tab"
-                    variant={index <= currentIndex ? 'default' : 'secondary'}
-                    aria-current={
-                      stepper.current.id === step.id ? 'step' : undefined
-                    }
-                    aria-posinset={index + 1}
-                    aria-setsize={steps.length}
-                    aria-selected={stepper.current.id === step.id}
-                    className="flex size-10 items-center justify-center rounded-full cursor-pointer"
-                    onClick={async () => {
-                      const valid = await form.trigger();
-                      if (!valid) return;
-                      //can't skip steps forwards but can go back anywhere if validated
-                      if (index - currentIndex > 1) return;
-                      stepper.goTo(step.id);
-                    }}
-                  >
-                    {index + 1}
-                  </Button>
-                  <span className="text-sm font-medium">{step.label}</span>
-                </li>
-                {index < array.length - 1 && (
-                  <Separator
-                    className={`flex-1 ${
-                      index < currentIndex ? 'bg-primary' : 'bg-muted'
-                    }`}
-                  />
-                )}
-              </React.Fragment>
-            ))}
+            {!otherEditionsMode &&
+              stepper.all.map((step, index, array) => (
+                <React.Fragment key={step.id}>
+                  <li className="flex items-center gap-4 flex-shrink-0">
+                    <Button
+                      type="button"
+                      role="tab"
+                      variant={index <= currentIndex ? 'default' : 'secondary'}
+                      aria-current={
+                        stepper.current.id === step.id ? 'step' : undefined
+                      }
+                      aria-posinset={index + 1}
+                      aria-setsize={steps.length}
+                      aria-selected={stepper.current.id === step.id}
+                      className="flex size-10 items-center justify-center rounded-full cursor-pointer"
+                      onClick={async () => {
+                        const valid = await form.trigger();
+                        if (!valid) return;
+                        //can't skip steps forwards but can go back anywhere if validated
+                        if (index - currentIndex > 1) return;
+                        stepper.goTo(step.id);
+                      }}
+                    >
+                      {index + 1}
+                    </Button>
+                    <span className="text-sm font-medium">{step.label}</span>
+                  </li>
+                  {index < array.length - 1 && (
+                    <Separator
+                      className={`flex-1 ${
+                        index < currentIndex ? 'bg-primary' : 'bg-muted'
+                      }`}
+                    />
+                  )}
+                </React.Fragment>
+              ))}
           </ol>
         </nav>
-        <div className="space-y-10 pt-5">
+        <div className={`space-y-10 ${!otherEditionsMode ? 'pt-5' : ''}`}>
           {stepper.switch({
-            edition: () => (
-              <ChooseEditonComponent
-                form={form}
-                editions={editions}
-                userEditions={userEditions}
-              />
-            ),
+            edition: () =>
+              !otherEditionsMode ? (
+                <ChooseEditonRadioComponent
+                  form={form}
+                  editions={editions}
+                  userEditions={userEditions}
+                />
+              ) : (
+                <ChooseEditonComponent
+                  form={form}
+                  editions={editions}
+                  userEditions={userEditions}
+                  goNext={stepper.next}
+                />
+              ),
             statusReview: () => <ReviewEditionComponent form={form} />,
           })}
           <div className="flex justify-end gap-4">
