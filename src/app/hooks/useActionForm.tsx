@@ -41,6 +41,7 @@ export function useActionForm<TFormInput extends FieldValues>({
   );
 
   useEffect(() => {
+    console.log('state', state);
     if (!isPending && state?.isError) {
       applyServerErrorsToForm(form, state);
     } else if (!isPending && state && state.status === 'success') {
@@ -50,6 +51,7 @@ export function useActionForm<TFormInput extends FieldValues>({
 
   const handleSubmit = (data: TFormInput) => {
     const formData = new FormData();
+    console.log('data', data);
 
     for (const [key, value] of Object.entries(data)) {
       if (value !== undefined && value !== null) {
@@ -60,7 +62,7 @@ export function useActionForm<TFormInput extends FieldValues>({
         }
       }
     }
-
+    console.log('formData', formData.get('authors'));
     startTransition(() => {
       doAction(formData);
     });

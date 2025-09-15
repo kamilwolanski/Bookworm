@@ -119,6 +119,9 @@ interface MultiSelectProps
   className?: string;
   showSelectedValues?: boolean;
   contentClassName?: string;
+  searchValue?: string;
+  onSearchChange?: (q: string) => void;
+  searchPlaceholder?: string;
 }
 
 export const MultiSelect = React.forwardRef<
@@ -139,6 +142,9 @@ export const MultiSelect = React.forwardRef<
       className,
       showSelectedValues = true,
       contentClassName,
+      searchValue,
+      onSearchChange,
+      searchPlaceholder,
       ...props
     },
     ref
@@ -213,7 +219,7 @@ export const MultiSelect = React.forwardRef<
             {...props}
             onClick={handleTogglePopover}
             className={cn(
-              'flex w-full p-1 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit hover:bg-inherit [&_svg]:pointer-events-auto',
+              'flex w-full p-1 rounded-md h-[36px] items-center justify-between hover:bg-input [&_svg]:pointer-events-auto border-border border bg-input cursor-pointer',
               className
             )}
           >
@@ -285,7 +291,7 @@ export const MultiSelect = React.forwardRef<
               </div>
             ) : (
               <div className="flex items-center justify-between w-full mx-auto">
-                <span className="text-sm text-muted-foreground mx-3">
+                <span className="text-muted-foreground mx-3">
                   {placeholder}
                 </span>
                 <ChevronDown className="h-4 cursor-pointer text-muted-foreground mx-2" />
@@ -300,7 +306,9 @@ export const MultiSelect = React.forwardRef<
         >
           <Command>
             <CommandInput
-              placeholder="Wyszukaj gatunek..."
+              placeholder={searchPlaceholder ?? 'Wyszukaj...'}
+              value={searchValue}
+              onValueChange={onSearchChange}
               onKeyDown={handleInputKeyDown}
             />
             <CommandList>
@@ -328,6 +336,7 @@ export const MultiSelect = React.forwardRef<
                   return (
                     <CommandItem
                       key={option.value}
+                      value={`${option.label} ${option.value}`}
                       onSelect={() => toggleOption(option.value)}
                       className="cursor-pointer"
                     >

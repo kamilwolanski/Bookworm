@@ -20,7 +20,7 @@ export default function NavLink({
   activeClassName = 'text-purple-400',
 }: NavLinkProps) {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname.includes(href);
 
   const combinedClassName = isActive
     ? `${className} ${activeClassName}`

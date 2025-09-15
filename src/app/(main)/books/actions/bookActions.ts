@@ -2,16 +2,10 @@
 
 import {
   UserBookDetailsDTO,
-  UserBookDTO,
-  deleteBook,
-  EditBookData,
   getBook,
-  getBooks,
-  getRecentBooksExcludingCurrent,
-  RecentBookDto,
-  updateBookWithTransaction,
-  getBooksAll,
-  BookWithUserData,
+  RemoveBookFromShelfPayload,
+  removeBookFromShelf,
+  addBookToShelfWithReview,
 } from '@/lib/userbooks';
 import {
   forbiddenResponse,
@@ -22,143 +16,11 @@ import {
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
 import type { Action, ActionResult } from '@/types/actions';
-import { handleImageUpload, parseFormData } from '../helpers';
-import { v2 as cloudinary } from 'cloudinary';
-import { GenreSlug, Prisma, ReadingStatus } from '@prisma/client';
+import { findUniqueBook, updateBookRating } from '@/lib/books';
 import {
-  findUniqueBook,
-  RateData,
-  RatePayload,
-  updateBookRating,
-} from '@/lib/books';
-
-export const removeUserBookAction: Action<[unknown, string]> = async (
-  _,
-  bookId
-) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) {
-    return unauthorizedResponse();
-  }
-
-  const book = await getBook(bookId, session.user.id);
-
-  if (!book) return notFoundResponse(`Nie znaleziono książki o id: ${bookId}`);
-
-  if (book.userId !== session.user.id)
-    return forbiddenResponse(
-      `Brak uprawnień do usunięcia książki o id: ${bookId}`
-    );
-
-  try {
-    if (book.imagePublicId) {
-      const result = await cloudinary.uploader.destroy(book.imagePublicId);
-      if (result.result !== 'ok' && result.result !== 'not found') {
-        return {
-          isError: true,
-          status: 'cloudinary_error',
-          httpStatus: 500,
-          message: 'Nie udało się usunąć pliku z Cloudinary.',
-        };
-      }
-    }
-
-    await deleteBook(bookId, session.user.id);
-  } catch (e) {
-    console.error('Delete error:', e);
-
-    if (
-      e instanceof Prisma.PrismaClientKnownRequestError &&
-      e.code === 'P2025'
-    ) {
-      return notFoundResponse(`Książka o id: ${bookId} już nie istnieje`);
-    }
-
-    return {
-      isError: true,
-      status: 'server_error',
-      httpStatus: 500,
-      message: 'Wystąpił błąd serwera',
-    };
-  }
-
-  // revalidatePath('/books');
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    message: 'Książka została usunięta',
-  };
-};
-
-export const getBooksAction: Action<
-  [
-    {
-      currentPage: number;
-      genres: GenreSlug[];
-      userRatings: string[];
-      statuses: ReadingStatus[];
-      myShelf: boolean;
-      booksPerPage?: number;
-      search?: string;
-    },
-  ],
-  {
-    books: BookWithUserData[];
-    totalCount: number;
-  }
-> = async ({
-  currentPage,
-  booksPerPage = 10,
-  search,
-  genres,
-  myShelf,
-  userRatings,
-  statuses,
-}) => {
-  const session = await getUserSession();
-
-  if (myShelf) {
-    if (!session?.user?.id) {
-      return unauthorizedResponse();
-    }
-  }
-
-  try {
-    // const books = await getBooks(
-    //   session.user.id,
-    //   currentPage,
-    //   booksPerPage,
-    //   genres,
-    //   ratings,
-    //   statuses,
-    //   search
-    // );
-
-    const books = await getBooksAll(
-      currentPage,
-      booksPerPage,
-      genres,
-      myShelf,
-      userRatings,
-      statuses,
-      search,
-      session?.user?.id
-    );
-
-    return {
-      isError: false,
-      status: 'success',
-      httpStatus: 200,
-      data: books,
-    };
-  } catch (e) {
-    console.log('e', e);
-    return serverErrorResponse('Problem przy odczycie danych');
-  }
-};
+  parseFormAddBookToShelfData,
+  parseFormBookRateData,
+} from '@/lib/parsers/books';
 
 export const getBookAction: Action<[string], UserBookDetailsDTO> = async (
   bookId
@@ -182,126 +44,100 @@ export const getBookAction: Action<[string], UserBookDetailsDTO> = async (
   };
 };
 
-export const editBookAction: Action<[unknown, FormData]> = async (
-  _,
-  formData
-) => {
+export const rateBookAction = async (
+  bookId: string,
+  editionId: string,
+  _currentState: unknown,
+  formData: FormData
+): Promise<ActionResult> => {
   const session = await getUserSession();
+  if (!session?.user?.id) return unauthorizedResponse();
 
-  if (!session?.user?.id) {
-    return unauthorizedResponse();
-  }
-
-  const parsed = parseFormData(formData);
+  const parsed = parseFormBookRateData(formData);
   if (!parsed.success) {
     return parsed.errorResponse;
   }
 
-  if (!parsed.data.id) {
-    return {
-      isError: true,
-      status: 'validation_error',
-      httpStatus: 422,
-      message: 'Brak ID książki',
-    };
-  }
-
-  const {
-    id,
-    title,
-    author,
-    file,
-    genres,
-    pageCount,
-    publicationYear,
-    readingStatus,
-    rating,
-    description,
-    imagePublicId: existingImagePublicId,
-  } = parsed.data;
-
-  let imageUrl: string | null = null;
-  let imagePublicId: string | null = null;
-
-  if (file && file.size > 0) {
-    const uploadResult = await handleImageUpload(file, existingImagePublicId);
-    if (uploadResult.isError) return uploadResult;
-
-    imageUrl = uploadResult.imageUrl;
-    imagePublicId = uploadResult.imagePublicId;
-  }
-
-  const updateData: EditBookData = {
-    title,
-    author,
-    userId: session.user.id,
-    description: description ?? null,
-    pageCount: pageCount ?? null,
-    publicationYear: publicationYear ?? null,
-    readingStatus,
-    rating: rating ?? null,
-    ...(imageUrl && imagePublicId && { imageUrl, imagePublicId }),
-  };
-
-  if (!id) {
-    return {
-      isError: true,
-      status: 'validation_error',
-      httpStatus: 422,
-      message: 'Brak id',
-    };
-  }
-
-  try {
-    await updateBookWithTransaction(id, updateData, genres);
-  } catch (err) {
-    console.error(err);
-    return serverErrorResponse();
-  }
-
-  revalidatePath(`/books/${id}`);
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    message: 'Książka została zaktualizowana',
-  };
-};
-
-export const getRecentBooksAction: Action<
-  [ActionResult<RecentBookDto[]>, string],
-  RecentBookDto[]
-> = async (_prev, currentBookId) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) return unauthorizedResponse();
-
-  const recentBooks = await getRecentBooksExcludingCurrent(
-    session.user.id,
-    currentBookId
-  );
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    data: recentBooks,
-  };
-};
-
-export const rateBookAction: Action<
-  [ActionResult<RateData>, RatePayload],
-  RateData
-> = async (_prev, { bookId, rating }) => {
-  const session = await getUserSession();
-  if (!session?.user?.id) return unauthorizedResponse();
+  const { body, rating } = parsed.data;
 
   const bookExists = await findUniqueBook(bookId);
   if (!bookExists) return notFoundResponse(`książki o id: ${bookId}`);
 
   try {
-    const result = await updateBookRating(session.user.id, { bookId, rating });
+    const result = await updateBookRating(session.user.id, {
+      bookId,
+      editionId,
+      rating,
+      body,
+    });
+
+    revalidatePath(`/books`);
+
+    return {
+      isError: false,
+      status: 'success',
+      httpStatus: 200,
+      data: result,
+    };
+  } catch (err) {
+    console.error(err);
+    return serverErrorResponse();
+  }
+};
+
+export const addBookToShelfAction = async (
+  bookId: string,
+  _currentState: unknown,
+  formData: FormData
+): Promise<ActionResult> => {
+  const session = await getUserSession();
+  console.log('weszlo action');
+  if (!session?.user?.id) return unauthorizedResponse();
+
+  const parsed = parseFormAddBookToShelfData(formData);
+
+  if (!parsed.success) {
+    return parsed.errorResponse;
+  }
+
+  const { editionId, readingStatus, body, rating } = parsed.data;
+
+  try {
+    const result = await addBookToShelfWithReview(session.user.id, {
+      bookId,
+      editionId,
+      readingStatus,
+      body,
+      rating,
+    });
+    console.log('result', result);
+    revalidatePath(`/books`);
+    return {
+      isError: false,
+      status: 'success',
+      httpStatus: 200,
+      data: result,
+    };
+  } catch (err) {
+    console.error(err);
+    return serverErrorResponse();
+  }
+};
+
+export const removeBookFromShelfAction: Action<
+  [ActionResult<void>, RemoveBookFromShelfPayload],
+  void
+> = async (_prev, { bookId, editionId }) => {
+  const session = await getUserSession();
+  if (!session?.user?.id) return unauthorizedResponse();
+
+  try {
+    const result = await removeBookFromShelf(session.user.id, {
+      bookId,
+      editionId,
+    });
+    console.log('result', result);
+    revalidatePath(`/books`);
     return {
       isError: false,
       status: 'success',

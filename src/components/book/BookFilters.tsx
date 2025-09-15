@@ -2,7 +2,7 @@
 import { GenreDTO } from '@/lib/userbooks';
 import GenreFilter from './GenreFilter';
 import RatingFilter from './RatingFilter';
-import StatusFilter from './StatusFilter';
+// import StatusFilter from './StatusFilter';
 import { getUserSession } from '@/lib/session';
 
 const BookFilters = async ({
@@ -21,7 +21,7 @@ const BookFilters = async ({
       {logged && (
         <>
           <RatingFilter />
-          <StatusFilter />
+          {/* <StatusFilter /> */}
         </>
       )}
     </div>

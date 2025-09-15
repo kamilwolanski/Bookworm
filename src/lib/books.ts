@@ -1,19 +1,8 @@
 import { CommentDto, GenreDTO } from './userbooks';
-import prisma from './prisma';
-import { Book, GenreSlug } from '@prisma/client';
+import prisma from '@/lib/prisma';
+import { Book } from '@prisma/client';
 
 export type BookDTO = Book & {
-  genres?: GenreDTO[];
-};
-
-export type BookBasicDTO = Omit<
-  Book,
-  | 'averageRating'
-  | 'ratingCount'
-  | 'description'
-  | 'pageCount'
-  | 'publicationYear'
-> & {
   genres?: GenreDTO[];
 };
 
@@ -22,20 +11,18 @@ export type CreateBookData = Omit<
   'id' | 'addedAt' | 'averageRating' | 'ratingCount'
 >;
 
-export type EditBookData = Omit<
-  CreateBookData,
-  'imageUrl' | 'imagePublicId'
-> & {
-  imageUrl?: string | null;
-  imagePublicId?: string | null;
-};
-
 export type BookDetailsDTO = Book & {
   genres?: GenreDTO[];
   comments: CommentDto[];
 };
 
-export type RatePayload = { bookId: string; rating: number };
+export type RatePayload = {
+  bookId: string;
+  editionId: string;
+  rating: number;
+  body?: string;
+};
+
 export type RateData = {
   averageRating: number;
   ratingCount: number;
@@ -45,7 +32,7 @@ export type RateData = {
 export async function getAllBooks(
   currentPage: number,
   booksPerPage: number,
-  genres: GenreSlug[],
+  genres: string[],
   ratings: string[],
   search?: string
 ): Promise<{
@@ -128,109 +115,6 @@ export async function getAllBooks(
       };
     }),
   }));
-
-  return {
-    books: booksDto,
-    totalCount,
-  };
-}
-
-export async function getAllBooksBasic(
-  currentPage: number,
-  booksPerPage: number,
-  genres: GenreSlug[],
-  ratings: string[],
-  search?: string
-): Promise<{
-  books: BookBasicDTO[];
-  totalCount: number;
-}> {
-  const skip = (currentPage - 1) * booksPerPage;
-
-  const searchConditions = search
-    ? {
-        OR: [
-          { title: { contains: search, mode: 'insensitive' as const } },
-          { author: { contains: search, mode: 'insensitive' as const } },
-          {
-            genres: {
-              some: {
-                genre: {
-                  translations: {
-                    some: {
-                      language: 'pl',
-                      name: {
-                        contains: search,
-                        mode: 'insensitive' as const,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        ],
-      }
-    : {};
-
-  const where = {
-    ...searchConditions,
-    ...(genres.length > 0 && {
-      genres: {
-        some: {
-          genre: {
-            slug: { in: genres },
-          },
-        },
-      },
-    }),
-  };
-
-  const [books, totalCount] = await Promise.all([
-    prisma.book.findMany({
-      skip,
-      take: booksPerPage,
-      where,
-      orderBy: { addedAt: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        author: true,
-        addedAt: true,
-        imageUrl: true,
-        imagePublicId: true,
-        genres: {
-          include: {
-            genre: {
-              include: {
-                translations: {
-                  where: { language: 'pl' },
-                },
-              },
-            },
-          },
-        },
-      },
-    }),
-    prisma.book.count({ where }),
-  ]);
-
-  const booksDto: BookBasicDTO[] = books.map((book) => {
-    const genresDto = book.genres.map((genreRelation) => {
-      const translation = genreRelation.genre.translations[0];
-      return {
-        id: genreRelation.genre.id,
-        slug: genreRelation.genre.slug,
-        language: translation.language,
-        name: translation.name,
-      };
-    });
-
-    return {
-      ...book,
-      genres: genresDto,
-    };
-  });
 
   return {
     books: booksDto,
@@ -326,25 +210,6 @@ export async function getBook(
   return enrichedBook;
 }
 
-export async function createBook(data: CreateBookData, genreIds: string[]) {
-  if (genreIds?.length > 0) {
-    return await prisma.book.create({
-      data: {
-        ...data,
-        genres: {
-          create: genreIds?.map((genreId) => ({
-            genre: {
-              connect: { id: genreId },
-            },
-          })),
-        },
-      },
-    });
-  } else {
-    return await prisma.book.create({ data });
-  }
-}
-
 export async function deleteBook(bookId: string) {
   const book = await prisma.book.delete({
     where: {
@@ -353,43 +218,6 @@ export async function deleteBook(bookId: string) {
   });
 
   return book;
-}
-
-export async function updateBookWithTransaction(
-  bookId: string,
-  data: EditBookData,
-  genreIds: string[]
-) {
-  const updatedBook = await prisma.$transaction(async (tx) => {
-    // 1. Usuń stare przypisania gatunków
-    await tx.bookGenre.deleteMany({
-      where: { bookId },
-    });
-
-    // 2. Zaktualizuj książkę i dodaj nowe gatunki
-    return await tx.book.update({
-      where: { id: bookId },
-      data: {
-        ...data,
-        genres: {
-          create: genreIds.map((genreId) => ({
-            genre: {
-              connect: { id: genreId },
-            },
-          })),
-        },
-      },
-      include: {
-        genres: {
-          include: {
-            genre: true,
-          },
-        },
-      },
-    });
-  });
-
-  return updatedBook;
 }
 
 export async function findUniqueBook(bookId: string) {
@@ -403,25 +231,25 @@ export async function findUniqueBook(bookId: string) {
 
 export async function updateBookRating(
   userId: string,
-  { bookId, rating }: RatePayload
-): Promise<RateData> {
+  { editionId, bookId, rating, body }: RatePayload
+): Promise<void> {
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     throw new Error('Rating must be an integer between 1 and 5.');
   }
 
   return prisma.$transaction(async (tx) => {
     // Upsert oceny użytkownika
-    await tx.userRating.upsert({
+    await tx.review.upsert({
       where: {
-        bookId_userId: { bookId, userId },
+        userId_editionId: { userId, editionId },
       },
-      create: { bookId, userId, rating },
+      create: { editionId, userId, rating, body },
       update: { rating },
     });
 
     // Agregaty po zmianie
-    const aggs = await tx.userRating.aggregate({
-      where: { bookId },
+    const aggs = await tx.review.aggregate({
+      where: { editionId },
       _avg: { rating: true },
       _count: { rating: true },
     });
@@ -438,7 +266,5 @@ export async function updateBookRating(
         ratingCount: count,
       },
     });
-
-    return { averageRating: avg, ratingCount: count, userRating: rating };
   });
 }

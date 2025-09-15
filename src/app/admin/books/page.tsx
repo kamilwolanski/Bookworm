@@ -1,10 +1,9 @@
-import BookForm from '@/components/book/BookForm';
 import { getBookGenres } from '@/lib/userbooks';
 import { SearchBar } from '@/components/shared/SearchBar';
-import BookFilters from '@/components/book/BookFilters';
-import { GenreSlug } from '@prisma/client';
-import { getAllBooksAction } from '@/app/admin/books/actions/bookActions';
-import AdminBooksTable from '@/components/admin/AdminBooksTable';
+
+import AdminBooksTable from '@/components/admin/book/AdminBooksTable';
+import AddBookDialog from '@/components/admin/book/AddBookDialog';
+import { getAllBooksBasic } from '@/lib/adminBooks';
 
 type Props = {
   searchParams?: {
@@ -18,43 +17,40 @@ type Props = {
 
 const ITEMS_PER_PAGE = 16;
 
-export default async function Books({ searchParams }: Props) {
+export default async function BooksPage({ searchParams }: Props) {
   const { page, search, genre, rating } = searchParams
     ? await searchParams
     : {};
   const currentPage = parseInt(page || '1', 10);
-  const genresParams =
-    (genre?.toLocaleUpperCase().split(',') as GenreSlug[]) ?? [];
+  const genresParams = genre?.toLocaleUpperCase().split(',') ?? [];
   const ratings = rating?.split(',') ?? [];
-  const response = await getAllBooksAction({
-    currentPage: currentPage,
-    booksPerPage: ITEMS_PER_PAGE,
-    search,
-    genres: genresParams,
+  const response = await getAllBooksBasic(
+    currentPage,
+    ITEMS_PER_PAGE,
+    genresParams,
     ratings,
-  });
+    search
+  );
   const bookGenres = await getBookGenres('pl');
-  console.log('responses', response);
-  if (!response.isError && response.data)
-    return (
-      <div className="min-h-full flex flex-col">
-        <div className="flex">
-          <BookForm bookGenres={bookGenres} />
-          <div className="ms-10 w-full">
-            <SearchBar />
-          </div>
-        </div>
 
-        <div className="flex flex-1">
-          {/* <BookFilters bookGenres={bookGenres} genresParams={genresParams} /> */}
-          <AdminBooksTable
-            books={response.data.books}
-            page={currentPage}
-            pageSize={ITEMS_PER_PAGE}
-            totalCount={response.data.totalCount}
-            bookGenres={bookGenres}
-          />
+  return (
+    <div className="min-h-full flex flex-col">
+      <div className="flex">
+        <AddBookDialog bookGenres={bookGenres} />
+        <div className="ms-10 w-full">
+          <SearchBar placeholder="wyszukaj książke" />
         </div>
       </div>
-    );
+
+      <div className="flex flex-1">
+        <AdminBooksTable
+          books={response.books}
+          page={currentPage}
+          pageSize={ITEMS_PER_PAGE}
+          totalCount={response.totalCount}
+          bookGenres={bookGenres}
+        />
+      </div>
+    </div>
+  );
 }

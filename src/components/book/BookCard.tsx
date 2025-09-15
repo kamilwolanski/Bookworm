@@ -1,12 +1,11 @@
 'use client';
 
-import * as React from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
-import { Star, Trash2, MoreVertical, Check, Plus, BookA } from 'lucide-react';
+import { Star, MoreVertical, LibraryBig, BookPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { BookWithUserData } from '@/lib/userbooks';
-import { removeUserBookAction } from '@/app/(main)/books/actions/bookActions';
+import { BookCardDTO } from '@/lib/userbooks';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,21 +14,24 @@ import {
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { Dialog } from '@/components/ui/dialog';
-import DeleteBtn from '../forms/DeleteBookBtn';
-import RateBookBtn from './ratebook/RateBookBtn'; // <-- import
+import RatingDialogContent from '@/components/book/ratebook/RatingDialogContent';
 import userIcon from '@/app/assets/icons/user.svg';
 import multipleUsersIcon from '@/app/assets/icons/multiple_users.svg';
 
-export function BookCard({ book }: { book: BookWithUserData }) {
+import AddBookStepperDialog from './addBookStepper/AddBookStepperDialog';
+
+export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   const router = useRouter();
 
-  const [dialogType, setDialogType] = React.useState<null | 'delete' | 'rate'>(
-    null
-  );
+  const { book, representativeEdition } = bookItem;
+
+  const [dialogType, setDialogType] = useState<
+    null | 'delete' | 'rate' | 'showOtherEditions'
+  >(null);
   const openDialog = dialogType !== null;
 
   // guard na nawigację karty (click-through fix)
-  const startedOnCardRef = React.useRef(false);
+  const startedOnCardRef = useRef(false);
   const isInteractiveTarget = (el: EventTarget | null) =>
     !!(el as HTMLElement | null)?.closest(
       '[data-no-nav="true"],a,button,[role="button"],input,textarea,select,label'
@@ -47,10 +49,10 @@ export function BookCard({ book }: { book: BookWithUserData }) {
       key={book.id}
     >
       <div className="relative aspect-[3/4] w-full">
-        {book.imageUrl ? (
+        {bookItem.representativeEdition.coverUrl ? (
           <Image
-            src={book.imageUrl}
-            alt={`Okładka książki ${book.title}`}
+            src={bookItem.representativeEdition.coverUrl}
+            alt={`Okładka książki ${bookItem.representativeEdition.title}`}
             fill
             className="object-cover rounded-lg"
             sizes="(max-width: 768px) 100vw, 33vw"
@@ -61,19 +63,30 @@ export function BookCard({ book }: { book: BookWithUserData }) {
           </div>
         )}
 
-        <div className="absolute top-0 left-0 p-2 w-full flex justify-between items-center">
-          {book.isOnShelf ? (
-            <div className="bg-primary text-primary-foreground px-3 py-1 rounded-2xl">
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Na półce</span> <Check size={16} />
+        <div className="absolute top-0 left-0 p-2 w-full flex justify-between items-center gap-2">
+          {bookItem.badges.onShelf ? (
+            bookItem.badges.hasOtherEdition ? (
+              <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Na półce (inne wyd.)</span>{' '}
+                  <LibraryBig size={16} />
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-badge-owned text-primary-foreground px-3 py-1 rounded-2xl">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Na półce</span>{' '}
+                  <LibraryBig size={16} />
+                </div>
+              </div>
+            )
           ) : (
-            <div className="bg-secondary text-secondary-foreground px-3 py-1 rounded-2xl">
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Dodaj</span> <Plus size={16} />
-              </div>
-            </div>
+            <AddBookStepperDialog
+              bookId={book.id}
+              editions={book.editions}
+              dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
+              userEditions={bookItem.userState.byEdition}
+            />
           )}
 
           <Dialog
@@ -97,25 +110,20 @@ export function BookCard({ book }: { book: BookWithUserData }) {
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="start" data-no-nav="true">
-                  {book.userBook && (
-                    <>
-                      <DropdownMenuItem
-                        className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
-                        data-no-nav="true"
-                        onSelect={() => {
-                          setDialogType('rate');
-                        }}
-                      >
-                        <BookA size={18} />
-                        Zmień status
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                  )}
-
-                  {/* RATE */}
-
                   <DropdownMenuItem
+                    className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
+                    data-no-nav="true"
+                    onClick={() => {
+                      setDialogType('showOtherEditions');
+                    }}
+                  >
+                    <BookPlus className={`w-4 h-4`} />
+                    Pokaż inne wydania
+                  </DropdownMenuItem>
+                  {/* RATE */}
+                  <DropdownMenuSeparator />
+
+                  {/* <DropdownMenuItem
                     className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
                     data-no-nav="true"
                     onClick={() => {
@@ -123,62 +131,39 @@ export function BookCard({ book }: { book: BookWithUserData }) {
                     }}
                   >
                     <Star
-                      className={`w-4 h-4 ${book.myRating ? 'fill-current text-yellow-400' : ''}`}
+                      className={`w-4 h-4 ${optimisticBook.ratings.user.rating ? 'fill-current text-yellow-400' : ''}`}
                     />
-                    {book.myRating ? 'Zmień ocenę' : 'Oceń'}
+                    {optimisticBook.ratings.user.rating
+                      ? 'Zmień ocenę'
+                      : 'Oceń'}
                   </DropdownMenuItem>
 
-                  <DropdownMenuSeparator />
-
-                  {/* DELETE */}
-                  {book.userBook ? (
-                    <DropdownMenuItem
-                      className="px-2 py-1.5 text-sm flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
-                      data-no-nav="true"
-                      onClick={() => {
-                        setDialogType('delete');
-                      }}
-                    >
-                      <Trash2 size={16} />
-                      Usuń z półki
-                    </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuItem
-                      onSelect={(e) => e.preventDefault()}
-                      className="px-2 py-1.5 text-sm flex items-center gap-2 text-secondary focus:text-secondary cursor-pointer"
-                      data-no-nav="true"
-                    >
-                      <Plus size={16} />
-                      Dodaj na półkę
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuSeparator /> */}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
-            {/* Treści dialogów */}
-            {dialogType === 'delete' && book.userBook && (
-              <DeleteBtn
-                bookId={book.id}
-                removeBookAction={removeUserBookAction}
-                revalidatePath="/books"
+            {dialogType === 'rate' && (
+              <RatingDialogContent
+                bookId={bookItem.book.id}
+                editionId={bookItem.representativeEdition.id}
+                initialRating={bookItem.ratings.user.rating ?? undefined}
                 dialogTitle={
-                  <>
-                    Czy na pewno chcesz usunąć <b>„{book.title}”</b> ze swojej
-                    półki?
-                  </>
+                  bookItem.ratings.user.rating ? 'Zmień ocenę' : 'Oceń książkę'
                 }
                 onSuccess={() => setDialogType(null)}
               />
             )}
 
-            {dialogType === 'rate' && (
-              <RateBookBtn
+            {dialogType === 'showOtherEditions' && (
+              <AddBookStepperDialog
                 bookId={book.id}
-                rating={book.myRating ?? 0} // domyślnie 0, jeśli brak oceny
-                revalidatePath="/books"
-                dialogTitle={book.myRating ? 'Zmień ocenę' : 'Oceń książkę'}
-                onSuccess={() => setDialogType(null)}
+                editions={book.editions}
+                dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
+                userEditions={bookItem.userState.byEdition}
+                onlyContent={true}
+                otherEditionsMode={true}
+                afterSuccess={() => setDialogType(null)}
               />
             )}
           </Dialog>
@@ -188,23 +173,27 @@ export function BookCard({ book }: { book: BookWithUserData }) {
           <div className="flex justify-between w-full">
             <div className="w-full flex flex-col justify-between">
               <div className="pb-1">
-                <h3 className="font-semibold text-lg">{book.title}</h3>
-                <p className="text-md">{book.author}</p>
+                <h3 className="font-semibold text-lg">
+                  {bookItem.representativeEdition.title}
+                </h3>
+                <p className="text-md">
+                  {bookItem.book.authors.map((author) => author.name)}
+                </p>
               </div>
 
               <div className="flex gap-2 pt-1 border-gray-300/30 border-t">
                 <div className="flex gap-1">
                   <Image src={multipleUsersIcon} alt="icon" />
                   <span className="flex items-center gap-1 text-sm">
-                    {book.averageRating}/5{' '}
+                    {bookItem.ratings.bookAverage ?? 0}/5{' '}
                     <Star className="w-3 h-3 fill-current text-yellow-400" />
                   </span>
                 </div>
-                {book.myRating && (
+                {bookItem.ratings.user.rating && (
                   <div className="flex gap-1">
                     <Image src={userIcon} alt="icon" />
                     <span className="flex items-center gap-1 text-sm">
-                      {book.myRating}/5{' '}
+                      {bookItem.ratings.user.rating}/5{' '}
                       <Star className="w-3 h-3 fill-current text-yellow-400" />
                     </span>
                   </div>
