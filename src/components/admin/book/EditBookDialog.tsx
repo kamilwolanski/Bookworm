@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/dialog';
 import EditBookForm from '@/components/admin/book/EditBookForm';
 import { GenreDTO } from '@/lib/userbooks';
-import { BookBasicDTO } from '@/lib/books';
+import { BookBasicDTO } from '@/lib/adminBooks';
 
 const EditBookDialog = ({
   onSuccess,

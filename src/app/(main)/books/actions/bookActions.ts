@@ -17,11 +17,10 @@ import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
 import type { Action, ActionResult } from '@/types/actions';
 import { findUniqueBook, updateBookRating } from '@/lib/books';
-import { UserBook } from '@prisma/client';
 import {
   parseFormAddBookToShelfData,
   parseFormBookRateData,
-} from '@/app/admin/helpers';
+} from '@/lib/parsers/books';
 
 export const getBookAction: Action<[string], UserBookDetailsDTO> = async (
   bookId

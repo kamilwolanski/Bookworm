@@ -9,7 +9,10 @@ import {
 import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { UseFormReturn } from 'react-hook-form';
-import { PersonInput, personSchema } from '@/lib/validation';
+import {
+  PersonInput,
+  personSchema,
+} from '@/lib/validations/createPersonValidation';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import { Button } from '@/components/ui/button';
 import { Person } from '@prisma/client';

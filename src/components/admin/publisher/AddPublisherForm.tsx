@@ -10,7 +10,10 @@ import { DialogClose, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { UseFormReturn } from 'react-hook-form';
 import { createPublisherAction } from '@/app/admin/publishers/actions/publisherActions';
-import { publisherSchema, PublisherInput } from '@/lib/validation';
+import {
+  publisherSchema,
+  PublisherInput,
+} from '@/lib/validations/createPublisherSchema';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import { Dispatch, SetStateAction } from 'react';
 import { Button } from '@/components/ui/button';

@@ -33,7 +33,7 @@ import { Trash2, Pencil } from 'lucide-react';
 import { Person } from '@prisma/client';
 import { Dialog } from '@/components/ui/dialog';
 import { deletePersonAction } from '@/app/admin/persons/actions/personActions';
-import DeleteDialog from '@/components/forms/DeleteDialog';
+import DeleteDialog from '@/components/shared/DeleteDialog';
 import EditPersonDialog from '@/components/admin/person/EditPersonDialog';
 
 export default function AdminPersonsTable({

@@ -23,7 +23,6 @@ const AddBookStepperDialog = ({
   bookId: string;
   editions: EditionDto[];
   dialogTitle: string;
-  handleAdd: (editionId: string) => void;
   onlyContent?: boolean;
   otherEditionsMode?: boolean;
   userEditions?: UserEditionDto[];

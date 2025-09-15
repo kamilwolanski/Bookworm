@@ -1,6 +1,9 @@
 'use client';
 
-import { personSchema, PersonInput } from '@/lib/validation';
+import {
+  personSchema,
+  PersonInput,
+} from '@/lib/validations/createPersonValidation';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import {
   Form,

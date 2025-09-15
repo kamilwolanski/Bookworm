@@ -5,7 +5,7 @@ import { Badge } from '../ui/badge';
 import { Star, Trash2 } from 'lucide-react';
 import { genreColorMap } from '@/lib/genreColorMap';
 import { BookStatus } from './BookStatus';
-import DeleteBtn from '../forms/DeleteDialog';
+import DeleteBtn from '../shared/DeleteDialog';
 import { Button } from '../ui/button';
 import EditBtn from '../shared/EditBtn';
 import { Pencil } from 'lucide-react';

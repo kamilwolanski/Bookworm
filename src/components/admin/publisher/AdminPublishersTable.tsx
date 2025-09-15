@@ -33,7 +33,7 @@ import { Trash2, Pencil } from 'lucide-react';
 import { Publisher } from '@prisma/client';
 import { Dialog } from '@/components/ui/dialog';
 import { deletePublisherAction } from '@/app/admin/publishers/actions/publisherActions';
-import DeleteDialog from '@/components/forms/DeleteDialog';
+import DeleteDialog from '@/components/shared/DeleteDialog';
 import EditPublisherDialog from '@/components/admin/publisher/EditPublisherDialog';
 
 export default function AdminPublishersTable({

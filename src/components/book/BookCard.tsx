@@ -1,30 +1,11 @@
 'use client';
 
-import {
-  useRef,
-  useActionState,
-  useState,
-  useOptimistic,
-  startTransition,
-} from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
-import {
-  Star,
-  Trash2,
-  MoreVertical,
-  Plus,
-  BookA,
-  LibraryBig,
-  BookCopy,
-  BookPlus,
-} from 'lucide-react';
+import { Star, MoreVertical, LibraryBig, BookPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { BookCardDTO, RemoveBookFromShelfPayload } from '@/lib/userbooks';
-import {
-  addBookToShelfAction,
-  removeBookFromShelfAction,
-} from '@/app/(main)/books/actions/bookActions';
+import { BookCardDTO } from '@/lib/userbooks';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,69 +17,13 @@ import { Dialog } from '@/components/ui/dialog';
 import RatingDialogContent from '@/components/book/ratebook/RatingDialogContent';
 import userIcon from '@/app/assets/icons/user.svg';
 import multipleUsersIcon from '@/app/assets/icons/multiple_users.svg';
-// import DeleteDialog from '@/components/forms/DeleteDialog';
-import { ActionResult } from '@/types/actions';
-import { AddBookToShelfPayload } from '@/lib/userbooks';
-import { UserBook } from '@prisma/client';
-import {
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '../ui/button';
-import OtherBookDialog from '@/components/book/otherBooks/OtherBooksDialog';
+
 import AddBookStepperDialog from './addBookStepper/AddBookStepperDialog';
 
 export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   const router = useRouter();
-  const [state, addBook, isPending] = useActionState<
-    ActionResult<UserBook>,
-    AddBookToShelfPayload
-  >(addBookToShelfAction, { isError: false });
-
-  const [stateRemoveBook, removeBook, removeBookIsPending] = useActionState<
-    ActionResult<void>,
-    RemoveBookFromShelfPayload
-  >(removeBookFromShelfAction, { isError: false });
 
   const { book, representativeEdition } = bookItem;
-  const [optimisticBook, setOptimisticBook] = useOptimistic(
-    bookItem,
-    (
-      current,
-      action: {
-        type: 'ADD' | 'REMOVE' | 'ROLLBACK';
-        payload?: Partial<BookCardDTO>;
-      }
-    ) => {
-      switch (action.type) {
-        case 'ADD':
-          const userState = action.payload?.userState;
-          return {
-            ...current,
-            userState: userState ? userState : current.userState,
-            badges: {
-              ...current.badges,
-              onShelf:
-                userState?.ownedEditionIds.includes(representativeEdition.id) ??
-                false,
-              hasOtherEdition: !userState?.ownedEditionIds.includes(
-                representativeEdition.id
-              ),
-            },
-          };
-        case 'REMOVE':
-          return { ...current, isOnShelf: false };
-        case 'ROLLBACK':
-          return { ...current, ...action.payload };
-        default:
-          return current;
-      }
-    }
-  );
 
   const [dialogType, setDialogType] = useState<
     null | 'delete' | 'rate' | 'showOtherEditions'
@@ -117,55 +42,6 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
     router.push(`/books/${book.id}`);
   };
 
-  const handleAdd = (editionId: string) => {
-    startTransition(() => {
-      const snapshot = optimisticBook;
-      setOptimisticBook({
-        type: 'ADD',
-        payload: {
-          userState: {
-            ownedEditionIds: [...snapshot.userState.ownedEditionIds, editionId],
-            hasAnyEdition: true,
-            ownedEditionCount: snapshot.userState.ownedEditionCount + 1,
-            primaryStatus: 'WANT_TO_READ',
-            byEdition: [
-              ...snapshot.userState.byEdition,
-              {
-                editionId,
-                readingStatus: 'WANT_TO_READ',
-              },
-            ],
-          },
-        },
-      });
-      addBook({
-        bookId: book.id,
-        editionId: editionId,
-      });
-
-      if (state.isError) {
-        setOptimisticBook({ type: 'ROLLBACK', payload: snapshot });
-        console.error('Nie udało się dodać na półkę');
-      }
-    });
-  };
-
-  const handleRemove = () => {
-    const snapshot = optimisticBook;
-    setOptimisticBook({ type: 'REMOVE' });
-    startTransition(() => {
-      removeBook({
-        bookId: book.id,
-        editionId: representativeEdition.id,
-      });
-      setDialogType(null);
-      if (stateRemoveBook.isError) {
-        setOptimisticBook({ type: 'ROLLBACK', payload: snapshot });
-        console.error('Nie udało się usunąć na półkę');
-      }
-    });
-  };
-
   return (
     <Card
       className="cursor-pointer border-none h-full shadow-md hover:shadow-xl p-1 rounded-xl"
@@ -173,10 +49,10 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
       key={book.id}
     >
       <div className="relative aspect-[3/4] w-full">
-        {optimisticBook.representativeEdition.coverUrl ? (
+        {bookItem.representativeEdition.coverUrl ? (
           <Image
-            src={optimisticBook.representativeEdition.coverUrl}
-            alt={`Okładka książki ${optimisticBook.representativeEdition.title}`}
+            src={bookItem.representativeEdition.coverUrl}
+            alt={`Okładka książki ${bookItem.representativeEdition.title}`}
             fill
             className="object-cover rounded-lg"
             sizes="(max-width: 768px) 100vw, 33vw"
@@ -188,8 +64,8 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
         )}
 
         <div className="absolute top-0 left-0 p-2 w-full flex justify-between items-center gap-2">
-          {optimisticBook.badges.onShelf ? (
-            optimisticBook.badges.hasOtherEdition ? (
+          {bookItem.badges.onShelf ? (
+            bookItem.badges.hasOtherEdition ? (
               <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
                 <div className="flex items-center gap-2">
                   <span className="text-sm">Na półce (inne wyd.)</span>{' '}
@@ -205,19 +81,11 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
               </div>
             )
           ) : (
-            // <OtherBookDialog
-            //   editions={book.editions}
-            //   dialogTitle="Wybierz wydanie"
-            //   handleAdd={handleAdd}
-            //   userEditions={optimisticBook.userState.byEdition}
-            // />
-
             <AddBookStepperDialog
               bookId={book.id}
               editions={book.editions}
               dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
-              handleAdd={handleAdd}
-              userEditions={optimisticBook.userState.byEdition}
+              userEditions={bookItem.userState.byEdition}
             />
           )}
 
@@ -271,91 +139,17 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator /> */}
-
-                  {/* DELETE */}
-                  {optimisticBook.userState.byEdition.length > 0 ? (
-                    <DropdownMenuItem
-                      className="px-2 py-1.5 text-sm flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
-                      data-no-nav="true"
-                      onClick={() => {
-                        setDialogType('delete');
-                      }}
-                    >
-                      <Trash2 size={16} />
-                      Usuń wydanie z półki
-                    </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuItem
-                      onSelect={(e) => e.preventDefault()}
-                      className="px-2 py-1.5 text-sm flex items-center gap-2 text-secondary focus:text-secondary cursor-pointer"
-                      data-no-nav="true"
-                      onClick={() =>
-                        addBook({
-                          bookId: optimisticBook.book.id,
-                          editionId: optimisticBook.representativeEdition.id,
-                        })
-                      }
-                    >
-                      <Plus size={16} />
-                      Dodaj na półkę
-                    </DropdownMenuItem>
-                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
-            {/* Treści dialogów */}
-            {dialogType === 'delete' &&
-              optimisticBook.userState.byEdition.length > 0 && (
-                <DialogContent
-                  onSelect={(e) => e.preventDefault()}
-                  className="
-        sm:max-w-md p-6 rounded-2xl
-    border border-border
-    shadow-2xl
-    bg-background/95 backdrop-blur
-    supports-[backdrop-filter]:bg-background/80 
-    "
-                >
-                  <DialogHeader>
-                    <DialogTitle>Usun</DialogTitle>
-                    <DialogDescription>
-                      Usunięcie jest trwałe i nie będzie można go cofnąć.
-                    </DialogDescription>
-                  </DialogHeader>
-
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="cursor-pointer"
-                      >
-                        Anuluj
-                      </Button>
-                    </DialogClose>
-
-                    <Button
-                      type="button"
-                      disabled={removeBookIsPending}
-                      className="cursor-pointer"
-                      onClick={handleRemove}
-                    >
-                      {isPending ? 'Usuwanie...' : 'Usuń'}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              )}
-
             {dialogType === 'rate' && (
               <RatingDialogContent
-                bookId={optimisticBook.book.id}
-                editionId={optimisticBook.representativeEdition.id}
-                initialRating={optimisticBook.ratings.user.rating ?? undefined}
+                bookId={bookItem.book.id}
+                editionId={bookItem.representativeEdition.id}
+                initialRating={bookItem.ratings.user.rating ?? undefined}
                 dialogTitle={
-                  optimisticBook.ratings.user.rating
-                    ? 'Zmień ocenę'
-                    : 'Oceń książkę'
+                  bookItem.ratings.user.rating ? 'Zmień ocenę' : 'Oceń książkę'
                 }
                 onSuccess={() => setDialogType(null)}
               />
@@ -366,8 +160,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                 bookId={book.id}
                 editions={book.editions}
                 dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
-                handleAdd={handleAdd}
-                userEditions={optimisticBook.userState.byEdition}
+                userEditions={bookItem.userState.byEdition}
                 onlyContent={true}
                 otherEditionsMode={true}
                 afterSuccess={() => setDialogType(null)}
@@ -381,10 +174,10 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
             <div className="w-full flex flex-col justify-between">
               <div className="pb-1">
                 <h3 className="font-semibold text-lg">
-                  {optimisticBook.representativeEdition.title}
+                  {bookItem.representativeEdition.title}
                 </h3>
                 <p className="text-md">
-                  {optimisticBook.book.authors.map((author) => author.name)}
+                  {bookItem.book.authors.map((author) => author.name)}
                 </p>
               </div>
 
@@ -392,15 +185,15 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                 <div className="flex gap-1">
                   <Image src={multipleUsersIcon} alt="icon" />
                   <span className="flex items-center gap-1 text-sm">
-                    {optimisticBook.ratings.bookAverage ?? 0}/5{' '}
+                    {bookItem.ratings.bookAverage ?? 0}/5{' '}
                     <Star className="w-3 h-3 fill-current text-yellow-400" />
                   </span>
                 </div>
-                {optimisticBook.ratings.user.rating && (
+                {bookItem.ratings.user.rating && (
                   <div className="flex gap-1">
                     <Image src={userIcon} alt="icon" />
                     <span className="flex items-center gap-1 text-sm">
-                      {optimisticBook.ratings.user.rating}/5{' '}
+                      {bookItem.ratings.user.rating}/5{' '}
                       <Star className="w-3 h-3 fill-current text-yellow-400" />
                     </span>
                   </div>

@@ -1,6 +1,10 @@
 'use client';
 
-import { EditionInput, editionSchema, LanguageInput } from '@/lib/validation';
+import {
+  EditionInput,
+  editionSchema,
+  LanguageInput,
+} from '@/lib/validations/createEditionValidation';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import {
   Form,

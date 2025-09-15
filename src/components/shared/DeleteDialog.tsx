@@ -35,7 +35,6 @@ const DeleteDialog = ({
   const pathname = usePathname();
 
   useEffect(() => {
-    console.log('state', state)
     if (state.status === 'success' && !state.isError) {
       onSuccess?.();
       setTimeout(() => {

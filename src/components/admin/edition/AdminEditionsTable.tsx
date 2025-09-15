@@ -32,7 +32,7 @@ import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import { Trash2, Pencil } from 'lucide-react';
 import { Dialog } from '@/components/ui/dialog';
 import { deletePersonAction } from '@/app/admin/persons/actions/personActions';
-import DeleteDialog from '@/components/forms/DeleteDialog';
+import DeleteDialog from '@/components/shared/DeleteDialog';
 import EditEditionDialog from '@/components/admin/edition/EditEditionDialog';
 import { EditionDto } from '@/lib/editions';
 import { deleteEditionAction } from '@/app/admin/books/[slug]/actions/editionActions';

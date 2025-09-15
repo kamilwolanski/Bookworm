@@ -33,7 +33,7 @@ import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import { Pencil } from 'lucide-react';
 import { deleteBookAction } from '@/app/admin/books/actions/bookActions';
 import { GenreDTO } from '@/lib/userbooks';
-import DeleteDialog from '@/components/forms/DeleteDialog';
+import DeleteDialog from '@/components/shared/DeleteDialog';
 import { Dialog } from '@/components/ui/dialog';
 import EditBookDialog from '@/components/admin/book/EditBookDialog';
 import { BookBasicDTO } from '@/lib/adminBooks';
