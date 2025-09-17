@@ -19,7 +19,7 @@ import type { Action, ActionResult } from '@/types/actions';
 import { findUniqueBook, updateBookRating } from '@/lib/books';
 import {
   parseFormAddBookToShelfData,
-  parseFormBookRateData,
+  parseFormEditionBookRateData,
 } from '@/lib/parsers/books';
 
 export const getBookAction: Action<[string], UserBookDetailsDTO> = async (
@@ -46,19 +46,19 @@ export const getBookAction: Action<[string], UserBookDetailsDTO> = async (
 
 export const rateBookAction = async (
   bookId: string,
-  editionId: string,
   _currentState: unknown,
   formData: FormData
 ): Promise<ActionResult> => {
+  console.log('weszlo');
   const session = await getUserSession();
   if (!session?.user?.id) return unauthorizedResponse();
 
-  const parsed = parseFormBookRateData(formData);
+  const parsed = parseFormEditionBookRateData(formData);
   if (!parsed.success) {
     return parsed.errorResponse;
   }
 
-  const { body, rating } = parsed.data;
+  const { body, rating, editionId } = parsed.data;
 
   const bookExists = await findUniqueBook(bookId);
   if (!bookExists) return notFoundResponse(`książki o id: ${bookId}`);

@@ -1,6 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @theme {
   --breakpoint-3xl: 120rem;
@@ -58,7 +57,6 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  
 }
 
 :root {
@@ -95,15 +93,15 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  --link: oklch(0.6279 0.1065 143.08);            
-  --link-hover: oklch(0.5234 0.1347 144.17);       
-  --overlay: oklch(0 0 0 / 0.60);         
+  --link: oklch(0.6279 0.1065 143.08);
+  --link-hover: oklch(0.5234 0.1347 144.17);
+  --overlay: oklch(0 0 0 / 0.6);
   --overlay-strong: oklch(0 0 0 / 0.72);
   --card-menu-trigger: oklch(96.416% 0.00011 271.152);
   --card-menu-trigger-hover: oklch(1 0 0);
   --label: oklch(23.929% 0.00003 271.152);
   --badge-new: oklch(0.6 0.12 260);
---badge-new-hover: oklch(51.515% 0.09572 258.294);
+  --badge-new-hover: oklch(51.515% 0.09572 258.294);
   --badge-owned: oklch(0.5234 0.1347 144.17);
   --badge-other-edition: oklch(0.6176 0.0988 200.17);
 }
@@ -141,9 +139,9 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  --link: oklch(0.6279 0.1065 143.08);            
-  --link-hover: oklch(0.5234 0.1347 144.17);       
-  --overlay: oklch(0 0 0 / 0.60);         
+  --link: oklch(0.6279 0.1065 143.08);
+  --link-hover: oklch(0.5234 0.1347 144.17);
+  --overlay: oklch(0 0 0 / 0.6);
   --overlay-strong: oklch(0 0 0 / 0.72);
   --card-menu-trigger: oklch(0.209 0 0);
   --card-menu-trigger-hover: oklch(13.441% 0.00002 271.152);
@@ -162,6 +160,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-
-

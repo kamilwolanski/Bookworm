@@ -4,6 +4,7 @@ import {
   Edition,
   GenreTranslation,
   MediaFormat,
+  Publisher,
   ReadingStatus,
   Review,
   User,
@@ -138,12 +139,11 @@ export type EditionDto = {
   isbn10: string | null;
   publishers: {
     editionId: string;
-    order: number;
-    publisher: {
-      name: string;
-    };
+    order: number | null;
+    publisher: Publisher;
     publisherId: string;
   }[];
+  reviews: Review[];
 };
 
 export type UserEditionDto = {
@@ -161,13 +161,20 @@ export type BookCardDTO = {
     firstPublicationDate: Date | null;
     editions: EditionDto[];
   };
-  representativeEdition: EditionDto;
+  representativeEdition: {
+    id: string;
+    language: string | null;
+    format: MediaFormat | null;
+    publicationDate: Date | null;
+    title: string | null;
+    subtitle: string | null;
+    coverUrl: string | null;
+  };
   ratings: {
     bookAverage: number | null;
     bookRatingCount: number | null;
-    user: {
-      rating: number | null;
-    };
+    representativeEditionRating: number | null;
+    userReviews: Review[];
   };
   userState: {
     hasAnyEdition: boolean;
@@ -354,23 +361,12 @@ export async function getBooksAll(
             isbn10: true,
             publishers: {
               include: {
-                publisher: {
-                  select: {
-                    name: true,
-                  },
-                },
+                publisher: true,
               },
             },
             reviews: userId
               ? {
                   where: { userId },
-                  select: {
-                    id: true,
-                    rating: true,
-                    updatedAt: true,
-                    userId: true,
-                    editionId: true,
-                  },
                 }
               : false,
           },
@@ -391,18 +387,7 @@ export async function getBooksAll(
   }
 
   // helper: wybór najlepszej edycji
-  function pickBestEdition<
-    T extends {
-      id: string;
-      language: string | null;
-      publicationDate: Date | null;
-      coverUrl: string | null;
-      format: MediaFormat | null;
-      title: string | null;
-      subtitle: string | null;
-      reviews?: { rating: number; editionId: string; updatedAt?: Date }[];
-    },
-  >(editions: T[]): T {
+  function pickBestEdition(editions: EditionDto[]) {
     return editions.reduce((best, e) => {
       const lang = e.language === 'pl' ? 1 : 0;
       const hasCover = e.coverUrl ? 1 : 0;
@@ -474,9 +459,8 @@ export async function getBooksAll(
       ratings: {
         bookAverage: b.averageRating ?? null,
         bookRatingCount: b.ratingCount ?? null,
-        user: {
-          rating: userRating,
-        },
+        representativeEditionRating: userRating,
+        userReviews: b.editions.map((e) => e.reviews).flat(),
       },
       userState: {
         hasAnyEdition,

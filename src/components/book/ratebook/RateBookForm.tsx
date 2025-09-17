@@ -1,150 +1,172 @@
-import { rateBookAction } from '@/app/(main)/books/actions/bookActions';
-import { useActionForm } from '@/app/hooks/useActionForm';
-import {
-  AddReviewInput,
-  addReviewSchema,
-} from '@/lib/validations/addBookToShelfValidation';
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { DialogFooter, DialogClose } from '@/components/ui/dialog';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-import { Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { defineStepper } from '@/components/ui/Stepper';
+import { Form } from '@/components/ui/form';
+import { useActionForm } from '@/app/hooks/useActionForm';
+import { Separator } from '@/components/ui/separator';
+import ChooseEditonRadioComponent from '@/components/book/addBookStepper/ChooseEditonRadioComponent';
+import ReviewEditionComponent from '@/components/book/ratebook/ReviewEditionComponent';
+import { EditionDto, UserEditionDto } from '@/lib/userbooks';
+import { rateBookAction } from '@/app/(main)/books/actions/bookActions';
+import { FormProvider } from 'react-hook-form';
+import {
+  chooseEditionSchema,
+  AddEditionReviewInput,
+  addEditionReviewSchema,
+} from '@/lib/validations/addBookToShelfValidation';
+import { Review } from '@prisma/client';
+
+const { useStepper, steps, utils } = defineStepper(
+  { id: 'edition', label: 'Wybór wydania', schema: chooseEditionSchema },
+  {
+    id: 'review',
+    label: 'Recenzja',
+    schema: addEditionReviewSchema,
+  }
+);
 
 const RateBookForm = ({
   bookId,
-  editionId,
-  initialRating,
-  initialBody,
-  onSuccess,
+  editions,
+  userReviews,
+  userEditions = [],
+  showSteps,
+  afterSuccess,
 }: {
   bookId: string;
-  editionId: string;
-  initialRating: number;
-  initialBody?: string;
-  onSuccess?: () => void;
+  editions: EditionDto[];
+  userReviews?: Review[];
+  userEditions?: UserEditionDto[];
+  showSteps: boolean;
+  afterSuccess: () => void;
 }) => {
-  const [hover, setHover] = useState<number>(0);
+  const boundAction = rateBookAction.bind(null, bookId);
+  const stepper = useStepper();
+  const { form, isPending, handleSubmit } =
+    useActionForm<AddEditionReviewInput>({
+      action: boundAction,
+      schema: stepper.current.schema,
+      defaultValues: {
+        editionId: '',
+        rating: undefined,
+      },
+      onSuccess: afterSuccess,
+    });
+  const isDisabled = !form.watch('editionId');
+  const currentIndex = utils.getIndex(stepper.current.id);
+  const isLast = stepper.isLast;
+  const editionIdWatch = form.watch('editionId');
 
-  const boundAction = rateBookAction.bind(null, bookId, editionId);
+  const choosenReview = userReviews?.find(
+    (ur) => ur.editionId === editionIdWatch
+  );
 
-  const { form, isPending, handleSubmit } = useActionForm<AddReviewInput>({
-    action: boundAction,
-    schema: addReviewSchema,
-    defaultValues: {
-      rating: initialRating,
-      body: initialBody,
-    },
-    onSuccess: onSuccess,
-  });
+  useEffect(() => {
+    if (choosenReview) {
+      form.setValue('rating', choosenReview.rating ?? undefined);
+      form.setValue('body', choosenReview.body ?? undefined);
+    }
+  }, [choosenReview, editionIdWatch, form]);
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={handleSubmit}
-        // className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-auto"
-      >
-        <div className="flex flex-col items-center gap-3 py-4">
-          <div
-            className="flex gap-2"
-            role="radiogroup"
-            aria-label="Ocena w gwiazdkach"
+      <form onSubmit={handleSubmit} className="space-y-6 p-6 rounded-lg">
+        <nav aria-label="Add book Steps" className="group my-4">
+          <ol
+            role="tablist"
+            className="flex items-center justify-between gap-2"
+            aria-orientation="horizontal"
           >
-            {[1, 2, 3, 4, 5].map((value) => (
-              <button
-                key={value}
-                type="button"
-                role="radio"
-                aria-checked={form.getValues('rating') === value}
-                aria-label={`${value} ${value === 1 ? 'gwiazdka' : 'gwiazdki'}`}
-                onClick={() => form.setValue('rating', value)}
-                onMouseEnter={() => setHover(value)}
-                onMouseLeave={() => setHover(0)}
-                className="
-            rounded-full outline-none
-
-            transition-transform duration-150 hover:scale-110 active:scale-95 cursor-pointer
-          "
-              >
-                <Star
-                  className={cn(
-                    'h-9 w-9 transition-colors drop-shadow-sm',
-                    (hover || form.getValues('rating')) >= value
-                      ? 'fill-amber-400 text-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]'
-                      : 'text-muted-foreground'
+            {showSteps &&
+              stepper.all.map((step, index, array) => (
+                <React.Fragment key={step.id}>
+                  <li className="flex items-center gap-4 flex-shrink-0">
+                    <Button
+                      type="button"
+                      role="tab"
+                      variant={index <= currentIndex ? 'default' : 'secondary'}
+                      aria-current={
+                        stepper.current.id === step.id ? 'step' : undefined
+                      }
+                      aria-posinset={index + 1}
+                      aria-setsize={steps.length}
+                      aria-selected={stepper.current.id === step.id}
+                      className="flex size-10 items-center justify-center rounded-full cursor-pointer"
+                      onClick={async () => {
+                        const valid = await form.trigger();
+                        if (!valid) return;
+                        //can't skip steps forwards but can go back anywhere if validated
+                        if (index - currentIndex > 1) return;
+                        stepper.goTo(step.id);
+                      }}
+                    >
+                      {index + 1}
+                    </Button>
+                    <span className="text-sm font-medium">{step.label}</span>
+                  </li>
+                  {index < array.length - 1 && (
+                    <Separator
+                      className={`flex-1 ${
+                        index < currentIndex ? 'bg-primary' : 'bg-muted'
+                      }`}
+                    />
                   )}
+                </React.Fragment>
+              ))}
+          </ol>
+        </nav>
+        <div className={`space-y-10 ${showSteps ? 'pt-5' : ''}`}>
+          {stepper.switch({
+            edition: () => (
+              <FormProvider {...form}>
+                <ChooseEditonRadioComponent
+                  editions={editions}
+                  userEditions={userEditions}
                 />
-              </button>
-            ))}
-          </div>
+              </FormProvider>
+            ),
 
-          <div className="text-xs h-5 flex items-center gap-2 text-dialog-foreground">
-            <span>
-              {(hover || form.getValues('rating')) === 0
-                ? 'Wybierz ocenę'
-                : {
-                    1: 'Słaba',
-                    2: 'Może być',
-                    3: 'Średnia',
-                    4: 'Bardzo dobra',
-                    5: 'Wybitna',
-                  }[hover || form.getValues('rating')]}
-            </span>
-            <span className="opacity-60">•</span>
-            <span className="tabular-nums">
-              {hover || form.getValues('rating') || 0}/5
-            </span>
-          </div>
-        </div>
-        <div className="col-span-2">
-          <FormField
-            control={form.control}
-            name="body"
-            render={({ field }) => (
-              <FormItem className="mt-3">
-                <FormLabel>Twoja opinia</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Wpisz treść opinii o ksiażce"
-                    className="resize-none"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="h-px bg-border mt-5" /> {/* Separator */}
-        <div className="col-span-1 col-start-2 mt-5">
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline" className="cursor-pointer">
-                Anuluj
-              </Button>
-            </DialogClose>
+            review: () => (
+              <FormProvider {...form}>
+                <ReviewEditionComponent />
+              </FormProvider>
+            ),
+          })}
+          <div className="flex justify-end gap-4">
             <Button
-              type="submit"
-              disabled={isPending}
+              variant="secondary"
+              onClick={stepper.prev}
+              disabled={stepper.isFirst}
               className="cursor-pointer"
             >
-              {isPending ? 'Dodaję...' : 'Dodaj'}
+              Wstecz
             </Button>
-          </DialogFooter>
 
-          {form.formState.errors.root && (
-            <p className="text-red-600 text-sm">
-              {form.formState.errors.root.message}
-            </p>
-          )}
+            {isLast ? (
+              <Button
+                type="button"
+                onClick={handleSubmit}
+                className="cursor-pointer"
+                disabled={isPending}
+              >
+                Zapisz
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                disabled={isDisabled}
+                className="cursor-pointer"
+                onClick={async () => {
+                  if (isLast) return;
+                  const valid = await form.trigger();
+                  if (!valid) return;
+                  stepper.next();
+                }}
+              >
+                Dalej
+              </Button>
+            )}
+          </div>
         </div>
       </form>
     </Form>

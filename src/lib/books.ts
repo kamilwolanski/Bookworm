@@ -19,7 +19,7 @@ export type BookDetailsDTO = Book & {
 export type RatePayload = {
   bookId: string;
   editionId: string;
-  rating: number;
+  rating?: number;
   body?: string;
 };
 
@@ -233,8 +233,10 @@ export async function updateBookRating(
   userId: string,
   { editionId, bookId, rating, body }: RatePayload
 ): Promise<void> {
-  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-    throw new Error('Rating must be an integer between 1 and 5.');
+  if (rating) {
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      throw new Error('Rating must be an integer between 1 and 5.');
+    }
   }
 
   return prisma.$transaction(async (tx) => {
@@ -244,7 +246,7 @@ export async function updateBookRating(
         userId_editionId: { userId, editionId },
       },
       create: { editionId, userId, rating, body },
-      update: { rating },
+      update: { rating, body },
     });
 
     // Agregaty po zmianie

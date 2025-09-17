@@ -1,30 +1,29 @@
 'use client';
 
 import { EditionDto, UserEditionDto } from '@/lib/userbooks';
-import { AddBookToShelfInput } from '@/lib/validations/addBookToShelfValidation';
 import Image from 'next/image';
 import { LANGUAGES } from '@/app/admin/data';
 import Emoji from '@/components/shared/Emoji';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { FormField, FormItem } from '@/components/ui/form';
-import { ControllerRenderProps, UseFormReturn } from 'react-hook-form';
+import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 import { Check, LibraryBig } from 'lucide-react';
 
 const ChooseEditonRadioComponent = ({
-  form,
   editions,
   userEditions = [],
 }: {
-  form: UseFormReturn<AddBookToShelfInput>;
   editions: EditionDto[];
   userEditions?: UserEditionDto[];
 }) => {
+  const form = useFormContext<{ editionId: string }>();
+
   const userEditionIds = new Set(userEditions.map((e) => e.editionId));
 
   const renderEditionRow = (
     edition: EditionDto,
-    field: ControllerRenderProps<AddBookToShelfInput, 'editionId'>
+    field: ControllerRenderProps<{ editionId: string }, 'editionId'>
   ) => {
     const isOnShelf = userEditionIds.has(edition.id);
     const isDisabled = isOnShelf;

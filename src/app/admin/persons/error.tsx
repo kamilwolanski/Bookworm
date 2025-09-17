@@ -1,7 +1,13 @@
 // app/(main)/books/error.tsx
 'use client';
 
-export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error;
+  reset: () => void;
+}) {
   return (
     <div className="p-6">
       <h2 className="text-xl font-semibold">Ups! Coś poszło nie tak.</h2>

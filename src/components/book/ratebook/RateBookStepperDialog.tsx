@@ -8,17 +8,17 @@ import {
 } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
 import { EditionDto, UserEditionDto } from '@/lib/userbooks';
-import AddBookForm from '@/components/book/addBookStepper/AddBookForm';
 import { useState } from 'react';
+import RateBookForm from '@/components/book/ratebook/RateBookForm';
 import { Review } from '@prisma/client';
 
-const AddBookStepperDialog = ({
+const RateBookStepperDialog = ({
   bookId,
   editions,
   dialogTitle,
   userReviews,
   onlyContent = false,
-  otherEditionsMode = false,
+  showSteps = true,
   userEditions = [],
   afterSuccess,
 }: {
@@ -27,7 +27,7 @@ const AddBookStepperDialog = ({
   dialogTitle: string;
   userReviews?: Review[];
   onlyContent?: boolean;
-  otherEditionsMode?: boolean;
+  showSteps?: boolean;
   userEditions?: UserEditionDto[];
   afterSuccess?: () => void;
 }) => {
@@ -47,11 +47,11 @@ const AddBookStepperDialog = ({
         </DialogTitle>
       </DialogHeader>
 
-      <AddBookForm
+      <RateBookForm
         bookId={bookId}
         editions={editions}
         userEditions={userEditions}
-        otherEditionsMode={otherEditionsMode}
+        showSteps={showSteps}
         userReviews={userReviews}
         afterSuccess={afterSuccess ? afterSuccess : closeDialog}
       />
@@ -67,7 +67,7 @@ const AddBookStepperDialog = ({
       <DialogTrigger asChild>
         <button className="bg-badge-new text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer hover:bg-badge-new-hover">
           <div className="flex items-center gap-2">
-            <span className="text-sm">Dodaj</span> <Plus size={16} />
+            <span className="text-sm">Oceń</span> <Plus size={16} />
           </div>
         </button>
       </DialogTrigger>
@@ -76,4 +76,4 @@ const AddBookStepperDialog = ({
   );
 };
 
-export default AddBookStepperDialog;
+export default RateBookStepperDialog;

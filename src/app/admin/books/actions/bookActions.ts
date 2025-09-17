@@ -19,7 +19,7 @@ import {
   updateBook,
   UpdateBookData,
 } from '@/lib/adminBooks';
-import { parseFormBookData } from '@/app/admin/helpers';
+import { parseFormBookData } from '@/lib/parsers/books';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,

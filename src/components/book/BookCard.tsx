@@ -14,11 +14,11 @@ import {
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { Dialog } from '@/components/ui/dialog';
-import RatingDialogContent from '@/components/book/ratebook/RatingDialogContent';
 import userIcon from '@/app/assets/icons/user.svg';
 import multipleUsersIcon from '@/app/assets/icons/multiple_users.svg';
 
-import AddBookStepperDialog from './addBookStepper/AddBookStepperDialog';
+import AddBookStepperDialog from '@/components/book/addBookStepper/AddBookStepperDialog';
+import RateBookStepperDialog from '@/components/book/ratebook/RateBookStepperDialog';
 
 export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   const router = useRouter();
@@ -86,6 +86,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
               editions={book.editions}
               dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
               userEditions={bookItem.userState.byEdition}
+              userReviews={bookItem.ratings.userReviews}
             />
           )}
 
@@ -123,35 +124,28 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                   {/* RATE */}
                   <DropdownMenuSeparator />
 
-                  {/* <DropdownMenuItem
+                  <DropdownMenuItem
                     className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
                     data-no-nav="true"
                     onClick={() => {
                       setDialogType('rate');
                     }}
                   >
-                    <Star
-                      className={`w-4 h-4 ${optimisticBook.ratings.user.rating ? 'fill-current text-yellow-400' : ''}`}
-                    />
-                    {optimisticBook.ratings.user.rating
-                      ? 'Zmień ocenę'
-                      : 'Oceń'}
+                    <Star className="w-4 h-4 fill-current text-yellow-400" />
+                    Oceń
                   </DropdownMenuItem>
-
-                  <DropdownMenuSeparator /> */}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
 
             {dialogType === 'rate' && (
-              <RatingDialogContent
+              <RateBookStepperDialog
                 bookId={bookItem.book.id}
-                editionId={bookItem.representativeEdition.id}
-                initialRating={bookItem.ratings.user.rating ?? undefined}
-                dialogTitle={
-                  bookItem.ratings.user.rating ? 'Zmień ocenę' : 'Oceń książkę'
-                }
-                onSuccess={() => setDialogType(null)}
+                dialogTitle="Oceń książkę"
+                onlyContent={true}
+                afterSuccess={() => setDialogType(null)}
+                editions={book.editions}
+                userReviews={bookItem.ratings.userReviews}
               />
             )}
 
@@ -163,6 +157,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                 userEditions={bookItem.userState.byEdition}
                 onlyContent={true}
                 otherEditionsMode={true}
+                userReviews={bookItem.ratings.userReviews}
                 afterSuccess={() => setDialogType(null)}
               />
             )}
@@ -189,11 +184,11 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                     <Star className="w-3 h-3 fill-current text-yellow-400" />
                   </span>
                 </div>
-                {bookItem.ratings.user.rating && (
+                {bookItem.ratings.representativeEditionRating && (
                   <div className="flex gap-1">
                     <Image src={userIcon} alt="icon" />
                     <span className="flex items-center gap-1 text-sm">
-                      {bookItem.ratings.user.rating}/5{' '}
+                      {bookItem.ratings.representativeEditionRating}/5{' '}
                       <Star className="w-3 h-3 fill-current text-yellow-400" />
                     </span>
                   </div>

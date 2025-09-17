@@ -2,11 +2,38 @@ import { ActionError } from '@/types/actions';
 import {
   AddBookToShelfInput,
   addBookToShelfSchema,
+  AddEditionReviewInput,
+  addEditionReviewSchema,
   AddReviewInput,
   addReviewSchema,
 } from '@/lib/validations/addBookToShelfValidation';
 import { buildActionError } from '@/lib/parsers/utils';
 import { BookInput, bookSchema } from '@/lib/validations/createBookValidation';
+
+export function parseFormEditionBookRateData(formData: FormData):
+  | {
+      success: true;
+      data: AddEditionReviewInput;
+    }
+  | {
+      success: false;
+      errorResponse: ActionError;
+    } {
+  const result = addEditionReviewSchema.safeParse({
+    editionId: formData.get('editionId'),
+    rating: Number(formData.get('rating')),
+    body: formData.get('body') ?? undefined,
+  });
+
+  if (!result.success) {
+    return {
+      success: false,
+      errorResponse: buildActionError(result.error),
+    };
+  }
+
+  return { success: true, data: result.data };
+}
 
 export function parseFormBookRateData(formData: FormData):
   | {
@@ -18,6 +45,7 @@ export function parseFormBookRateData(formData: FormData):
       errorResponse: ActionError;
     } {
   const result = addReviewSchema.safeParse({
+    editionId: formData.get('editionId'),
     rating: Number(formData.get('rating')),
     body: formData.get('body') ?? undefined,
   });

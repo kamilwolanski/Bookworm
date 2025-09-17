@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { defineStepper } from '@/components/ui/Stepper';
 import { Form } from '@/components/ui/form';
@@ -6,7 +6,7 @@ import { useActionForm } from '@/app/hooks/useActionForm';
 import { Separator } from '@/components/ui/separator';
 import ChooseEditonRadioComponent from '@/components/book/addBookStepper/ChooseEditonRadioComponent';
 import ChooseEditonComponent from '@/components/book/addBookStepper/ChooseEditionComponent';
-import ReviewEditionComponent from '@/components/book/addBookStepper/ReviewEditionComponent';
+import ReviewEditionComponent from '@/components/book/ratebook/ReviewEditionComponent';
 import { EditionDto, UserEditionDto } from '@/lib/userbooks';
 import { addBookToShelfAction } from '@/app/(main)/books/actions/bookActions';
 import {
@@ -14,6 +14,9 @@ import {
   chooseEditionSchema,
   addBookToShelfSchema,
 } from '@/lib/validations/addBookToShelfValidation';
+import ReadingStatusComponent from './ReadingStatusComponent';
+import { FormProvider } from 'react-hook-form';
+import { Review } from '@prisma/client';
 
 const { useStepper, steps, utils } = defineStepper(
   { id: 'edition', label: 'Wybór wydania', schema: chooseEditionSchema },
@@ -27,12 +30,14 @@ const { useStepper, steps, utils } = defineStepper(
 const AddBookForm = ({
   bookId,
   editions,
+  userReviews,
   userEditions = [],
   otherEditionsMode,
   afterSuccess,
 }: {
   bookId: string;
   editions: EditionDto[];
+  userReviews?: Review[];
   userEditions?: UserEditionDto[];
   otherEditionsMode: boolean;
   afterSuccess: () => void;
@@ -52,6 +57,19 @@ const AddBookForm = ({
   const isDisabled = !form.watch('editionId');
   const currentIndex = utils.getIndex(stepper.current.id);
   const isLast = stepper.isLast;
+
+  const editionIdWatch = form.watch('editionId');
+
+  const choosenReview = userReviews?.find(
+    (ur) => ur.editionId === editionIdWatch
+  );
+
+  useEffect(() => {
+    if (choosenReview) {
+      form.setValue('rating', choosenReview.rating ?? undefined);
+      form.setValue('body', choosenReview.body ?? undefined);
+    }
+  }, [choosenReview, editionIdWatch, form]);
 
   return (
     <Form {...form}>
@@ -102,22 +120,30 @@ const AddBookForm = ({
         </nav>
         <div className={`space-y-10 ${!otherEditionsMode ? 'pt-5' : ''}`}>
           {stepper.switch({
-            edition: () =>
-              !otherEditionsMode ? (
-                <ChooseEditonRadioComponent
-                  form={form}
-                  editions={editions}
-                  userEditions={userEditions}
-                />
-              ) : (
-                <ChooseEditonComponent
-                  form={form}
-                  editions={editions}
-                  userEditions={userEditions}
-                  goNext={stepper.next}
-                />
-              ),
-            statusReview: () => <ReviewEditionComponent form={form} />,
+            edition: () => (
+              <FormProvider {...form}>
+                {!otherEditionsMode ? (
+                  <ChooseEditonRadioComponent
+                    editions={editions}
+                    userEditions={userEditions}
+                  />
+                ) : (
+                  <ChooseEditonComponent
+                    editions={editions}
+                    userEditions={userEditions}
+                    goNext={stepper.next}
+                  />
+                )}
+                ,
+              </FormProvider>
+            ),
+            statusReview: () => (
+              <FormProvider {...form}>
+                <ReadingStatusComponent />
+                <div className="mt-10" />
+                <ReviewEditionComponent />
+              </FormProvider>
+            ),
           })}
           <div className="flex justify-end gap-4">
             <Button

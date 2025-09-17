@@ -1,26 +1,25 @@
 'use client';
 
 import { EditionDto, UserEditionDto } from '@/lib/userbooks';
-import { AddBookToShelfInput } from '@/lib/validations/addBookToShelfValidation';
 import Image from 'next/image';
 import { LANGUAGES } from '@/app/admin/data';
 import Emoji from '@/components/shared/Emoji';
 import { RadioGroup } from '@/components/ui/radio-group';
 import { FormField, FormItem } from '@/components/ui/form';
-import { UseFormReturn } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { LibraryBig, Plus } from 'lucide-react';
 
 const ChooseEditonComponent = ({
-  form,
   editions,
   userEditions = [],
   goNext,
 }: {
-  form: UseFormReturn<AddBookToShelfInput>;
   editions: EditionDto[];
   userEditions?: UserEditionDto[];
   goNext: () => void;
 }) => {
+  const form = useFormContext<{ editionId: string }>();
+
   const userEditionIds = new Set(userEditions.map((e) => e.editionId));
 
   const renderEditionRow = (edition: EditionDto) => {
@@ -28,7 +27,9 @@ const ChooseEditonComponent = ({
 
     const handleClick = () => {
       form.setValue('editionId', edition.id);
-      goNext();
+      setTimeout(() => {
+        goNext();
+      });
     };
     return (
       <div
