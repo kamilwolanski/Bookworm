@@ -10,7 +10,7 @@ import {
 import { getUserSession } from '@/lib/session';
 import { Role, Prisma } from '@prisma/client';
 import slugify from 'slugify';
-import { parseFormPublisherData } from '@/app/admin/helpers';
+import { parseFormPublisherData } from '@/lib/parsers/publishers';
 import {
   CreatePublisherData,
   UpdatePublisherData,

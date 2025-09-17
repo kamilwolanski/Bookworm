@@ -2,7 +2,6 @@
 
 import {
   UserBookDetailsDTO,
-  getBook,
   RemoveBookFromShelfPayload,
   removeBookFromShelf,
   addBookToShelfWithReview,

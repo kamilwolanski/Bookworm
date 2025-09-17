@@ -12,7 +12,7 @@ import { getUserSession } from '@/lib/session';
 import { Role, Prisma } from '@prisma/client';
 import { v2 as cloudinary } from 'cloudinary';
 import slugify from 'slugify';
-import { parseFormPersonData } from '@/app/admin/helpers';
+import { parseFormPersonData } from '@/lib/parsers/persons';
 import {
   createPerson,
   CreatePersonData,

@@ -1,6 +1,6 @@
 'use server';
 
-import { handleImageUpload, parseFormEditionData } from '@/app/admin/helpers';
+import { handleImageUpload } from '@/app/admin/helpers';
 import {
   notFoundResponse,
   serverErrorResponse,
@@ -19,6 +19,7 @@ import {
   UpdateEditionData,
 } from '@/lib/editions';
 import { v2 as cloudinary } from 'cloudinary';
+import { parseFormEditionData } from '@/lib/parsers/editions';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,

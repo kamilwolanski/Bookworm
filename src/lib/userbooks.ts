@@ -1,7 +1,5 @@
 import {
   Book,
-  Comment,
-  Edition,
   GenreTranslation,
   MediaFormat,
   Publisher,
@@ -11,14 +9,6 @@ import {
   UserBook,
 } from '@prisma/client';
 import prisma from './prisma';
-
-export type EditBookData = Omit<
-  CreateBookData,
-  'imageUrl' | 'imagePublicId'
-> & {
-  imageUrl?: string | null;
-  imagePublicId?: string | null;
-};
 
 export type GenreDTO = {
   id: string;
@@ -56,19 +46,6 @@ export type CommentDto = Comment & {
   }[];
   replies: CommentDto[];
 };
-
-interface AddCommentInput {
-  content: string;
-  authorId: string;
-  bookId: string;
-  parentId?: string;
-}
-
-interface AddRatingInput {
-  commentId: string;
-  userId: string;
-  value: number;
-}
 
 export interface DisplayEdition {
   id: string;
@@ -495,94 +472,6 @@ export async function removeBookFromShelf(
   });
 }
 
-export async function getBook(
-  bookId: string,
-  loggedUserId: string
-): Promise<UserBookDetailsDTO> {
-  const book = await prisma.book.findFirstOrThrow({
-    where: { id: bookId },
-    include: {
-      genres: {
-        include: {
-          genre: {
-            include: {
-              translations: { where: { language: 'pl' } },
-            },
-          },
-        },
-      },
-      comments: {
-        include: {
-          author: true,
-          ratings: {
-            select: {
-              value: true,
-              userId: true,
-            },
-          },
-          replies: {
-            include: {
-              author: true,
-              ratings: {
-                select: {
-                  value: true,
-                  userId: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  const commentsWithScores = book.comments.map((comment) => {
-    const totalScore = comment.ratings.reduce((sum, r) => sum + r.value, 0);
-
-    const userRating =
-      comment.ratings.find((r) => r.userId === loggedUserId)?.value ?? null;
-
-    const replies = comment.replies.map((reply) => {
-      const replyScore = reply.ratings.reduce((sum, r) => sum + r.value, 0);
-      const replyUserRating =
-        reply.ratings.find((r) => r.userId === loggedUserId)?.value ?? null;
-
-      return {
-        ...reply,
-        totalScore: replyScore,
-        userRating: replyUserRating,
-        replies: [],
-      };
-    });
-
-    return {
-      ...comment,
-      totalScore,
-      userRating, // <- to będzie np. 1, -1, lub null jeśli brak
-      replies,
-    };
-  });
-
-  const genresDto: GenreDTO[] = book?.genres.map((genre) => {
-    const translation = genre.genre.translations[0];
-
-    return {
-      id: genre.genre.id,
-      slug: genre.genre.slug,
-      language: translation.language,
-      name: translation.name,
-    };
-  });
-
-  const enrichedBook = {
-    ...book,
-    genres: genresDto,
-    comments: commentsWithScores,
-  };
-
-  return enrichedBook;
-}
-
 export async function getBookGenres(
   language: 'pl' | 'en'
 ): Promise<GenreDTO[]> {
@@ -606,103 +495,6 @@ export async function getBookGenres(
       language: translation.language,
       name: translation.name,
     };
-  });
-}
-
-export async function updateBookWithTransaction(
-  bookId: string,
-  data: EditBookData,
-  genreIds: string[]
-) {
-  const updatedBook = await prisma.$transaction(async (tx) => {
-    // 1. Usuń stare przypisania gatunków
-    await tx.bookGenre.deleteMany({
-      where: { bookId },
-    });
-
-    // 2. Zaktualizuj książkę i dodaj nowe gatunki
-    return await tx.book.update({
-      where: { id: bookId },
-      data: {
-        ...data,
-        genres: {
-          create: genreIds.map((genreId) => ({
-            genre: {
-              connect: { id: genreId },
-            },
-          })),
-        },
-      },
-      include: {
-        genres: {
-          include: {
-            genre: true,
-          },
-        },
-      },
-    });
-  });
-
-  return updatedBook;
-}
-
-export async function addComment(input: AddCommentInput) {
-  const { content, authorId, bookId, parentId } = input;
-
-  // Walidacja - musi być albo bookId, albo parentId (odpowiedź)
-  if (!bookId && !parentId) {
-    throw new Error('Musisz podać bookId lub parentId');
-  }
-
-  const comment = await prisma.comment.create({
-    data: {
-      content,
-      authorId,
-      bookId,
-      parentId,
-    },
-  });
-
-  return comment;
-}
-
-export async function addRating(input: AddRatingInput) {
-  const { commentId, userId, value } = input;
-
-  const rating = await prisma.commentRating.create({
-    data: {
-      userId,
-      commentId,
-      value,
-    },
-  });
-
-  return rating;
-}
-
-export async function addOrUpdateRating(input: AddRatingInput) {
-  const { commentId, userId, value } = input;
-
-  if (value === 0) {
-    return await prisma.commentRating.delete({
-      where: {
-        commentId_userId: {
-          commentId,
-          userId,
-        },
-      },
-    });
-  }
-
-  return await prisma.commentRating.upsert({
-    where: {
-      commentId_userId: {
-        commentId,
-        userId,
-      },
-    },
-    update: { value },
-    create: { commentId, userId, value },
   });
 }
 

@@ -210,16 +210,6 @@ export async function getBook(
   return enrichedBook;
 }
 
-export async function deleteBook(bookId: string) {
-  const book = await prisma.book.delete({
-    where: {
-      id: bookId,
-    },
-  });
-
-  return book;
-}
-
 export async function findUniqueBook(bookId: string) {
   const book = await prisma.book.findUnique({
     where: { id: bookId },
