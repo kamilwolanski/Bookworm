@@ -1,7 +1,8 @@
 'use server';
 import { GenreDTO } from '@/lib/userbooks';
 import GenreFilter from './GenreFilter';
-import RatingFilter from './RatingFilter';
+// import UserRatingFilter from './UserRatingFilter';
+import RatingFilter from '@/components/book/RatingFilter';
 // import StatusFilter from './StatusFilter';
 import { getUserSession } from '@/lib/session';
 
@@ -20,6 +21,7 @@ const BookFilters = async ({
       <GenreFilter bookGenres={bookGenres} genresParams={genresParams} />
       {logged && (
         <>
+          {/* <UserRatingFilter /> */}
           <RatingFilter />
           {/* <StatusFilter /> */}
         </>

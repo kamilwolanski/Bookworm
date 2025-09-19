@@ -195,6 +195,7 @@ export async function getBooksAll(
   myShelf: boolean,
   userRatings: string[],
   statuses: ReadingStatus[],
+  rating?: string,
   search?: string,
   userId?: string
 ): Promise<GetBooksAllResponse> {
@@ -286,6 +287,11 @@ export async function getBooksAll(
     }),
     ...(myShelf && userId && { userEditions: { some: { userId } } }),
     ...(ratingFilters.length > 0 && { OR: ratingFilters }),
+    ...(rating && {
+      averageRating: {
+        gte: Number(rating),
+      },
+    }),
     ...(statuses.length > 0 &&
       userId && {
         userBook: { some: { userId, readingStatus: { in: statuses } } },

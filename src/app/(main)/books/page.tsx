@@ -13,6 +13,7 @@ type Props = {
     search?: string;
     genre?: string;
     userrating?: string;
+    rating?: string;
     status?: string;
     myshelf?: string;
   };
@@ -21,9 +22,8 @@ type Props = {
 const ITEMS_PER_PAGE = 18;
 
 export default async function ShelfBooks({ searchParams }: Props) {
-  const { page, search, genre, userrating, status, myshelf } = searchParams
-    ? await searchParams
-    : {};
+  const { page, search, genre, userrating, status, myshelf, rating } =
+    searchParams ? await searchParams : {};
   const currentPage = parseInt(page || '1', 10);
   const genresParams = genre?.toLocaleUpperCase().split(',') ?? [];
   const userRatings = userrating?.split(',') ?? [];
@@ -44,6 +44,7 @@ export default async function ShelfBooks({ searchParams }: Props) {
     myShelf,
     userRatings,
     statuses,
+    rating,
     search,
     userId
   );
