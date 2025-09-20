@@ -17,12 +17,6 @@ export type GenreDTO = {
   name: string;
 };
 
-export type UserBookDetailsDTO = Book &
-  UserBook & {
-    genres?: GenreDTO[];
-    comments: CommentDto[];
-  };
-
 export type UserBookDTO = Book &
   UserBook & {
     genres?: GenreDTO[];
@@ -170,6 +164,43 @@ export type BookCardDTO = {
 export type GetBooksAllResponse = {
   items: BookCardDTO[];
   totalCount: number;
+};
+
+export type BookDetailsDto = {
+  edition: {
+    id: string;
+    title: string; // edition.title || book.title
+    subtitle?: string | null;
+    description?: string | null;
+    isbn13?: string | null;
+    isbn10?: string | null;
+    language?: string | null;
+    publicationDate?: string | null; // ISO
+    pageCount?: number | null;
+    format?: MediaFormat | null;
+    coverUrl?: string | null;
+    coverPublicId?: string | null;
+  };
+  book: {
+    id: string;
+    slug?: string | null;
+    title: string;
+    authors: { name: string; slug: string; order: number | null }[];
+    genres: (GenreTranslation & { slug: string })[];
+  };
+
+  publishers: {
+    id: string;
+    name: string;
+    slug: string;
+    order: number | null;
+  }[];
+};
+
+export type OtherEditionDto = {
+  id: string;
+  coverUrl: string | null;
+  title: string | null;
 };
 
 function statusPriority(s: ReadingStatus): number {
@@ -461,6 +492,148 @@ export async function getBooksAll(
   });
 
   return { items, totalCount };
+}
+
+export async function getBook(
+  editionId: string,
+  userId?: string
+): Promise<BookDetailsDto> {
+  const edition = await prisma.edition.findUniqueOrThrow({
+    where: { id: editionId },
+    select: {
+      id: true,
+      isbn13: true,
+      isbn10: true,
+      language: true,
+      publicationDate: true,
+      pageCount: true,
+      format: true,
+      coverUrl: true,
+      coverPublicId: true,
+      title: true,
+      subtitle: true,
+      description: true,
+      book: {
+        select: {
+          genres: {
+            select: {
+              genre: {
+                select: {
+                  slug: true,
+                  translations: {
+                    // jeśli chcesz konkretny język:
+                    // where: { language: lang },
+                    select: {
+                      id: true,
+                      genreId: true,
+                      language: true,
+                      name: true,
+                    },
+                    orderBy: { language: 'asc' }, // opcjonalnie
+                    take: 1, // bierzemy jedno tłumaczenie (np. pierwsze/pasujące)
+                  },
+                },
+              },
+            },
+          },
+          id: true,
+          slug: true,
+          title: true,
+          authors: {
+            select: {
+              order: true,
+              person: { select: { name: true, slug: true } },
+            },
+            orderBy: { order: 'asc' },
+          },
+        },
+      },
+      publishers: {
+        select: {
+          order: true,
+          publisher: { select: { id: true, name: true, slug: true } },
+        },
+        orderBy: { order: 'asc' },
+      },
+    },
+  });
+
+  const dto: BookDetailsDto = {
+    edition: {
+      id: edition.id,
+      title: edition.title ?? edition.book.title,
+      subtitle: edition.subtitle ?? null,
+      description: edition.description ?? null,
+      isbn13: edition.isbn13 ?? null,
+      isbn10: edition.isbn10 ?? null,
+      language: edition.language ?? null,
+      publicationDate: edition.publicationDate
+        ? edition.publicationDate.toISOString()
+        : null,
+      pageCount: edition.pageCount ?? null,
+      format: edition.format ?? null,
+      coverUrl: edition.coverUrl ?? null,
+      coverPublicId: edition.coverPublicId ?? null,
+    },
+    book: {
+      id: edition.book.id,
+      slug: edition.book.slug ?? null,
+      title: edition.book.title,
+      authors: edition.book.authors.map((a) => ({
+        name: a.person.name,
+        slug: a.person.slug,
+        order: a.order ?? null,
+      })),
+      genres: edition.book.genres.flatMap((g) => {
+        const tr = g.genre.translations[0];
+        return tr
+          ? [
+              {
+                id: tr.id,
+                genreId: tr.genreId,
+                language: tr.language,
+                name: tr.name,
+                slug: g.genre.slug,
+              },
+            ]
+          : [];
+      }),
+    },
+    publishers: edition.publishers.map((p) => ({
+      id: p.publisher.id,
+      name: p.publisher.name,
+      slug: p.publisher.slug,
+      order: p.order ?? null,
+    })),
+  };
+  return dto;
+}
+
+export async function getOtherEditions(
+  bookSlug: string,
+  editionId: string
+): Promise<OtherEditionDto[]> {
+  const otherEditions = await prisma.book.findUnique({
+    where: {
+      slug: bookSlug,
+    },
+    include: {
+      editions: {
+        where: {
+          NOT: {
+            id: editionId,
+          },
+        },
+        select: {
+          id: true,
+          title: true,
+          coverUrl: true,
+        },
+      },
+    },
+  });
+
+  return otherEditions?.editions ?? [];
 }
 
 export async function removeBookFromShelf(

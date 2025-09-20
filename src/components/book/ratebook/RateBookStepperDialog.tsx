@@ -40,6 +40,7 @@ const RateBookStepperDialog = ({
       shadow-2xl
       bg-background/95 backdrop-blur
       supports-[backdrop-filter]:bg-background/80 "
+      data-no-nav="true"
     >
       <DialogHeader>
         <DialogTitle className="text-xl font-semibold tracking-tight text-dialog-foreground">

@@ -62,7 +62,7 @@ export default async function ShelfBooks({ searchParams }: Props) {
   const bookGenres = await getBookGenres('pl');
 
   return (
-    <div className="min-h-full flex flex-col">
+    <div className="min-h-full flex flex-col ">
       <div className="mt-5 flex flex-1">
         <BookFilters bookGenres={bookGenres} genresParams={genresParams} />
         <BookList

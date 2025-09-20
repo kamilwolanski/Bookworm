@@ -1,21 +1,16 @@
 import BackTopBar from '@/components/layout/BackTopBar';
-import { getBookAction } from '@/app/(main)/books/actions/bookActions';
-import BookDetails from '@/components/book/BookDetails';
+import BookDetails from '@/components/book/bookDetails/BookDetails';
 import CommentThread from '@/components/comments/CommentThread';
 import CommentInput from '@/components/comments/CommentInput';
 import SidebarRecentBooks from '@/components/book/SidebarRecentBooks';
 interface BookPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 export default async function Book({ params }: BookPageProps) {
-  const { id } = await params;
+  const { slug } = await params;
 
   const book = await getBookAction(id);
-
-  if (book.isError) {
-    return <p>Błąd</p>;
-  }
 
   return (
     <>

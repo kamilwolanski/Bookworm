@@ -1,13 +1,11 @@
 'use server';
 
 import {
-  UserBookDetailsDTO,
   RemoveBookFromShelfPayload,
   removeBookFromShelf,
   addBookToShelfWithReview,
 } from '@/lib/userbooks';
 import {
-  forbiddenResponse,
   notFoundResponse,
   serverErrorResponse,
   unauthorizedResponse,
@@ -20,28 +18,6 @@ import {
   parseFormAddBookToShelfData,
   parseFormEditionBookRateData,
 } from '@/lib/parsers/books';
-
-export const getBookAction: Action<[string], UserBookDetailsDTO> = async (
-  bookId
-) => {
-  const session = await getUserSession();
-
-  if (!session?.user?.id) return unauthorizedResponse();
-
-  const book = await getBook(bookId, session.user.id);
-
-  if (!book) return notFoundResponse(`Nie znaleziono książki o id: ${bookId}`);
-
-  if (book.userId !== session.user.id)
-    return forbiddenResponse('Brak dostępu do tej książki');
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    data: book,
-  };
-};
 
 export const rateBookAction = async (
   bookId: string,

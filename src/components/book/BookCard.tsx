@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Star, MoreVertical, LibraryBig, BookPlus } from 'lucide-react';
@@ -30,22 +30,34 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   >(null);
   const openDialog = dialogType !== null;
 
-  // guard na nawigację karty (click-through fix)
-  const startedOnCardRef = useRef(false);
-  const isInteractiveTarget = (el: EventTarget | null) =>
-    !!(el as HTMLElement | null)?.closest(
-      '[data-no-nav="true"],a,button,[role="button"],input,textarea,select,label'
-    );
+  const handleClick = () => {
+    router.push(`/books/${book.slug}/${representativeEdition.id}`);
+  };
 
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!startedOnCardRef.current || isInteractiveTarget(e.target)) return;
-    router.push(`/books/${book.id}`);
+  const handleCardClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    // ignoruj kliknięcia z elementów interaktywnych / oznaczonych jako no-nav
+    const target = e.target as HTMLElement;
+
+    if (
+      e.defaultPrevented ||
+      e.button !== 0 || // tylko lewy przycisk
+      e.metaKey ||
+      e.altKey ||
+      e.ctrlKey ||
+      e.shiftKey || // modyfikatory
+      target.closest('button, a, [role="button"], [data-no-nav="true"]')
+    ) {
+      return;
+    }
+
+    router.push(`/books/${book.slug}/${representativeEdition.id}`);
   };
 
   return (
     <Card
       className="cursor-pointer border-none h-full shadow-md hover:shadow-xl p-1 rounded-xl"
-      onClick={handleClick}
+      // onClick={handleClick}
+      onClick={handleCardClick}
       key={book.id}
     >
       <div className="relative aspect-[3/4] w-full">
@@ -73,7 +85,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                 </div>
               </div>
             ) : (
-              <div className="bg-badge-owned text-primary-foreground px-3 py-1 rounded-2xl">
+              <div className="bg-badge-owned text-primary-foreground px-3 py-1 rounded-2xl ">
                 <div className="flex items-center gap-2">
                   <span className="text-sm">Na półce</span>{' '}
                   <LibraryBig size={16} />
@@ -96,7 +108,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
           >
             <div data-no-nav="true">
               <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild className="w-8">
+                <DropdownMenuTrigger asChild className="w-8" data-no-nav="true">
                   <button
                     type="button"
                     className="bg-card-menu-trigger hover:bg-card-menu-trigger-hover rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"

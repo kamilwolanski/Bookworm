@@ -40,6 +40,7 @@ const AddBookStepperDialog = ({
       shadow-2xl
       bg-background/95 backdrop-blur
       supports-[backdrop-filter]:bg-background/80 "
+      data-no-nav="true"
     >
       <DialogHeader>
         <DialogTitle className="text-xl font-semibold tracking-tight text-dialog-foreground">
@@ -65,7 +66,10 @@ const AddBookStepperDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="bg-badge-new text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer hover:bg-badge-new-hover">
+        <button
+          data-no-nav="true"
+          className="bg-badge-new text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer hover:bg-badge-new-hover"
+        >
           <div className="flex items-center gap-2">
             <span className="text-sm">Dodaj</span> <Plus size={16} />
           </div>
