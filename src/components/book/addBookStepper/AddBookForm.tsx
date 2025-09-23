@@ -29,6 +29,7 @@ const { useStepper, steps, utils } = defineStepper(
 
 const AddBookForm = ({
   bookId,
+  bookSlug,
   editions,
   userReviews,
   userEditions = [],
@@ -36,6 +37,7 @@ const AddBookForm = ({
   afterSuccess,
 }: {
   bookId: string;
+  bookSlug: string;
   editions: EditionDto[];
   userReviews?: Review[];
   userEditions?: UserEditionDto[];
@@ -130,6 +132,7 @@ const AddBookForm = ({
                 ) : (
                   <ChooseEditonComponent
                     editions={editions}
+                    bookSlug={bookSlug}
                     userEditions={userEditions}
                     goNext={stepper.next}
                   />

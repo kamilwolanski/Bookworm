@@ -8,13 +8,16 @@ import { RadioGroup } from '@/components/ui/radio-group';
 import { FormField, FormItem } from '@/components/ui/form';
 import { useFormContext } from 'react-hook-form';
 import { LibraryBig, Plus } from 'lucide-react';
+import Link from 'next/link';
 
 const ChooseEditonComponent = ({
   editions,
+  bookSlug,
   userEditions = [],
   goNext,
 }: {
   editions: EditionDto[];
+  bookSlug: string;
   userEditions?: UserEditionDto[];
   goNext: () => void;
 }) => {
@@ -25,15 +28,19 @@ const ChooseEditonComponent = ({
   const renderEditionRow = (edition: EditionDto) => {
     const isOnShelf = userEditionIds.has(edition.id);
 
-    const handleClick = () => {
+    const handleClick = (e: React.ChangeEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
       form.setValue('editionId', edition.id);
       setTimeout(() => {
         goNext();
       });
     };
+
     return (
-      <div
+      <Link
         key={edition.id}
+        href={`/books/${bookSlug}/${edition.id}`}
         className={`relative flex items-start gap-4 rounded-md p-3 border transition cursor-pointer hover:border-primary/50 bg-white/50 hover:bg-white/50 
    
     `}
@@ -137,7 +144,7 @@ const ChooseEditonComponent = ({
             </div>
           )}
         </div>
-      </div>
+      </Link>
     );
   };
 

@@ -126,7 +126,7 @@ export type BookCardDTO = {
   book: {
     id: string;
     title: string;
-    slug: string | null;
+    slug: string;
     authors: { id: string; name: string }[];
     genres: string[];
     firstPublicationDate: Date | null;
@@ -201,6 +201,28 @@ export type OtherEditionDto = {
   id: string;
   coverUrl: string | null;
   title: string | null;
+};
+
+type GetBookReviewsResult = {
+  items: Array<
+    Review & {
+      user: { id: string; name: string | null; avatarUrl: string | null };
+      edition: {
+        id: string;
+        language: string | null;
+        format: MediaFormat | null;
+      };
+    }
+  >;
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+type GetBookReviewsOptions = {
+  page?: number;
+  pageSize?: number;
+  onlyWithContent?: boolean;
 };
 
 function statusPriority(s: ReadingStatus): number {
@@ -449,7 +471,7 @@ export async function getBooksAll(
       book: {
         id: b.id,
         title: b.title,
-        slug: b.slug,
+        slug: b.slug ?? '',
         authors: b.authors
           .sort((a, c) => (a.order ?? 0) - (c.order ?? 0))
           .map((a) => ({ id: a.person.id, name: a.person.name })),
@@ -738,4 +760,41 @@ export async function addBookToShelfWithReview(
 
     return ub;
   });
+}
+
+export async function getBookReviews(
+  bookSlug: string,
+  {
+    page = 1,
+    pageSize = 20,
+    onlyWithContent = false,
+  }: GetBookReviewsOptions = {}
+): Promise<GetBookReviewsResult> {
+  const skip = (page - 1) * pageSize;
+
+  // warunek treści – null i pusty string
+  const contentWhere = onlyWithContent
+    ? { AND: [{ body: { not: null } }, { body: { not: '' } }] }
+    : {};
+
+  const where = {
+    edition: { book: { slug: bookSlug } },
+    ...contentWhere,
+  };
+
+  const [items, total] = await prisma.$transaction([
+    prisma.review.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: pageSize,
+      include: {
+        user: { select: { id: true, name: true, avatarUrl: true } },
+        edition: { select: { id: true, language: true, format: true } },
+      },
+    }),
+    prisma.review.count({ where }),
+  ]);
+  
+  return { items, total, page, pageSize };
 }

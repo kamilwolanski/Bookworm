@@ -14,6 +14,7 @@ import { Review } from '@prisma/client';
 
 const AddBookStepperDialog = ({
   bookId,
+  bookSlug,
   editions,
   dialogTitle,
   userReviews,
@@ -23,6 +24,7 @@ const AddBookStepperDialog = ({
   afterSuccess,
 }: {
   bookId: string;
+  bookSlug: string;
   editions: EditionDto[];
   dialogTitle: string;
   userReviews?: Review[];
@@ -50,6 +52,7 @@ const AddBookStepperDialog = ({
 
       <AddBookForm
         bookId={bookId}
+        bookSlug={bookSlug}
         editions={editions}
         userEditions={userEditions}
         otherEditionsMode={otherEditionsMode}

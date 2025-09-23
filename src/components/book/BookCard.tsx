@@ -30,10 +30,6 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   >(null);
   const openDialog = dialogType !== null;
 
-  const handleClick = () => {
-    router.push(`/books/${book.slug}/${representativeEdition.id}`);
-  };
-
   const handleCardClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
     // ignoruj kliknięcia z elementów interaktywnych / oznaczonych jako no-nav
     const target = e.target as HTMLElement;
@@ -56,7 +52,6 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   return (
     <Card
       className="cursor-pointer border-none h-full shadow-md hover:shadow-xl p-1 rounded-xl"
-      // onClick={handleClick}
       onClick={handleCardClick}
       key={book.id}
     >
@@ -95,6 +90,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
           ) : (
             <AddBookStepperDialog
               bookId={book.id}
+              bookSlug={book.slug}
               editions={book.editions}
               dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
               userEditions={bookItem.userState.byEdition}
@@ -164,6 +160,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
             {dialogType === 'showOtherEditions' && (
               <AddBookStepperDialog
                 bookId={book.id}
+                bookSlug={book.slug}
                 editions={book.editions}
                 dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
                 userEditions={bookItem.userState.byEdition}

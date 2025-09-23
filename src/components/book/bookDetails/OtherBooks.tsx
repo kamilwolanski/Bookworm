@@ -10,8 +10,7 @@ const OtherBooks = ({
   otherEditions: OtherEditionDto[];
 }) => {
   return (
-    <div className="bg-sidebar shadow-lg rounded-xl p-8">
-      <h3 className="font-semibold">Inne wydania</h3>
+    <div className="bg-sidebar shadow-lg rounded-xl p-6">
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 ">
         {otherEditions.map((edition) => (
           <Link
@@ -19,7 +18,7 @@ const OtherBooks = ({
             href={`/books/${bookSlug}/${edition.id}`}
             className="hover:shadow-xl"
           >
-            <div className="text-center mt-5 aspect-[2/3] relative">
+            <div className="text-center aspect-[2/3] relative">
               {edition.coverUrl ? (
                 <Image
                   src={edition.coverUrl}
