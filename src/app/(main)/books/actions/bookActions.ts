@@ -4,6 +4,8 @@ import {
   RemoveBookFromShelfPayload,
   removeBookFromShelf,
   addBookToShelfWithReview,
+  addBookToShelf,
+  changeBookStatus,
 } from '@/lib/userbooks';
 import {
   notFoundResponse,
@@ -18,13 +20,13 @@ import {
   parseFormAddBookToShelfData,
   parseFormEditionBookRateData,
 } from '@/lib/parsers/books';
+import { ReadingStatus, UserBook } from '@prisma/client';
 
 export const rateBookAction = async (
   bookId: string,
   _currentState: unknown,
   formData: FormData
 ): Promise<ActionResult> => {
-  console.log('weszlo');
   const session = await getUserSession();
   if (!session?.user?.id) return unauthorizedResponse();
 
@@ -66,7 +68,6 @@ export const addBookToShelfAction = async (
   formData: FormData
 ): Promise<ActionResult> => {
   const session = await getUserSession();
-  console.log('weszlo action');
   if (!session?.user?.id) return unauthorizedResponse();
 
   const parsed = parseFormAddBookToShelfData(formData);
@@ -85,7 +86,7 @@ export const addBookToShelfAction = async (
       body,
       rating,
     });
-    console.log('result', result);
+
     revalidatePath(`/books`);
     return {
       isError: false,
@@ -99,10 +100,80 @@ export const addBookToShelfAction = async (
   }
 };
 
-export const removeBookFromShelfAction: Action<
-  [ActionResult<void>, RemoveBookFromShelfPayload],
-  void
-> = async (_prev, { bookId, editionId }) => {
+export const addBookToShelfBasicAction = async ({
+  bookId,
+  bookSlug,
+  editionId,
+}: {
+  bookId: string;
+  bookSlug: string;
+  editionId: string;
+}): Promise<ActionResult<UserBook>> => {
+  const session = await getUserSession();
+  if (!session?.user?.id) return unauthorizedResponse();
+
+  try {
+    const result = await addBookToShelf(session.user.id, {
+      bookId: bookId,
+      editionId: editionId,
+    });
+
+    revalidatePath(`/books/${bookSlug}/${editionId}`);
+    return {
+      isError: false,
+      status: 'success',
+      httpStatus: 200,
+      data: result,
+    };
+  } catch (err) {
+    console.error(err);
+    return serverErrorResponse();
+  }
+};
+
+export const changeBookStatusAction = async ({
+  bookId,
+  bookSlug,
+  editionId,
+  readingStatus,
+}: {
+  bookId: string;
+  bookSlug: string;
+  editionId: string;
+  readingStatus: ReadingStatus;
+}): Promise<ActionResult<UserBook>> => {
+  const session = await getUserSession();
+  if (!session?.user?.id) return unauthorizedResponse();
+
+  try {
+    const result = await changeBookStatus(session.user.id, {
+      bookId: bookId,
+      editionId: editionId,
+      readingStatus,
+    });
+
+    revalidatePath(`/books/${bookSlug}/${editionId}`);
+    return {
+      isError: false,
+      status: 'success',
+      httpStatus: 200,
+      data: result,
+    };
+  } catch (err) {
+    console.error(err);
+    return serverErrorResponse();
+  }
+};
+
+export const removeBookFromShelfAction = async ({
+  bookId,
+  bookSlug,
+  editionId,
+}: {
+  bookId: string;
+  bookSlug: string;
+  editionId: string;
+}): Promise<ActionResult<void>> => {
   const session = await getUserSession();
   if (!session?.user?.id) return unauthorizedResponse();
 
@@ -111,8 +182,8 @@ export const removeBookFromShelfAction: Action<
       bookId,
       editionId,
     });
-    console.log('result', result);
-    revalidatePath(`/books`);
+
+    revalidatePath(`/books/${bookSlug}/${editionId}`);
     return {
       isError: false,
       status: 'success',

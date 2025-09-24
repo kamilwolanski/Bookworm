@@ -1,8 +1,4 @@
-import BackTopBar from '@/components/layout/BackTopBar';
 import BookDetails from '@/components/book/bookDetails/BookDetails';
-import CommentThread from '@/components/comments/CommentThread';
-import CommentInput from '@/components/comments/CommentInput';
-import SidebarRecentBooks from '@/components/book/SidebarRecentBooks';
 import { getBook, getBookReviews, getOtherEditions } from '@/lib/userbooks';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OtherBooks from '@/components/book/bookDetails/OtherBooks';
@@ -20,7 +16,6 @@ export default async function BookEdition({ params }: BookPageProps) {
     onlyWithContent: true,
   });
 
-  console.log('reviewsResponse', reviewsResponse);
   return (
     <>
       <div className="mt-10 max-w-7xl mx-auto">
@@ -53,9 +48,7 @@ export default async function BookEdition({ params }: BookPageProps) {
               )}
             </TabsContent>
             <TabsContent value="otherEditions">
-              {otherEditions.length > 0 && (
-                <OtherBooks bookSlug={slug} otherEditions={otherEditions} />
-              )}
+              <OtherBooks bookSlug={slug} otherEditions={otherEditions} />
             </TabsContent>
           </Tabs>
 

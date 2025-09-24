@@ -180,21 +180,30 @@ export type BookDetailsDto = {
     format?: MediaFormat | null;
     coverUrl?: string | null;
     coverPublicId?: string | null;
+    userReview?: {
+      editionId: string;
+      rating: number | null;
+    };
   };
   book: {
     id: string;
-    slug?: string | null;
+    slug: string;
     title: string;
     authors: { name: string; slug: string; order: number | null }[];
     genres: (GenreTranslation & { slug: string })[];
+    ratingCount: number | null;
+    averageRating: number | null;
   };
-
   publishers: {
     id: string;
     name: string;
     slug: string;
     order: number | null;
   }[];
+  userBook: {
+    isOnShelf: boolean;
+    readingstatus?: ReadingStatus;
+  };
 };
 
 export type OtherEditionDto = {
@@ -535,6 +544,21 @@ export async function getBook(
       title: true,
       subtitle: true,
       description: true,
+      userBooks: {
+        where: {
+          userId,
+        },
+      },
+      reviews: {
+        where: {
+          userId,
+        },
+        select: {
+          rating: true,
+          editionId: true,
+        },
+        take: 1,
+      },
       book: {
         select: {
           genres: {
@@ -568,6 +592,8 @@ export async function getBook(
             },
             orderBy: { order: 'asc' },
           },
+          ratingCount: true,
+          averageRating: true,
         },
       },
       publishers: {
@@ -579,6 +605,9 @@ export async function getBook(
       },
     },
   });
+
+  const isOnShelf = edition.userBooks.length > 0 ? true : false;
+  const userBook = edition.userBooks[0];
 
   const dto: BookDetailsDto = {
     edition: {
@@ -596,11 +625,14 @@ export async function getBook(
       format: edition.format ?? null,
       coverUrl: edition.coverUrl ?? null,
       coverPublicId: edition.coverPublicId ?? null,
+      userReview: edition.reviews[0],
     },
     book: {
       id: edition.book.id,
       slug: edition.book.slug ?? null,
       title: edition.book.title,
+      ratingCount: edition.book.ratingCount,
+      averageRating: edition.book.averageRating,
       authors: edition.book.authors.map((a) => ({
         name: a.person.name,
         slug: a.person.slug,
@@ -627,6 +659,10 @@ export async function getBook(
       slug: p.publisher.slug,
       order: p.order ?? null,
     })),
+    userBook: {
+      isOnShelf: isOnShelf,
+      ...(isOnShelf && { readingstatus: userBook.readingStatus }),
+    },
   };
   return dto;
 }
@@ -701,7 +737,7 @@ export async function getBookGenres(
 
 export async function addBookToShelf(
   userId: string,
-  { bookId, editionId }: AddBookToShelfPayload
+  { bookId, editionId }: { bookId: string; editionId: string }
 ): Promise<UserBook> {
   return await prisma.userBook.create({
     data: {
@@ -712,11 +748,32 @@ export async function addBookToShelf(
   });
 }
 
+export async function changeBookStatus(
+  userId: string,
+  {
+    bookId,
+    editionId,
+    readingStatus,
+  }: { bookId: string; editionId: string; readingStatus: ReadingStatus }
+): Promise<UserBook> {
+  return await prisma.userBook.update({
+    where: {
+      bookId_userId_editionId: {
+        bookId,
+        userId,
+        editionId,
+      },
+    },
+    data: {
+      readingStatus,
+    },
+  });
+}
+
 export async function addBookToShelfWithReview(
   userId: string,
   { bookId, editionId, readingStatus, rating, body }: AddBookToShelfPayload
 ): Promise<void> {
-  console.log('rating', rating);
   if (rating !== undefined && (rating < 1 || rating > 5)) {
     throw new Error('Rating must be between 1 and 5.');
   }
@@ -795,6 +852,6 @@ export async function getBookReviews(
     }),
     prisma.review.count({ where }),
   ]);
-  
+
   return { items, total, page, pageSize };
 }

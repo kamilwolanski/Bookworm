@@ -1,7 +1,7 @@
 import { Star } from 'lucide-react';
 
 interface StarRatingProps {
-  rating: number;
+  rating: number; // teraz może być float np. 3.7
   maxRating?: number;
   size?: 'sm' | 'md' | 'lg';
   interactive?: boolean;
@@ -25,16 +25,33 @@ export function StarRating({
     <div className="flex gap-1">
       {Array.from({ length: maxRating }, (_, index) => {
         const starNumber = index + 1;
-        const filled = starNumber <= rating;
+        const filled = rating >= starNumber;
+        const fraction =
+          !filled && rating > index && rating < starNumber
+            ? rating - index // np. 0.7 gdy rating=3.7
+            : 0;
 
         return (
-          <Star
+          <div
             key={index}
-            className={`${sizeClasses[size]} ${
-              filled ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-            } ${interactive ? 'cursor-pointer hover:text-yellow-400' : ''}`}
+            className={`relative ${interactive ? 'cursor-pointer' : ''}`}
             onClick={() => interactive && onRatingChange?.(starNumber)}
-          />
+          >
+            {/* pusta gwiazdka */}
+            <Star className={`${sizeClasses[size]} text-gray-300`} />
+
+            {/* pełna gwiazdka / część gwiazdki */}
+            <div
+              className="absolute top-0 left-0 overflow-hidden"
+              style={{
+                width: `${fraction > 0 ? fraction * 100 : filled ? 100 : 0}%`,
+              }}
+            >
+              <Star
+                className={`${sizeClasses[size]} fill-yellow-400 text-yellow-400`}
+              />
+            </div>
+          </div>
         );
       })}
     </div>

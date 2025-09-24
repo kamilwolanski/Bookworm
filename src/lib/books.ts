@@ -223,38 +223,36 @@ export async function updateBookRating(
   userId: string,
   { editionId, bookId, rating, body }: RatePayload
 ): Promise<void> {
-  if (rating) {
+  // walidacja: tylko jeśli rating został przekazany
+  if (rating != null) {
     if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
       throw new Error('Rating must be an integer between 1 and 5.');
     }
   }
 
-  return prisma.$transaction(async (tx) => {
-    // Upsert oceny użytkownika
+  await prisma.$transaction(async (tx) => {
+    // Upsert recenzji użytkownika dla danej EDYCJI
     await tx.review.upsert({
-      where: {
-        userId_editionId: { userId, editionId },
-      },
+      where: { userId_editionId: { userId, editionId } },
       create: { editionId, userId, rating, body },
       update: { rating, body },
     });
 
-    // Agregaty po zmianie
+    // 🔧 Agregaty dla CAŁEJ KSIĄŻKI (po wszystkich edycjach)
     const aggs = await tx.review.aggregate({
-      where: { editionId },
+      where: { edition: { bookId } }, // <— kluczowa zmiana
       _avg: { rating: true },
-      _count: { rating: true },
+      _count: { rating: true }, // liczy tylko nie-NULL
     });
 
-    // Zaokrąglenie średniej do 2 miejsc (opcjonalnie)
-    const avg = Number((aggs._avg.rating ?? 0).toFixed(2));
+    const avg =
+      aggs._avg.rating == null ? null : Number(aggs._avg.rating.toFixed(2));
     const count = aggs._count.rating;
 
-    // Zapis agregatów w tabeli Book
     await tx.book.update({
       where: { id: bookId },
       data: {
-        averageRating: avg,
+        averageRating: avg, // możesz trzymać null gdy brak ocen
         ratingCount: count,
       },
     });
