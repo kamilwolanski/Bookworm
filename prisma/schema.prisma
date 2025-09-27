@@ -36,6 +36,11 @@ enum EditionContributorRole {
   PREFACE_AUTHOR
 }
 
+enum ReviewVoteType {
+  LIKE
+  DISLIKE
+}
+
 // ---------- People & publishers ----------
 model Person {
   id       String   @id @default(uuid())
@@ -245,11 +250,11 @@ model Review {
 }
 
 model ReviewVote {
-  id        String   @id @default(uuid())
+  id        String         @id @default(uuid())
   reviewId  String
   userId    String
-  value     Int // +1 / -1 (waliduj w kodzie lub CHECK)
-  createdAt DateTime @default(now())
+  type      ReviewVoteType
+  createdAt DateTime       @default(now())
 
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
