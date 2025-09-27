@@ -26,8 +26,6 @@ export default async function BookEdition({
     onlyWithContent: true,
   });
 
-  console.log('book', book);
-  console.log('reviewsResponse', reviewsResponse);
   return (
     <>
       <div className="mt-10 max-w-7xl mx-auto">
@@ -66,6 +64,7 @@ export default async function BookEdition({
 
           <BookReviews
             bookId={book.book.id}
+            bookSlug={slug}
             editionId={editionId}
             editionTitle={book.edition.title}
             userReview={book.userBook?.userReview}

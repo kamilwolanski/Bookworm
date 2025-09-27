@@ -5,6 +5,7 @@ import {
   Publisher,
   ReadingStatus,
   Review,
+  ReviewVoteType,
   User,
   UserBook,
 } from '@prisma/client';
@@ -167,6 +168,11 @@ export type GetBooksAllResponse = {
   totalCount: number;
 };
 
+export interface VoteActionResult {
+  removed: boolean;
+  currentType?: ReviewVoteType;
+}
+
 export type BookDetailsDto = {
   edition: {
     id: string;
@@ -214,6 +220,12 @@ export type OtherEditionDto = {
   title: string | null;
 };
 
+export type VoteState = {
+  myVote?: ReviewVoteType | null;
+  likes: number;
+  dislikes: number;
+};
+
 export type ReviewItem = Review & {
   user: { id: string; name: string | null; avatarUrl: string | null };
   edition: {
@@ -222,6 +234,7 @@ export type ReviewItem = Review & {
     format: MediaFormat | null;
   };
   isOwner: boolean;
+  votes: VoteState;
 };
 
 type GetBookReviewsResult = {
@@ -664,7 +677,9 @@ export async function getBook(editionId: string): Promise<BookDetailsDto> {
     userBook: currentUserId
       ? {
           isOnShelf: isOnShelf,
-          ...(isOnShelf && { readingstatus: userBook!.readingStatus }),
+          ...(isOnShelf && {
+            readingstatus: userBook ? userBook.readingStatus : undefined,
+          }),
           userReview: edition.reviews?.[0] ?? null,
         }
       : null,
@@ -857,9 +872,25 @@ export async function getBookReviews(
       include: {
         user: { select: { id: true, name: true, avatarUrl: true } },
         edition: { select: { id: true, language: true, format: true } },
+        votes: true,
       },
     });
-    ownerReview = rawOwner ? { ...rawOwner, isOwner: true } : null;
+    ownerReview = rawOwner
+      ? {
+          ...rawOwner,
+          isOwner: true,
+          votes: {
+            likes: rawOwner.votes.reduce(
+              (acc, vote) => acc + (vote.type === 'LIKE' ? 1 : 0),
+              0
+            ),
+            dislikes: rawOwner.votes.reduce(
+              (acc, vote) => acc + (vote.type === 'DISLIKE' ? 1 : 0),
+              0
+            ),
+          },
+        }
+      : null;
   }
 
   // 2) Pozostałe – wyklucz właściciela z listy
@@ -884,12 +915,71 @@ export async function getBookReviews(
         include: {
           user: { select: { id: true, name: true, avatarUrl: true } },
           edition: { select: { id: true, language: true, format: true } },
+          votes: true,
         },
       })
     : [];
 
-  const otherItems = rawOthers.map((r) => ({ ...r, isOwner: false }));
+  const otherItems = rawOthers.map((r) => ({
+    ...r,
+    isOwner: false,
+    votes: {
+      myVote:
+        r.votes.find((vote) => vote.userId === currentUserId)?.type ?? null,
+      likes: r.votes.reduce(
+        (acc, vote) => acc + (vote.type === 'LIKE' ? 1 : 0),
+        0
+      ),
+      dislikes: r.votes.reduce(
+        (acc, vote) => acc + (vote.type === 'DISLIKE' ? 1 : 0),
+        0
+      ),
+    },
+  }));
   const items = ownerOnFirstPage ? [ownerReview!, ...otherItems] : otherItems;
 
   return { items, total, page, pageSize };
+}
+
+export async function upsertReviewVote(
+  userId: string,
+  { reviewId, type }: { reviewId: string; type: ReviewVoteType }
+): Promise<{ removed: boolean; currentType?: ReviewVoteType }> {
+  // 1) Sprawdź właściciela opinii (nie można głosować na siebie)
+  const review = await prisma.review.findUnique({
+    where: { id: reviewId },
+    select: { userId: true },
+  });
+
+  if (!review) {
+    // możesz też zwrócić 404 w akcjach, jeśli chcesz
+    throw new Error('Review not found');
+  }
+
+  const existing = await prisma.reviewVote.findUnique({
+    where: { reviewId_userId: { reviewId, userId } },
+  });
+
+  if (existing) {
+    if (existing.type === type) {
+      // toggle: ten sam typ -> usuń głos
+      await prisma.reviewVote.delete({
+        where: { reviewId_userId: { reviewId, userId } },
+      });
+      return { removed: true };
+    }
+    // zmiana typu
+    const updated = await prisma.reviewVote.update({
+      where: { reviewId_userId: { reviewId, userId } },
+      data: { type },
+    });
+    return { removed: false, currentType: updated.type };
+  }
+
+  // 3) Brak głosu -> utwórz
+  const created = await prisma.reviewVote.create({
+    data: { reviewId, userId, type },
+  });
+
+  return { removed: false, currentType: created.type };
 }

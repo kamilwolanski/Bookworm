@@ -1,11 +1,12 @@
 'use server';
 
 import {
-  RemoveBookFromShelfPayload,
   removeBookFromShelf,
   addBookToShelfWithReview,
   addBookToShelf,
   changeBookStatus,
+  upsertReviewVote,
+  VoteActionResult,
 } from '@/lib/userbooks';
 import {
   notFoundResponse,
@@ -14,13 +15,20 @@ import {
 } from '@/lib/responses';
 import { getUserSession } from '@/lib/session';
 import { revalidatePath } from 'next/cache';
-import type { Action, ActionResult } from '@/types/actions';
+import type { ActionResult } from '@/types/actions';
 import { findUniqueBook, updateBookRating } from '@/lib/books';
 import {
   parseFormAddBookToShelfData,
   parseFormEditionBookRateData,
 } from '@/lib/parsers/books';
-import { ReadingStatus, UserBook } from '@prisma/client';
+import { ReadingStatus, ReviewVoteType, UserBook } from '@prisma/client';
+
+type VoteActionPayload = {
+  reviewId: string;
+  bookSlug: string;
+  editionId: string;
+  type: ReviewVoteType;
+};
 
 export const rateBookAction = async (
   bookId: string,
@@ -227,6 +235,32 @@ export const addRatingAction = async ({
     };
   } catch (err) {
     console.error(err);
+    return serverErrorResponse();
+  }
+};
+
+export const setReviewVoteAction = async ({
+  reviewId,
+  bookSlug,
+  editionId,
+  type,
+}: VoteActionPayload): Promise<ActionResult<VoteActionResult>> => {
+  const session = await getUserSession();
+  if (!session?.user?.id) return unauthorizedResponse();
+
+  try {
+    const result = await upsertReviewVote(session.user.id, { reviewId, type });
+    revalidatePath(`/books/${bookSlug}/${editionId}`);
+
+    return {
+      isError: false,
+      status: 'success',
+      httpStatus: 200,
+      data: result,
+    };
+  } catch (err) {
+    console.error(err);
+
     return serverErrorResponse();
   }
 };
