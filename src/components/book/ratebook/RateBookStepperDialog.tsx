@@ -9,7 +9,7 @@ import {
 import { Plus } from 'lucide-react';
 import { EditionDto, UserEditionDto } from '@/lib/userbooks';
 import { useState } from 'react';
-import RateBookForm from '@/components/book/ratebook/RateBookForm';
+import RateBookStepperForm from '@/components/book/ratebook/RateBookStepperForm';
 import { Review } from '@prisma/client';
 
 const RateBookStepperDialog = ({
@@ -38,8 +38,7 @@ const RateBookStepperDialog = ({
       className="sm:max-w-[625px] p-6 rounded-2xl
       border border-border
       shadow-2xl
-      bg-background/95 backdrop-blur
-      supports-[backdrop-filter]:bg-background/80 "
+      bg-background/95 backdrop-blur "
       data-no-nav="true"
     >
       <DialogHeader>
@@ -48,7 +47,7 @@ const RateBookStepperDialog = ({
         </DialogTitle>
       </DialogHeader>
 
-      <RateBookForm
+      <RateBookStepperForm
         bookId={bookId}
         editions={editions}
         userEditions={userEditions}

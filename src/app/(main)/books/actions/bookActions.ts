@@ -195,3 +195,38 @@ export const removeBookFromShelfAction = async ({
     return serverErrorResponse();
   }
 };
+
+export const addRatingAction = async ({
+  bookId,
+  bookSlug,
+  editionId,
+  rating,
+}: {
+  bookId: string;
+  bookSlug: string;
+  editionId: string;
+  rating: number;
+}): Promise<ActionResult> => {
+  const session = await getUserSession();
+  if (!session?.user?.id) return unauthorizedResponse();
+
+  try {
+    const result = await updateBookRating(session.user.id, {
+      bookId,
+      editionId,
+      rating,
+    });
+
+    revalidatePath(`/books/${bookSlug}/${editionId}`);
+
+    return {
+      isError: false,
+      status: 'success',
+      httpStatus: 200,
+      data: result,
+    };
+  } catch (err) {
+    console.error(err);
+    return serverErrorResponse();
+  }
+};

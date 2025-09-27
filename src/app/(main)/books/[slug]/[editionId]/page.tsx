@@ -6,16 +6,28 @@ import BookReviews from '@/components/book/bookDetails/BookReviews';
 
 interface BookPageProps {
   params: Promise<{ editionId: string; slug: string }>;
+  searchParams?: {
+    page?: string;
+  };
 }
 
-export default async function BookEdition({ params }: BookPageProps) {
+export default async function BookEdition({
+  params,
+  searchParams,
+}: BookPageProps) {
   const { editionId, slug } = await params;
+  const { page } = searchParams ? await searchParams : {};
+  const currentPage = parseInt(page || '1', 10);
   const book = await getBook(editionId);
   const otherEditions = await getOtherEditions(slug, editionId);
   const reviewsResponse = await getBookReviews(slug, {
+    page: currentPage,
+    pageSize: 2,
     onlyWithContent: true,
   });
 
+  console.log('book', book);
+  console.log('reviewsResponse', reviewsResponse);
   return (
     <>
       <div className="mt-10 max-w-7xl mx-auto">
@@ -53,8 +65,16 @@ export default async function BookEdition({ params }: BookPageProps) {
           </Tabs>
 
           <BookReviews
+            bookId={book.book.id}
+            editionId={editionId}
+            editionTitle={book.edition.title}
+            userReview={book.userBook?.userReview}
             reviews={reviewsResponse.items}
-            totalReviews={reviewsResponse.total}
+            paginationData={{
+              page: currentPage,
+              pageSize: reviewsResponse.pageSize,
+              total: reviewsResponse.total,
+            }}
           />
         </div>
       </div>

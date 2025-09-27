@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Badge } from '../../ui/badge';
+import { Badge } from '@/components/ui/badge';
 import {
   Star,
   BookOpen,
@@ -12,18 +12,16 @@ import {
   Minus,
 } from 'lucide-react';
 import { genreColorMap } from '@/lib/genreColorMap';
-import { Button } from '../../ui/button';
+import { Button } from '@/components/ui/button';
 import { BookDetailsDto } from '@/lib/userbooks';
-import { useState } from 'react';
-import { StarRating } from '../StarRating';
-import { Separator } from '../../ui/separator';
-import Emoji from '../../shared/Emoji';
+import { StarRating } from '@/components/book/StarRating';
+import { Separator } from '@/components/ui/separator';
+import Emoji from '@/components/shared/Emoji';
 import { LANGUAGES } from '@/app/admin/data';
 import { MediaFormat, ReadingStatus } from '@prisma/client';
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
 import React from 'react';
-
 import {
   addBookToShelfBasicAction,
   changeBookStatusAction,
@@ -36,8 +34,9 @@ import {
   SelectItem,
   SelectContent,
 } from '@/components/ui/select';
-import { useOptimisticShelf } from './optimistics/useOptimisticShelf';
-import { useOptimisticReadingStatus } from './optimistics/useOptimisticReadingStatus';
+import { useOptimisticShelf } from '@/lib/optimistics/useOptimisticShelf';
+import { useOptimisticReadingStatus } from '@/lib/optimistics/useOptimisticReadingStatus';
+import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
 
 const MediaFormatLabels: Record<MediaFormat, string> = {
   [MediaFormat.HARDCOVER]: 'Twarda oprawa',
@@ -77,20 +76,19 @@ const statusConfig: Record<
 };
 
 const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
-  const [userRating, setUserRating] = useState(
-    bookData.edition.userReview?.rating
-  );
-
   const { book, edition, publishers, userBook } = bookData;
-  const onShelf = userBook.isOnShelf;
-  const readingStatus = userBook.readingstatus;
+  const onShelf = userBook?.isOnShelf;
+  const readingStatus = userBook?.readingstatus;
+  const userRating = bookData.userBook?.userReview?.rating;
 
   const {
     statusOpt,
     isPending: isChangingOpt,
     change,
   } = useOptimisticReadingStatus(readingStatus);
-  const { onShelfOptimistic, isPending, toggle } = useOptimisticShelf(onShelf);
+  const { onShelfOptimistic, isPending, toggle } = useOptimisticShelf(
+    onShelf ?? false
+  );
 
   const handleToggle = () => {
     if (onShelfOptimistic) {
@@ -191,7 +189,9 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
               <StarRating
                 rating={userRating ?? 0}
                 interactive
-                onRatingChange={setUserRating}
+                bookId={book.id}
+                editionId={edition.id}
+                bookSlug={book.slug}
               />
             </div>
             <div className="flex items-center gap-2 mt-4">
@@ -252,10 +252,17 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                   </>
                 )}
               </Button>
-              <Button variant="outline" className="bg-sidebar cursor-pointer">
-                <Star className="w-4 h-4 mr-2" />
-                Oceń
-              </Button>
+              <RateBookDialog
+                bookId={book.id}
+                editionId={edition.id}
+                dialogTitle={`Napisz opinie o : ${edition.title}`}
+                userReview={userBook?.userReview}
+              >
+                <Button variant="outline" className="bg-sidebar cursor-pointer">
+                  <Star className="w-4 h-4 mr-2" />
+                  {userBook?.userReview ? 'Edytuj ocenę' : 'Oceń'}
+                </Button>
+              </RateBookDialog>
             </div>
           </div>
           <Separator className="mt-5" />

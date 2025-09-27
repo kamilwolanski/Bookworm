@@ -9,6 +9,7 @@ import {
   UserBook,
 } from '@prisma/client';
 import prisma from './prisma';
+import { getUserSession } from './session';
 
 export type GenreDTO = {
   id: string;
@@ -180,10 +181,6 @@ export type BookDetailsDto = {
     format?: MediaFormat | null;
     coverUrl?: string | null;
     coverPublicId?: string | null;
-    userReview?: {
-      editionId: string;
-      rating: number | null;
-    };
   };
   book: {
     id: string;
@@ -203,7 +200,12 @@ export type BookDetailsDto = {
   userBook: {
     isOnShelf: boolean;
     readingstatus?: ReadingStatus;
-  };
+    userReview?: {
+      editionId: string;
+      rating: number | null;
+      body: string | null;
+    };
+  } | null;
 };
 
 export type OtherEditionDto = {
@@ -212,17 +214,18 @@ export type OtherEditionDto = {
   title: string | null;
 };
 
+export type ReviewItem = Review & {
+  user: { id: string; name: string | null; avatarUrl: string | null };
+  edition: {
+    id: string;
+    language: string | null;
+    format: MediaFormat | null;
+  };
+  isOwner: boolean;
+};
+
 type GetBookReviewsResult = {
-  items: Array<
-    Review & {
-      user: { id: string; name: string | null; avatarUrl: string | null };
-      edition: {
-        id: string;
-        language: string | null;
-        format: MediaFormat | null;
-      };
-    }
-  >;
+  items: Array<ReviewItem>;
   total: number;
   page: number;
   pageSize: number;
@@ -525,10 +528,9 @@ export async function getBooksAll(
   return { items, totalCount };
 }
 
-export async function getBook(
-  editionId: string,
-  userId?: string
-): Promise<BookDetailsDto> {
+export async function getBook(editionId: string): Promise<BookDetailsDto> {
+  const session = await getUserSession();
+  const currentUserId: string | null = session?.user?.id ?? null;
   const edition = await prisma.edition.findUniqueOrThrow({
     where: { id: editionId },
     select: {
@@ -544,21 +546,22 @@ export async function getBook(
       title: true,
       subtitle: true,
       description: true,
-      userBooks: {
-        where: {
-          userId,
-        },
-      },
-      reviews: {
-        where: {
-          userId,
-        },
-        select: {
-          rating: true,
-          editionId: true,
-        },
-        take: 1,
-      },
+      userBooks: currentUserId
+        ? {
+            where: { userId: currentUserId },
+          }
+        : false, // <-- Prisma pominie całkowicie pole, jeśli damy false
+      reviews: currentUserId
+        ? {
+            where: { userId: currentUserId },
+            select: {
+              rating: true,
+              body: true,
+              editionId: true,
+            },
+            take: 1,
+          }
+        : false,
       book: {
         select: {
           genres: {
@@ -606,8 +609,8 @@ export async function getBook(
     },
   });
 
-  const isOnShelf = edition.userBooks.length > 0 ? true : false;
-  const userBook = edition.userBooks[0];
+  const isOnShelf = edition.userBooks?.length > 0 ? true : false;
+  const userBook = edition.userBooks?.length > 0 && edition.userBooks[0];
 
   const dto: BookDetailsDto = {
     edition: {
@@ -625,7 +628,6 @@ export async function getBook(
       format: edition.format ?? null,
       coverUrl: edition.coverUrl ?? null,
       coverPublicId: edition.coverPublicId ?? null,
-      userReview: edition.reviews[0],
     },
     book: {
       id: edition.book.id,
@@ -659,10 +661,13 @@ export async function getBook(
       slug: p.publisher.slug,
       order: p.order ?? null,
     })),
-    userBook: {
-      isOnShelf: isOnShelf,
-      ...(isOnShelf && { readingstatus: userBook.readingStatus }),
-    },
+    userBook: currentUserId
+      ? {
+          isOnShelf: isOnShelf,
+          ...(isOnShelf && { readingstatus: userBook!.readingStatus }),
+          userReview: edition.reviews?.[0] ?? null,
+        }
+      : null,
   };
   return dto;
 }
@@ -827,31 +832,64 @@ export async function getBookReviews(
     onlyWithContent = false,
   }: GetBookReviewsOptions = {}
 ): Promise<GetBookReviewsResult> {
-  const skip = (page - 1) * pageSize;
+  const session = await getUserSession();
+  const currentUserId = session?.user?.id ?? null;
 
-  // warunek treści – null i pusty string
   const contentWhere = onlyWithContent
     ? { AND: [{ body: { not: null } }, { body: { not: '' } }] }
     : {};
 
-  const where = {
+  const baseWhere = {
     edition: { book: { slug: bookSlug } },
     ...contentWhere,
-  };
+  } as const;
 
-  const [items, total] = await prisma.$transaction([
-    prisma.review.findMany({
-      where,
+  // total wszystkich recenzji (z właścicielem)
+  const total = await prisma.review.count({ where: baseWhere });
+
+  // 1) Recenzja właściciela (jeśli zalogowany)
+  let ownerReview: ReviewItem | null = null;
+
+  if (currentUserId) {
+    const rawOwner = await prisma.review.findFirst({
+      where: { ...baseWhere, userId: currentUserId },
       orderBy: { createdAt: 'desc' },
-      skip,
-      take: pageSize,
       include: {
         user: { select: { id: true, name: true, avatarUrl: true } },
         edition: { select: { id: true, language: true, format: true } },
       },
-    }),
-    prisma.review.count({ where }),
-  ]);
+    });
+    ownerReview = rawOwner ? { ...rawOwner, isOwner: true } : null;
+  }
+
+  // 2) Pozostałe – wyklucz właściciela z listy
+  const whereOthers = currentUserId
+    ? { ...baseWhere, userId: { not: currentUserId } }
+    : baseWhere;
+
+  // Na 1. stronie robimy miejsce na ownera (jeśli jest)
+  const ownerOnFirstPage = page === 1 && ownerReview ? 1 : 0;
+  const takeOthers = Math.max(pageSize - ownerOnFirstPage, 0);
+
+  // Od 2. strony korygujemy skip o 1, bo „others” nie zawiera ownera
+  const skipRaw = (page - 1) * pageSize - (ownerReview ? 1 : 0);
+  const skipOthers = Math.max(skipRaw, 0);
+
+  const rawOthers = takeOthers
+    ? await prisma.review.findMany({
+        where: whereOthers,
+        orderBy: { createdAt: 'desc' },
+        skip: skipOthers,
+        take: takeOthers,
+        include: {
+          user: { select: { id: true, name: true, avatarUrl: true } },
+          edition: { select: { id: true, language: true, format: true } },
+        },
+      })
+    : [];
+
+  const otherItems = rawOthers.map((r) => ({ ...r, isOwner: false }));
+  const items = ownerOnFirstPage ? [ownerReview!, ...otherItems] : otherItems;
 
   return { items, total, page, pageSize };
 }

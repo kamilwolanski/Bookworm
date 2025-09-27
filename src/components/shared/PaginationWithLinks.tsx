@@ -29,6 +29,14 @@ export interface PaginationWithLinksProps {
   pageSize: number;
   page: number;
   pageSearchParam?: string;
+
+  /**
+   * Czy po zmianie strony/rozmiaru ma przewinąć do sekcji paginacji?
+   * Domyślnie true
+   */
+  scrollOnPageChange?: boolean;
+  /** id elementu do którego ma scrollować (jeśli scrollOnPageChange = true) */
+  scrollTargetId?: string;
 }
 
 export function PaginationWithLinks({
@@ -37,6 +45,8 @@ export function PaginationWithLinks({
   totalCount,
   page,
   pageSearchParam,
+  scrollOnPageChange = true,
+  scrollTargetId,
 }: PaginationWithLinksProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -52,7 +62,23 @@ export function PaginationWithLinks({
       newSearchParams.set(key, String(newPage));
       return `${pathname}?${newSearchParams.toString()}`;
     },
-    [searchParams, pathname]
+    [searchParams, pathname, pageSearchParam]
+  );
+
+  const gotoPage = useCallback(
+    (newPage: number) => {
+      router.push(buildLink(newPage), { scroll: false });
+      if (scrollOnPageChange) {
+        if (scrollTargetId) {
+          document
+            .getElementById(scrollTargetId)
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+    },
+    [router, buildLink, scrollOnPageChange, scrollTargetId]
   );
 
   const navToPageSize = useCallback(
@@ -61,9 +87,28 @@ export function PaginationWithLinks({
       const newSearchParams = new URLSearchParams(searchParams || undefined);
       newSearchParams.set(key, String(newPageSize));
       newSearchParams.delete(pageSearchParam || 'page');
-      router.push(`${pathname}?${newSearchParams.toString()}`);
+      router.push(`${pathname}?${newSearchParams.toString()}`, {
+        scroll: false,
+      });
+      if (scrollOnPageChange) {
+        if (scrollTargetId) {
+          document
+            .getElementById(scrollTargetId)
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
     },
-    [searchParams, pathname]
+    [
+      searchParams,
+      pathname,
+      router,
+      pageSearchParam,
+      pageSizeSelectOptions,
+      scrollOnPageChange,
+      scrollTargetId,
+    ]
   );
 
   const renderPageNumbers = () => {
@@ -76,6 +121,10 @@ export function PaginationWithLinks({
           <PaginationItem key={i}>
             <PaginationLink
               href={buildLink(i)}
+              onClick={(e) => {
+                e.preventDefault();
+                gotoPage(i);
+              }}
               isActive={page === i}
               className={cn('hover:white hover:border', {
                 'font-semibold': page === i,
@@ -91,6 +140,10 @@ export function PaginationWithLinks({
         <PaginationItem key={1}>
           <PaginationLink
             href={buildLink(1)}
+            onClick={(e) => {
+              e.preventDefault();
+              gotoPage(1);
+            }}
             isActive={page === 1}
             className={cn('hover:text-black', {
               'text-black font-semibold': page === 1,
@@ -117,6 +170,10 @@ export function PaginationWithLinks({
           <PaginationItem key={i}>
             <PaginationLink
               href={buildLink(i)}
+              onClick={(e) => {
+                e.preventDefault();
+                gotoPage(i);
+              }}
               isActive={page === i}
               className={cn('hover:text-black', {
                 'text-black font-semibold': page === i,
@@ -140,6 +197,10 @@ export function PaginationWithLinks({
         <PaginationItem key={totalPageCount}>
           <PaginationLink
             href={buildLink(totalPageCount)}
+            onClick={(e) => {
+              e.preventDefault();
+              gotoPage(totalPageCount);
+            }}
             isActive={page === totalPageCount}
             className={cn('hover:text-black', {
               'text-black font-semibold': page === totalPageCount,
@@ -170,6 +231,10 @@ export function PaginationWithLinks({
           <PaginationItem>
             <PaginationPrevious
               href={buildLink(Math.max(page - 1, 1))}
+              onClick={(e) => {
+                e.preventDefault();
+                gotoPage(Math.max(page - 1, 1));
+              }}
               aria-disabled={page === 1}
               tabIndex={page === 1 ? -1 : undefined}
               className={
@@ -181,6 +246,10 @@ export function PaginationWithLinks({
           <PaginationItem>
             <PaginationNext
               href={buildLink(Math.min(page + 1, totalPageCount))}
+              onClick={(e) => {
+                e.preventDefault();
+                gotoPage(Math.min(page + 1, totalPageCount));
+              }}
               aria-disabled={page === totalPageCount}
               tabIndex={page === totalPageCount ? -1 : undefined}
               className={
