@@ -137,8 +137,8 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                 variant={onShelfOptimistic ? 'default' : 'secondary'}
                 className={`${
                   onShelfOptimistic
-                    ? 'bg-green-100 text-green-700 border-green-200'
-                    : 'bg-gray-100 text-gray-600 border-gray-200'
+                    ? 'border border-badge-owned-border bg-badge-owned text-primary'
+                    : 'bg-badge-not-on-shelf text-badge-not-on-shelf-foreground border-badge-not-on-shelf-border'
                 } font-medium`}
               >
                 {onShelfOptimistic ? 'Na półce' : 'Poza półką'}
@@ -236,7 +236,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
             )}
             <div className="flex gap-3 mt-5">
               <Button
-                className="bg-green-600 hover:bg-green-700 cursor-pointer"
+                className="cursor-pointer bg-badge-new text-secondary-foreground hover:bg-badge-new-hover"
                 onClick={handleToggle}
                 disabled={isPending || isChangingOpt}
               >

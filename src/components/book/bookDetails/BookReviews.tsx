@@ -1,10 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import RateBookDialog from '../ratebook/RateBookDialog';
+import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import { ReviewItem } from '@/lib/userbooks';
-import BookReview from './BookReview';
+import BookReview from '@/components/book/bookDetails/BookReview';
 
 const BookReviews = ({
   bookId,
@@ -48,21 +48,22 @@ const BookReviews = ({
         </RateBookDialog>
       </div>
       {reviews.length > 0 ? (
-        reviews.map((review) => (
-          <BookReview key={review.id} review={review} bookSlug={bookSlug} />
-        ))
+        <>
+          {reviews.map((review) => (
+            <BookReview key={review.id} review={review} bookSlug={bookSlug} />
+          ))}
+          <PaginationWithLinks
+            page={paginationData.page}
+            pageSize={paginationData.pageSize}
+            totalCount={paginationData.total}
+            scrollOnPageChange={false}
+          />
+        </>
       ) : (
         <p className="text-center py-8 text-muted-foreground">
           Brak opinii. Bądź pierwszy i napisz swoją opinię!
         </p>
       )}
-
-      <PaginationWithLinks
-        page={paginationData.page}
-        pageSize={paginationData.pageSize}
-        totalCount={paginationData.total}
-        scrollOnPageChange={false}
-      />
     </div>
   );
 };

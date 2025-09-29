@@ -5,7 +5,7 @@ import { ReviewItem } from '@/lib/userbooks';
 import { ThumbsDown, ThumbsUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { StarRating } from '../StarRating';
+import { StarRating } from '@/components/book/StarRating';
 import { Button } from '@/components/ui/button';
 import { useOptimisticVoteReview } from '@/lib/optimistics/useOptimisticVoteReview';
 import { setReviewVoteAction } from '@/app/(main)/books/actions/bookActions';

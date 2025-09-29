@@ -75,14 +75,15 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
             bookItem.badges.hasOtherEdition ? (
               <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm">Na półce (inne wyd.)</span>{' '}
-                  <LibraryBig size={16} />
+                  <span className="text-sm font-medium">
+                    Na półce (inne wyd.)
+                  </span>{' '}
                 </div>
               </div>
             ) : (
-              <div className="bg-badge-owned text-primary-foreground px-3 py-1 rounded-2xl ">
+              <div className="px-3 py-1 rounded-2xl bg-badge-owned text-primary border border-badge-owned-border">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm">Na półce</span>{' '}
+                  <span className="text-sm  font-medium">Na półce</span>{' '}
                   <LibraryBig size={16} />
                 </div>
               </div>
