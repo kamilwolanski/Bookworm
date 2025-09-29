@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
-import { Star, MoreVertical, LibraryBig, BookPlus } from 'lucide-react';
+import { Star, MoreVertical, LibraryBig, BookPlus, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { BookCardDTO } from '@/lib/userbooks';
 import {
@@ -19,9 +20,11 @@ import multipleUsersIcon from '@/app/assets/icons/multiple_users.svg';
 
 import AddBookStepperDialog from '@/components/book/addBookStepper/AddBookStepperDialog';
 import RateBookStepperDialog from '@/components/book/ratebook/RateBookStepperDialog';
+import LoginDialog from '../auth/LoginModal';
 
 export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   const router = useRouter();
+  const { status } = useSession();
 
   const { book, representativeEdition } = bookItem;
 
@@ -88,14 +91,28 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                 </div>
               </div>
             )
-          ) : (
+          ) : status === 'authenticated' ? (
             <AddBookStepperDialog
               bookId={book.id}
               bookSlug={book.slug}
               editions={book.editions}
               dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
-              userEditions={bookItem.userState.byEdition}
+              userEditions={bookItem.userState?.byEdition}
               userReviews={bookItem.ratings.userReviews}
+            />
+          ) : (
+            <LoginDialog
+              dialogTriggerBtn={
+                <button
+                  data-no-nav="true"
+                  className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer "
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">Dodaj</span>{' '}
+                    <Plus size={16} />
+                  </div>
+                </button>
+              }
             />
           )}
 
@@ -164,7 +181,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                 bookSlug={book.slug}
                 editions={book.editions}
                 dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
-                userEditions={bookItem.userState.byEdition}
+                userEditions={bookItem.userState?.byEdition}
                 onlyContent={true}
                 otherEditionsMode={true}
                 userReviews={bookItem.ratings.userReviews}

@@ -20,7 +20,7 @@ const AddBookStepperDialog = ({
   userReviews,
   onlyContent = false,
   otherEditionsMode = false,
-  userEditions = [],
+  userEditions,
   afterSuccess,
 }: {
   bookId: string;
@@ -35,6 +35,7 @@ const AddBookStepperDialog = ({
 }) => {
   const [open, setOpen] = useState(false);
   const closeDialog = () => setOpen(false);
+  console.log('userReviews dialog', userReviews)
   const Content = (
     <DialogContent
       className="sm:max-w-[625px] p-6 rounded-2xl
@@ -70,7 +71,7 @@ const AddBookStepperDialog = ({
       <DialogTrigger asChild>
         <button
           data-no-nav="true"
-          className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer"
+          className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer "
         >
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Dodaj</span>{' '}

@@ -147,9 +147,9 @@ export type BookCardDTO = {
     bookAverage: number | null;
     bookRatingCount: number | null;
     representativeEditionRating: number | null;
-    userReviews: Review[];
+    userReviews?: Review[];
   };
-  userState: {
+  userState?: {
     hasAnyEdition: boolean;
     ownedEditionCount: number;
     ownedEditionIds: string[];
@@ -521,16 +521,20 @@ export async function getBooksAll(
         bookAverage: b.averageRating ?? null,
         bookRatingCount: b.ratingCount ?? null,
         representativeEditionRating: userRating,
-        userReviews: b.editions.map((e) => e.reviews).flat(),
+        userReviews: userId
+          ? b.editions.map((e) => e.reviews).flat()
+          : undefined,
       },
-      userState: {
-        hasAnyEdition,
-        ownedEditionCount: ownedEditionIds.length,
-        ownedEditionIds,
-        primaryStatus,
-        byEdition,
-        notePreview,
-      },
+      userState: userId
+        ? {
+            hasAnyEdition,
+            ownedEditionCount: ownedEditionIds.length,
+            ownedEditionIds,
+            primaryStatus,
+            byEdition,
+            notePreview,
+          }
+        : undefined,
       badges: {
         onShelf: hasAnyEdition,
         hasOtherEdition: hasAnyEdition && !ownedEditionIds.includes(best.id),
