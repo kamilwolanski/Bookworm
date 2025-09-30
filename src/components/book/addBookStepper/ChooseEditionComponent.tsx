@@ -1,6 +1,7 @@
 'use client';
 
 import { EditionDto, UserEditionDto } from '@/lib/userbooks';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { LANGUAGES } from '@/app/admin/data';
 import Emoji from '@/components/shared/Emoji';
@@ -21,6 +22,8 @@ const ChooseEditonComponent = ({
   userEditions?: UserEditionDto[];
   goNext: () => void;
 }) => {
+  const { status } = useSession();
+
   const form = useFormContext<{ editionId: string }>();
 
   const userEditionIds = new Set(userEditions.map((e) => e.editionId));
@@ -28,7 +31,7 @@ const ChooseEditonComponent = ({
   const renderEditionRow = (edition: EditionDto) => {
     const isOnShelf = userEditionIds.has(edition.id);
 
-    const handleClick = (e: React.ChangeEvent) => {
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
       e.stopPropagation();
       form.setValue('editionId', edition.id);
@@ -45,23 +48,24 @@ const ChooseEditonComponent = ({
    
     `}
       >
-        {isOnShelf ? (
-          <div className="absolute right-4 top-4 z-10 bg-badge-owned text-primary-foreground px-3 py-1 rounded-2xl">
-            <div className="flex items-center gap-2">
-              <span className="text-sm">Na półce</span>
-              <LibraryBig size={16} />
+        {status === 'authenticated' &&
+          (isOnShelf ? (
+            <div className="absolute right-4 top-4 z-10 bg-badge-owned text-primary-foreground px-3 py-1 rounded-2xl">
+              <div className="flex items-center gap-2">
+                <span className="text-sm">Na półce</span>
+                <LibraryBig size={16} />
+              </div>
             </div>
-          </div>
-        ) : (
-          <button
-            className="absolute right-4 top-4 bg-badge-new text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer hover:bg-badge-new-hover"
-            onClick={handleClick}
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-sm">Dodaj</span> <Plus size={16} />
-            </div>
-          </button>
-        )}
+          ) : (
+            <button
+              className="absolute right-4 top-4 bg-badge-new text-secondary-foreground px-3 py-1 rounded-2xl cursor-pointer hover:bg-badge-new-hover"
+              onClick={handleClick}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm">Dodaj</span> <Plus size={16} />
+              </div>
+            </button>
+          ))}
 
         {/* WRAPPER – tylko jego dotyczy opacity dla disabled */}
         <div>

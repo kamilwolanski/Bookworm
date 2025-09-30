@@ -19,10 +19,10 @@ const BookFilters = async ({
   return (
     <div className="min-w-100 max-w-100">
       <GenreFilter bookGenres={bookGenres} genresParams={genresParams} />
+      <RatingFilter />
       {logged && (
         <>
           {/* <UserRatingFilter /> */}
-          <RatingFilter />
           {/* <StatusFilter /> */}
         </>
       )}

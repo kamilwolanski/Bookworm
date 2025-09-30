@@ -1,11 +1,9 @@
 import { BookList } from '@/components/book/BookList';
 import { redirect } from 'next/navigation';
 import { getBookGenres, getBooksAll } from '@/lib/userbooks';
-import { getBooksAction } from '@/app/(main)/books/actions/bookActions';
 import { getUserSession } from '@/lib/session';
 import BookFilters from '@/components/book/BookFilters';
 import { ReadingStatus } from '@prisma/client';
-import { MyFirstStepper } from '@/components/MyFirstStepper';
 
 type Props = {
   searchParams?: {
@@ -49,16 +47,6 @@ export default async function ShelfBooks({ searchParams }: Props) {
     userId
   );
 
-  console.log('bboks', items);
-  // const response = await getBooksAction({
-  //   currentPage: currentPage,
-  //   booksPerPage: ITEMS_PER_PAGE,
-  //   search,
-  //   genres: genresParams,
-  //   myShelf,
-  //   userRatings,
-  //   statuses,
-  // });
   const bookGenres = await getBookGenres('pl');
 
   return (
@@ -72,7 +60,6 @@ export default async function ShelfBooks({ searchParams }: Props) {
           totalCount={totalCount}
         />
       </div>
-      {/* <MyFirstStepper /> */}
     </div>
   );
 }

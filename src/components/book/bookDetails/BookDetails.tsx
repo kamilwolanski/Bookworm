@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 import { Badge } from '@/components/ui/badge';
 import {
   Star,
@@ -37,6 +38,7 @@ import {
 import { useOptimisticShelf } from '@/lib/optimistics/useOptimisticShelf';
 import { useOptimisticReadingStatus } from '@/lib/optimistics/useOptimisticReadingStatus';
 import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
+import LoginDialog from '@/components/auth/LoginDialog';
 
 const MediaFormatLabels: Record<MediaFormat, string> = {
   [MediaFormat.HARDCOVER]: 'Twarda oprawa',
@@ -80,6 +82,8 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
   const onShelf = userBook?.isOnShelf;
   const readingStatus = userBook?.readingstatus;
   const userRating = bookData.userBook?.userReview?.rating;
+
+  const { status } = useSession();
 
   const {
     statusOpt,
@@ -186,13 +190,28 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
               <p>
                 <b>Twoja ocena: </b>
               </p>
-              <StarRating
-                rating={userRating ?? 0}
-                interactive
-                bookId={book.id}
-                editionId={edition.id}
-                bookSlug={book.slug}
-              />
+              {status === 'authenticated' ? (
+                <StarRating
+                  rating={userRating ?? 0}
+                  interactive
+                  bookId={book.id}
+                  editionId={edition.id}
+                  bookSlug={book.slug}
+                />
+              ) : (
+                <LoginDialog
+                  dialogTriggerBtn={
+                    <button type="button" className="relative flex">
+                      {Array.from({ length: 5 }, (_, index) => (
+                        <Star
+                          key={index}
+                          className="w-6 h-6 text-gray-300 cursor-pointer"
+                        />
+                      ))}
+                    </button>
+                  }
+                />
+              )}
             </div>
             <div className="flex items-center gap-2 mt-4">
               <StarRating rating={book.averageRating ?? 0} />
@@ -235,34 +254,62 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
               </div>
             )}
             <div className="flex gap-3 mt-5">
-              <Button
-                className="cursor-pointer bg-badge-new text-secondary-foreground hover:bg-badge-new-hover"
-                onClick={handleToggle}
-                disabled={isPending || isChangingOpt}
-              >
-                {onShelfOptimistic ? (
-                  <>
-                    <Minus className="w-4 h-4 mr-2" />
-                    Usuń z półki
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Dodaj na półkę
-                  </>
-                )}
-              </Button>
-              <RateBookDialog
-                bookId={book.id}
-                editionId={edition.id}
-                dialogTitle={`Napisz opinie o : ${edition.title}`}
-                userReview={userBook?.userReview}
-              >
-                <Button variant="outline" className="bg-sidebar cursor-pointer">
-                  <Star className="w-4 h-4 mr-2" />
-                  {userBook?.userReview ? 'Edytuj ocenę' : 'Oceń'}
+              {status === 'authenticated' ? (
+                <Button
+                  className="cursor-pointer bg-badge-new text-secondary-foreground hover:bg-badge-new-hover"
+                  onClick={handleToggle}
+                  disabled={isPending || isChangingOpt}
+                >
+                  {onShelfOptimistic ? (
+                    <>
+                      <Minus className="w-4 h-4 mr-2" />
+                      Usuń z półki
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Dodaj na półkę
+                    </>
+                  )}
                 </Button>
-              </RateBookDialog>
+              ) : (
+                <LoginDialog
+                  dialogTriggerBtn={
+                    <Button className="cursor-pointer bg-badge-new text-secondary-foreground hover:bg-badge-new-hover">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Dodaj na półkę
+                    </Button>
+                  }
+                />
+              )}
+              {status === 'authenticated' ? (
+                <RateBookDialog
+                  bookId={book.id}
+                  editionId={edition.id}
+                  dialogTitle={`Napisz opinie o : ${edition.title}`}
+                  userReview={userBook?.userReview}
+                >
+                  <Button
+                    variant="outline"
+                    className="bg-sidebar cursor-pointer"
+                  >
+                    <Star className="w-4 h-4 mr-2" />
+                    {userBook?.userReview ? 'Edytuj ocenę' : 'Oceń'}
+                  </Button>
+                </RateBookDialog>
+              ) : (
+                <LoginDialog
+                  dialogTriggerBtn={
+                    <Button
+                      variant="outline"
+                      className="bg-sidebar cursor-pointer"
+                    >
+                      <Star className="w-4 h-4 mr-2" />
+                      oceń
+                    </Button>
+                  }
+                />
+              )}
             </div>
           </div>
           <Separator className="mt-5" />

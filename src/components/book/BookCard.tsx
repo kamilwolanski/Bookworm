@@ -20,7 +20,7 @@ import multipleUsersIcon from '@/app/assets/icons/multiple_users.svg';
 
 import AddBookStepperDialog from '@/components/book/addBookStepper/AddBookStepperDialog';
 import RateBookStepperDialog from '@/components/book/ratebook/RateBookStepperDialog';
-import LoginDialog from '../auth/LoginModal';
+import LoginDialog from '@/components/auth/LoginDialog';
 
 export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   const router = useRouter();
@@ -29,7 +29,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   const { book, representativeEdition } = bookItem;
 
   const [dialogType, setDialogType] = useState<
-    null | 'delete' | 'rate' | 'showOtherEditions'
+    null | 'delete' | 'rate' | 'showOtherEditions' | 'login'
   >(null);
   const openDialog = dialogType !== null;
 
@@ -149,17 +149,29 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                   </DropdownMenuItem>
                   {/* RATE */}
                   <DropdownMenuSeparator />
-
-                  <DropdownMenuItem
-                    className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
-                    data-no-nav="true"
-                    onClick={() => {
-                      setDialogType('rate');
-                    }}
-                  >
-                    <Star className="w-4 h-4 fill-current text-yellow-400" />
-                    Oceń
-                  </DropdownMenuItem>
+                  {status === 'authenticated' ? (
+                    <DropdownMenuItem
+                      className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
+                      data-no-nav="true"
+                      onClick={() => {
+                        setDialogType('rate');
+                      }}
+                    >
+                      <Star className="w-4 h-4 fill-current text-yellow-400" />
+                      Oceń
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem
+                      className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
+                      data-no-nav="true"
+                      onClick={() => {
+                        setDialogType('login');
+                      }}
+                    >
+                      <Star className="w-4 h-4 fill-current text-yellow-400" />
+                      Oceń
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -188,6 +200,8 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                 afterSuccess={() => setDialogType(null)}
               />
             )}
+
+            {dialogType === 'login' && <LoginDialog onlyContent />}
           </Dialog>
         </div>
 

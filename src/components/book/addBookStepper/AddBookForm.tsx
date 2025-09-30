@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { defineStepper } from '@/components/ui/Stepper';
 import { Form } from '@/components/ui/form';
@@ -46,6 +47,7 @@ const AddBookForm = ({
 }) => {
   const boundAction = addBookToShelfAction.bind(null, bookId);
   const stepper = useStepper();
+  const { status } = useSession();
   const { form, isPending, handleSubmit } = useActionForm<AddBookToShelfInput>({
     action: boundAction,
     schema: stepper.current.schema,
@@ -61,7 +63,7 @@ const AddBookForm = ({
   const isLast = stepper.isLast;
 
   const editionIdWatch = form.watch('editionId');
-  console.log(userReviews, 'userReviews')
+  console.log(userReviews, 'userReviews');
   const choosenReview = userReviews?.find(
     (ur) => ur.editionId === editionIdWatch
   );
@@ -148,41 +150,43 @@ const AddBookForm = ({
               </FormProvider>
             ),
           })}
-          <div className="flex justify-end gap-4">
-            <Button
-              variant="secondary"
-              onClick={stepper.prev}
-              disabled={stepper.isFirst}
-              className="cursor-pointer"
-            >
-              Wstecz
-            </Button>
+          {status === 'authenticated' && (
+            <div className="flex justify-end gap-4">
+              <Button
+                variant="secondary"
+                onClick={stepper.prev}
+                disabled={stepper.isFirst}
+                className="cursor-pointer"
+              >
+                Wstecz
+              </Button>
 
-            {isLast ? (
-              <Button
-                type="button"
-                onClick={handleSubmit}
-                className="cursor-pointer"
-                disabled={isPending}
-              >
-                Zapisz
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                disabled={isDisabled}
-                className="cursor-pointer"
-                onClick={async () => {
-                  if (isLast) return;
-                  const valid = await form.trigger();
-                  if (!valid) return;
-                  stepper.next();
-                }}
-              >
-                Dalej
-              </Button>
-            )}
-          </div>
+              {isLast ? (
+                <Button
+                  type="button"
+                  onClick={handleSubmit}
+                  className="cursor-pointer"
+                  disabled={isPending}
+                >
+                  Zapisz
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  disabled={isDisabled}
+                  className="cursor-pointer"
+                  onClick={async () => {
+                    if (isLast) return;
+                    const valid = await form.trigger();
+                    if (!valid) return;
+                    stepper.next();
+                  }}
+                >
+                  Dalej
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </form>
     </Form>

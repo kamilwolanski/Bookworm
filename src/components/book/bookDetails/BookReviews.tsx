@@ -1,10 +1,11 @@
 'use client';
-
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import { ReviewItem } from '@/lib/userbooks';
 import BookReview from '@/components/book/bookDetails/BookReview';
+import LoginDialog from '@/components/auth/LoginDialog';
 
 const BookReviews = ({
   bookId,
@@ -31,21 +32,34 @@ const BookReviews = ({
     total: number;
   };
 }) => {
+  const { status } = useSession();
+
   return (
     <div className="bg-sidebar shadow-lg rounded-xl p-8">
       <div className="flex items-center justify-between mb-6">
         <h3 className="font-semibold">Opinie ({paginationData.total})</h3>
-
-        <RateBookDialog
-          bookId={bookId}
-          editionId={editionId}
-          dialogTitle={`Napisz opinie o : ${editionTitle}`}
-          userReview={userReview}
-        >
-          <Button variant="outline" className="bg-sidebar cursor-pointer">
-            {userReview ? 'Edytuj swoją opinię' : 'Napisz opinię'}
-          </Button>
-        </RateBookDialog>
+        {status === 'authenticated' ? (
+          <RateBookDialog
+            bookId={bookId}
+            editionId={editionId}
+            dialogTitle={`Napisz opinie o : ${editionTitle}`}
+            userReview={userReview}
+          >
+            <Button variant="outline" className="bg-sidebar cursor-pointer">
+              {userReview && userReview?.body
+                ? 'Edytuj swoją opinię'
+                : 'Napisz opinię'}
+            </Button>
+          </RateBookDialog>
+        ) : (
+          <LoginDialog
+            dialogTriggerBtn={
+              <Button variant="outline" className="bg-sidebar cursor-pointer">
+                Napisz opinię
+              </Button>
+            }
+          />
+        )}
       </div>
       {reviews.length > 0 ? (
         <>

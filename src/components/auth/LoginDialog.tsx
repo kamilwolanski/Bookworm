@@ -15,10 +15,9 @@ const LoginDialog = ({
   dialogTriggerBtn,
 }: {
   onlyContent?: boolean;
-  dialogTriggerBtn: ReactNode;
+  dialogTriggerBtn?: ReactNode;
 }) => {
   const pathname = usePathname();
-
 
   const Content = (
     <DialogContent
