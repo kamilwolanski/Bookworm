@@ -205,14 +205,14 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
           </Dialog>
         </div>
 
-        <div className="bg-gradient-to-t from-black/90 via-black/50 to-black/40 backdrop-blur-sm absolute bottom-0 left-0 px-3 pt-2 pb-3 w-full flex justify-between min-h-32 rounded-b-lg">
+        <div className="bg-gradient-to-t from-black/90 via-black/50 to-black/40 backdrop-blur-sm absolute bottom-0 left-0 px-3 pt-2 pb-3 w-full flex justify-between lg:min-h-32 rounded-b-lg">
           <div className="flex justify-between w-full">
             <div className="w-full flex flex-col justify-between">
               <div className="pb-1">
-                <h3 className="font-semibold text-lg">
+                <h3 className="font-semibold text-md md:text-lg">
                   {bookItem.representativeEdition.title}
                 </h3>
-                <p className="text-md">
+                <p className="text-xs lg:text-base">
                   {bookItem.book.authors.map((author) => author.name)}
                 </p>
               </div>

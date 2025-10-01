@@ -17,7 +17,7 @@ const BookFilters = async ({
   const logged = !!session;
 
   return (
-    <div className="min-w-100 max-w-100">
+    <div className="lg:w-100">
       <GenreFilter bookGenres={bookGenres} genresParams={genresParams} />
       <RatingFilter />
       {logged && (
