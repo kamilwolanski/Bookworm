@@ -50,7 +50,7 @@ const ChooseEditonComponent = ({
       >
         {status === 'authenticated' &&
           (isOnShelf ? (
-            <div className="absolute right-4 top-4 z-10 bg-badge-owned text-primary-foreground px-3 py-1 rounded-2xl">
+            <div className="absolute right-4 top-4 z-10 px-3 py-1 rounded-2xl bg-badge-owned text-primary border border-badge-owned-border">
               <div className="flex items-center gap-2">
                 <span className="text-sm">Na półce</span>
                 <LibraryBig size={16} />

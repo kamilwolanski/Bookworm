@@ -41,10 +41,9 @@ export default async function RootLayout({
           themes={['light', 'dark']}
         >
           <SessionProvider session={session}>
-            {/* <Sidebar /> */}
             <div className="flex-1 flex flex-col">
               <Topbar />
-              <main className="flex-1 p-8 lg:p-16 pt-8">{children}</main>
+              <main className="flex-1">{children}</main>
             </div>
           </SessionProvider>
         </ThemeProvider>

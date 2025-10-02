@@ -40,7 +40,7 @@ export default function Topbar() {
     pathname.includes(path) ? 'text-link! focus:text-link' : '';
 
   return (
-    <header className="flex items-center justify-between gap-4 px-4 py-3 lg:px-8 lg:py-4 border-b border-border bg-background/80 backdrop-blur">
+    <header className="flex items-center justify-between gap-4 px-4 py-3 lg:px-8 lg:py-4 border-b border-border bg-card backdrop-blur">
       {/* Left: logo */}
       <Link href="/" className="flex items-center gap-3 shrink-0">
         <Image
@@ -63,7 +63,7 @@ export default function Topbar() {
               <NavigationMenuLink asChild>
                 <Link
                   href="/books"
-                  className={`font-bold focus:text-white focus:bg-transparent focus-visible:bg-transparent ${isActive('/books')}`}
+                  className={`font-bold focus:bg-transparent  ${isActive('/books')}`}
                 >
                   Książki
                 </Link>
