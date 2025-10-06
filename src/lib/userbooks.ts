@@ -250,7 +250,7 @@ type GetBookReviewsOptions = {
   onlyWithContent?: boolean;
 };
 
-function statusPriority(s: ReadingStatus): number {
+export function statusPriority(s: ReadingStatus): number {
   // READING > WANT_TO_READ > READ > ABANDONED
   switch (s) {
     case 'READING':
@@ -410,6 +410,9 @@ export async function getBooksAll(
           },
         },
         editions: {
+          orderBy: {
+            publicationDate: 'desc',
+          },
           select: {
             id: true,
             language: true,

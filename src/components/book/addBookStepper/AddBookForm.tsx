@@ -52,7 +52,7 @@ const AddBookForm = ({
     action: boundAction,
     schema: stepper.current.schema,
     defaultValues: {
-      editionId: '',
+      editionId: otherEditionsMode ? '' : editions[0].id,
       readingStatus: 'WANT_TO_READ',
       rating: undefined,
     },
@@ -61,6 +61,13 @@ const AddBookForm = ({
   const isDisabled = !form.watch('editionId');
   const currentIndex = utils.getIndex(stepper.current.id);
   const isLast = stepper.isLast;
+  const onlyOption = editions.length === 1;
+
+  useEffect(() => {
+    if (onlyOption && !otherEditionsMode) {
+      stepper.goTo('statusReview');
+    }
+  }, [onlyOption, otherEditionsMode, stepper]);
 
   const editionIdWatch = form.watch('editionId');
   console.log(userReviews, 'userReviews');
@@ -152,14 +159,16 @@ const AddBookForm = ({
           })}
           {status === 'authenticated' && (
             <div className="flex justify-end gap-4">
-              <Button
-                variant="secondary"
-                onClick={stepper.prev}
-                disabled={stepper.isFirst}
-                className="cursor-pointer"
-              >
-                Wstecz
-              </Button>
+              {!onlyOption && (
+                <Button
+                  variant="secondary"
+                  onClick={stepper.prev}
+                  disabled={stepper.isFirst}
+                  className="cursor-pointer"
+                >
+                  Wstecz
+                </Button>
+              )}
 
               {isLast ? (
                 <Button

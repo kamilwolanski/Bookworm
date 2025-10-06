@@ -29,7 +29,6 @@ export function HeroSection() {
 
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
-
               <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
 
@@ -54,20 +53,28 @@ export function HeroSection() {
             )}
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2 text-sm text-muted-foreground">
+          <div className="flex flex-wrap justify-center items-center text-sm text-muted-foreground">
             Popularne wyszukiwania:
-            <button className="text-primary hover:underline">
-              &quot;fantasy&quot;
-            </button>
-            <button className="text-primary hover:underline">
-              &quot;Tolkien&quot;
-            </button>
-            <button className="text-primary hover:underline">
-              &quot;thriller&quot;
-            </button>
-            <button className="text-primary hover:underline">
-              &quot;Helion&quot;
-            </button>
+            <Link href="/books?genre=fantasy">
+              <Button className="ms-5 px-1" variant="link">
+                &quot;fantasy&quot;
+              </Button>
+            </Link>
+            <Link href="/books?search=tolkien">
+              <Button className="px-1" variant="link">
+                &quot;Tolkien&quot;
+              </Button>
+            </Link>
+            <Link href="/books?genre=thriller">
+              <Button className="px-1" variant="link">
+                &quot;thriller&quot;
+              </Button>
+            </Link>
+            <Link href="/books?search=chlopki">
+              <Button className="px-1" variant="link">
+                &quot;chlopki&quot;
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -75,7 +82,7 @@ export function HeroSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center">
             <div className="flex justify-center mb-3">
-              <Book className="w-12 h-12 text-primary" />
+              <Book className="w-12 h-12 text-accent-2" />
             </div>
             <div className="text-3xl font-bold">50,000+</div>
             <div className="text-muted-foreground">Książek w bazie</div>
@@ -83,7 +90,7 @@ export function HeroSection() {
 
           <div className="text-center">
             <div className="flex justify-center mb-3">
-              <Users className="w-12 h-12 text-primary" />
+              <Users className="w-12 h-12 text-accent-2" />
             </div>
             <div className="text-3xl font-bold">25,000+</div>
             <div className="text-muted-foreground">Aktywnych czytelników</div>
@@ -91,7 +98,7 @@ export function HeroSection() {
 
           <div className="text-center">
             <div className="flex justify-center mb-3">
-              <Star className="w-12 h-12 text-primary" />
+              <Star className="w-12 h-12 text-accent-2" />
             </div>
             <div className="text-3xl font-bold">100,000+</div>
             <div className="text-muted-foreground">Ocen i recenzji</div>

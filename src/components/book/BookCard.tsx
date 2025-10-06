@@ -28,6 +28,8 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
 
   const { book, representativeEdition } = bookItem;
 
+  // console.log('book', book)
+
   const [dialogType, setDialogType] = useState<
     null | 'delete' | 'rate' | 'showOtherEditions' | 'login'
   >(null);
@@ -78,7 +80,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
             bookItem.badges.hasOtherEdition ? (
               <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">
+                  <span className="text-xs sm:text-sm font-medium">
                     Na półce (inne wyd.)
                   </span>{' '}
                 </div>
@@ -86,7 +88,9 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
             ) : (
               <div className="px-3 py-1 rounded-2xl bg-badge-owned text-primary border border-badge-owned-border">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm  font-medium">Na półce</span>{' '}
+                  <span className="text-xs sm:text-sm  font-medium">
+                    Na półce
+                  </span>{' '}
                   <LibraryBig size={16} />
                 </div>
               </div>
@@ -108,7 +112,9 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                   className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer "
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">Dodaj</span>{' '}
+                    <span className="text-xs sm:text-sm font-medium">
+                      Dodaj
+                    </span>{' '}
                     <Plus size={16} />
                   </div>
                 </button>

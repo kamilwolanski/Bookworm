@@ -47,7 +47,7 @@ const RateBookStepperForm = ({
       action: boundAction,
       schema: stepper.current.schema,
       defaultValues: {
-        editionId: '',
+        editionId: editions[0].id,
         rating: undefined,
       },
       onSuccess: afterSuccess,
@@ -56,10 +56,17 @@ const RateBookStepperForm = ({
   const currentIndex = utils.getIndex(stepper.current.id);
   const isLast = stepper.isLast;
   const editionIdWatch = form.watch('editionId');
+  const onlyOption = editions.length === 1;
 
   const choosenReview = userReviews?.find(
     (ur) => ur.editionId === editionIdWatch
   );
+
+  useEffect(() => {
+    if (onlyOption) {
+      stepper.goTo('review');
+    }
+  }, [onlyOption, stepper]);
 
   useEffect(() => {
     if (choosenReview) {
@@ -133,14 +140,16 @@ const RateBookStepperForm = ({
             ),
           })}
           <div className="flex justify-end gap-4">
-            <Button
-              variant="secondary"
-              onClick={stepper.prev}
-              disabled={stepper.isFirst}
-              className="cursor-pointer"
-            >
-              Wstecz
-            </Button>
+            {!onlyOption && (
+              <Button
+                variant="secondary"
+                onClick={stepper.prev}
+                disabled={stepper.isFirst}
+                className="cursor-pointer"
+              >
+                Wstecz
+              </Button>
+            )}
 
             {isLast ? (
               <Button
