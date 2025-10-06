@@ -40,7 +40,7 @@ const RateBookForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit} className="space-y-6 p-6 rounded-lg">
+      <form onSubmit={handleSubmit} className="space-y-6 sm:p-6 rounded-lg">
         <nav aria-label="Add book Steps" className="group my-4"></nav>
         <div className={`space-y-10`}>
           <FormProvider {...form}>

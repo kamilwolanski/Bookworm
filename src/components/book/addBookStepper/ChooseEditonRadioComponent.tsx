@@ -76,13 +76,13 @@ const ChooseEditonRadioComponent = ({
                 />
               </div>
 
-              <div className="text-dialog-foreground ms-4 h-full flex flex-col justify-between py-3">
+              <div className="text-dialog-foreground ms-4 h-full flex flex-col justify-between py-3 mt-8 sm:mt-0">
                 <div>
                   <h2 className="leading-tight">
                     <b>{edition.title}</b>
                   </h2>
                   {edition.subtitle && (
-                    <h3 className="text-sm text-foreground">
+                    <h3 className="text-xs sm:text-sm text-foreground">
                       {edition.subtitle}
                     </h3>
                   )}
@@ -90,7 +90,7 @@ const ChooseEditonRadioComponent = ({
 
                 <div>
                   {edition.publishers?.length > 0 && (
-                    <h3 className="text-sm">
+                    <h3 className="text-xs sm:text-sm">
                       Wydawnictwo:{' '}
                       <b>
                         {edition.publishers
@@ -100,7 +100,7 @@ const ChooseEditonRadioComponent = ({
                     </h3>
                   )}
 
-                  <h4 className="flex items-center gap-2 text-sm">
+                  <h4 className="flex items-center gap-2 text-xs sm:text-sm">
                     Język:{' '}
                     <Emoji>
                       {LANGUAGES.find((l) => l.value === edition.language)
@@ -113,7 +113,7 @@ const ChooseEditonRadioComponent = ({
                   </h4>
 
                   {edition.publicationDate && (
-                    <h4 className="text-sm">
+                    <h4 className="text-xs sm:text-sm">
                       Data wydania:{' '}
                       <b>
                         {new Date(edition.publicationDate).toLocaleDateString(
@@ -129,10 +129,14 @@ const ChooseEditonRadioComponent = ({
                   )}
 
                   {edition.isbn13 && (
-                    <h4 className="text-sm">ISBN13: {edition.isbn13}</h4>
+                    <h4 className="text-xs sm:text-sm">
+                      ISBN13: {edition.isbn13}
+                    </h4>
                   )}
                   {edition.isbn10 && (
-                    <h4 className="text-sm">ISBN10: {edition.isbn10}</h4>
+                    <h4 className="text-xs sm:text-sm">
+                      ISBN10: {edition.isbn10}
+                    </h4>
                   )}
                 </div>
               </div>

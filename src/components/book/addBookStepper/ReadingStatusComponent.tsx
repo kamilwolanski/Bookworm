@@ -58,29 +58,31 @@ const ReadingStatusComponent = () => {
               defaultValue={field.value}
               className="flex"
             >
-              {readingStatuses.map((rStatus) => {
-                const { value, icon: Icon, label, color } = rStatus;
-                const radioId = `readingStatus-${value}`;
-                const isSelected = field.value === value;
-                return (
-                  <Label
-                    key={radioId}
-                    htmlFor={radioId}
-                    className={`flex flex-col flex-1 border rounded-md p-3 cursor-pointer ${isSelected ? 'border-primary bg-primary/20' : 'border-muted bg-white/50'}`}
-                  >
-                    <RadioGroupItem
-                      id={radioId}
-                      value={value}
-                      className="hidden"
-                      type="button"
-                    />
-                    <Icon size={25} className={color} />
-                    <span className="text-center mt-5 text-dialog-foreground">
-                      {label}
-                    </span>
-                  </Label>
-                );
-              })}
+              <div className="grid grid-cols-2 sm:grid-cols-4 w-full gap-2">
+                {readingStatuses.map((rStatus) => {
+                  const { value, icon: Icon, label, color } = rStatus;
+                  const radioId = `readingStatus-${value}`;
+                  const isSelected = field.value === value;
+                  return (
+                    <Label
+                      key={radioId}
+                      htmlFor={radioId}
+                      className={`flex flex-col flex-1 border rounded-md p-3 cursor-pointer ${isSelected ? 'border-primary bg-primary/20' : 'border-muted bg-white/50'}`}
+                    >
+                      <RadioGroupItem
+                        id={radioId}
+                        value={value}
+                        className="hidden"
+                        type="button"
+                      />
+                      <Icon size={25} className={color} />
+                      <span className="text-center mt-5 text-dialog-foreground">
+                        {label}
+                      </span>
+                    </Label>
+                  );
+                })}
+              </div>
             </RadioGroup>
           </FormItem>
         )}
