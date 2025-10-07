@@ -1,4 +1,4 @@
-import { BookCardDTO, CommentDto, GenreDTO, statusPriority } from './userbooks';
+import { BookCardDTO, GenreDTO, statusPriority } from './userbooks';
 import prisma from '@/lib/prisma';
 import { Book, ReadingStatus } from '@prisma/client';
 import { subDays } from 'date-fns';
@@ -12,11 +12,6 @@ export type CreateBookData = Omit<
   'id' | 'addedAt' | 'averageRating' | 'ratingCount'
 >;
 
-export type BookDetailsDTO = Book & {
-  genres?: GenreDTO[];
-  comments: CommentDto[];
-};
-
 export type RatePayload = {
   bookId: string;
   editionId: string;
@@ -28,6 +23,12 @@ export type RateData = {
   averageRating: number;
   ratingCount: number;
   userRating: number;
+};
+
+export type OtherEditionDto = {
+  id: string;
+  coverUrl: string | null;
+  title: string | null;
 };
 
 export async function getAllBooks(
@@ -121,94 +122,6 @@ export async function getAllBooks(
     books: booksDto,
     totalCount,
   };
-}
-
-export async function getBook(
-  bookId: string,
-  loggedUserId: string
-): Promise<BookDetailsDTO> {
-  const book = await prisma.book.findFirstOrThrow({
-    where: { id: bookId },
-    include: {
-      genres: {
-        include: {
-          genre: {
-            include: {
-              translations: { where: { language: 'pl' } },
-            },
-          },
-        },
-      },
-      comments: {
-        include: {
-          author: true,
-          ratings: {
-            select: {
-              value: true,
-              userId: true,
-            },
-          },
-          replies: {
-            include: {
-              author: true,
-              ratings: {
-                select: {
-                  value: true,
-                  userId: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  const commentsWithScores = book.comments.map((comment) => {
-    const totalScore = comment.ratings.reduce((sum, r) => sum + r.value, 0);
-
-    const userRating =
-      comment.ratings.find((r) => r.userId === loggedUserId)?.value ?? null;
-
-    const replies = comment.replies.map((reply) => {
-      const replyScore = reply.ratings.reduce((sum, r) => sum + r.value, 0);
-      const replyUserRating =
-        reply.ratings.find((r) => r.userId === loggedUserId)?.value ?? null;
-
-      return {
-        ...reply,
-        totalScore: replyScore,
-        userRating: replyUserRating,
-        replies: [],
-      };
-    });
-
-    return {
-      ...comment,
-      totalScore,
-      userRating, // <- to będzie np. 1, -1, lub null jeśli brak
-      replies,
-    };
-  });
-
-  const genresDto: GenreDTO[] = book?.genres.map((genre) => {
-    const translation = genre.genre.translations[0];
-
-    return {
-      id: genre.genre.id,
-      slug: genre.genre.slug,
-      language: translation.language,
-      name: translation.name,
-    };
-  });
-
-  const enrichedBook = {
-    ...book,
-    genres: genresDto,
-    comments: commentsWithScores,
-  };
-
-  return enrichedBook;
 }
 
 export async function findUniqueBook(bookId: string) {
@@ -773,4 +686,31 @@ export async function getTopBooksWithTopEdition(
   // 3) Zachowujemy kolejność wg popularności książek
   // (groupBy już zwrócił posortowane; Promise.all utrzyma indeksy)
   return results;
+}
+
+export async function getOtherEditions(
+  bookSlug: string,
+  editionId: string
+): Promise<OtherEditionDto[]> {
+  const otherEditions = await prisma.book.findUnique({
+    where: {
+      slug: bookSlug,
+    },
+    include: {
+      editions: {
+        where: {
+          NOT: {
+            id: editionId,
+          },
+        },
+        select: {
+          id: true,
+          title: true,
+          coverUrl: true,
+        },
+      },
+    },
+  });
+
+  return otherEditions?.editions ?? [];
 }

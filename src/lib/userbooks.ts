@@ -6,7 +6,6 @@ import {
   ReadingStatus,
   Review,
   ReviewVoteType,
-  User,
   UserBook,
 } from '@prisma/client';
 import prisma from './prisma';
@@ -30,17 +29,6 @@ export type RecentBookDto = {
     title: string;
     imageUrl: string | null;
   };
-};
-
-export type CommentDto = Comment & {
-  author: User;
-  totalScore: number;
-  userRating: number | null;
-  ratings: {
-    value: number;
-    userId: string;
-  }[];
-  replies: CommentDto[];
 };
 
 export interface DisplayEdition {
@@ -214,12 +202,6 @@ export type BookDetailsDto = {
   } | null;
 };
 
-export type OtherEditionDto = {
-  id: string;
-  coverUrl: string | null;
-  title: string | null;
-};
-
 export type VoteState = {
   myVote?: ReviewVoteType | null;
   likes: number;
@@ -372,7 +354,7 @@ export async function getBooksAll(
     }),
     ...(statuses.length > 0 &&
       userId && {
-        userBook: { some: { userId, readingStatus: { in: statuses } } },
+        userEditions: { some: { userId, readingStatus: { in: statuses } } },
       }),
   };
 
@@ -692,33 +674,6 @@ export async function getBook(editionId: string): Promise<BookDetailsDto> {
       : null,
   };
   return dto;
-}
-
-export async function getOtherEditions(
-  bookSlug: string,
-  editionId: string
-): Promise<OtherEditionDto[]> {
-  const otherEditions = await prisma.book.findUnique({
-    where: {
-      slug: bookSlug,
-    },
-    include: {
-      editions: {
-        where: {
-          NOT: {
-            id: editionId,
-          },
-        },
-        select: {
-          id: true,
-          title: true,
-          coverUrl: true,
-        },
-      },
-    },
-  });
-
-  return otherEditions?.editions ?? [];
 }
 
 export async function removeBookFromShelf(

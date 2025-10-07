@@ -52,7 +52,7 @@ const UserRatingFilter = () => {
           </AccordionTrigger>
 
           <AccordionContent className="">
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-5">
               <div className="flex items-center gap-3">
                 <Checkbox
                   id="5"

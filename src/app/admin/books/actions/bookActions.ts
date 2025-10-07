@@ -1,6 +1,5 @@
 'use server';
 
-import { BookDetailsDTO, getBook } from '@/lib/books';
 import {
   notFoundResponse,
   serverErrorResponse,
@@ -26,22 +25,6 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY!,
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
-
-export const getBookAction: Action<[string], BookDetailsDTO> = async (
-  bookId
-) => {
-  const session = await getUserSession();
-  const book = await getBook(bookId, session.user.id);
-
-  if (!book) return notFoundResponse(`Nie znaleziono książki o id: ${bookId}`);
-
-  return {
-    isError: false,
-    status: 'success',
-    httpStatus: 200,
-    data: book,
-  };
-};
 
 export const createBookAction: Action<[unknown, FormData]> = async (
   currentState,

@@ -52,7 +52,7 @@ export default function UserRatingFilter() {
             Ocena
           </AccordionTrigger>
           <AccordionContent>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-5">
               <RadioGroup value={ratingInParam} onValueChange={handleOnChange}>
                 {options.map(({ value, active, label }) => {
                   const id = `rating-filter-${value}`;

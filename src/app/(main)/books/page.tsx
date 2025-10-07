@@ -60,8 +60,6 @@ export default async function ShelfBooks({ searchParams }: Props) {
     userId
   );
 
-  console.log('items', items)
-
   const bookGenres = await getBookGenres('pl');
 
   return (

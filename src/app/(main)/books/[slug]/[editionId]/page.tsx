@@ -1,5 +1,6 @@
 import BookDetails from '@/components/book/bookDetails/BookDetails';
-import { getBook, getBookReviews, getOtherEditions } from '@/lib/userbooks';
+import { getBook, getBookReviews } from '@/lib/userbooks';
+import { getOtherEditions } from '@/lib/books';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OtherBooks from '@/components/book/bookDetails/OtherBooks';
 import BookReviews from '@/components/book/bookDetails/BookReviews';

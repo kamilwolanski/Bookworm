@@ -8,16 +8,14 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
 import { ReadingStatus } from '@prisma/client';
 
 const StatusFilter = () => {
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
 
-  const [selectedStatuses, setSelectedStatuses] = useState<ReadingStatus[]>(
-    (params.get('status')?.toUpperCase().split(',') as ReadingStatus[]) ?? []
-  );
+  let selectedStatuses =
+    (params.get('status')?.toUpperCase().split(',') as ReadingStatus[]) ?? [];
   const router = useRouter();
 
   const handleOnChange = (id: ReadingStatus) => {
@@ -36,7 +34,7 @@ const StatusFilter = () => {
       newParams.set('page', '1');
     }
 
-    setSelectedStatuses(updatedStatuses);
+    selectedStatuses = updatedStatuses;
     router.push(`?${newParams.toString()}`);
   };
 
@@ -53,7 +51,7 @@ const StatusFilter = () => {
           </AccordionTrigger>
 
           <AccordionContent className="">
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-5">
               <div className="flex items-center gap-3">
                 <Checkbox
                   id={ReadingStatus.READ}
