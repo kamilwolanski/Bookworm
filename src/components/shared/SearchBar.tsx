@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -23,7 +24,7 @@ export function SearchBar({
   // synchronizacja ze stanem URL
   useEffect(() => {
     setValue(searchFromUrl);
-  }, [searchFromUrl]);
+  }, []);
 
   // debounce + aktualizacja URL
   useEffect(() => {

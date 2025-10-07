@@ -43,11 +43,14 @@ enum ReviewVoteType {
 
 // ---------- People & publishers ----------
 model Person {
-  id       String   @id @default(uuid())
-  name     String
-  slug     String   @unique
-  sortName String?
-  aliases  String[] @default([])
+  id              String   @id @default(uuid())
+  name            String
+  slug            String   @unique
+  sortName        String?
+  aliases         String[] @default([])
+  name_search     String?  @db.Text
+  sortName_search String?  @db.Text
+  aliasesSearch   String[] @db.Text
 
   bio            String?
   imageUrl       String?
@@ -66,6 +69,8 @@ model Person {
 
   @@index([name])
   @@index([sortName])
+  @@index([name_search])
+  @@index([sortName_search])
 }
 
 model Publisher {
@@ -101,8 +106,9 @@ model User {
 // ---------- Books & editions ----------
 model Book {
   id                   String    @id @default(uuid())
-  slug                 String   @unique
+  slug                 String    @unique
   title                String
+  title_search         String?   @db.Text
   addedAt              DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
   firstPublicationDate DateTime?
@@ -112,11 +118,12 @@ model Book {
   authors  BookAuthor[]
   editions Edition[]
 
-  genres   BookGenre[]
+  genres       BookGenre[]
   userEditions UserBook[]
 
   @@index([addedAt])
   @@index([title])
+  @@index([title_search])
 }
 
 model BookAuthor {
@@ -148,6 +155,8 @@ model Edition {
   coverPublicId   String?
   title           String?
   subtitle        String?
+  title_search    String?      @db.Text
+  subtitle_search String?      @db.Text
   description     String?
 
   contributors EditionContributor[]
@@ -155,7 +164,7 @@ model Edition {
 
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  userBooks  UserBook[]
+  userBooks UserBook[]
   reviews   Review[]
 
   @@index([bookId])
@@ -164,6 +173,8 @@ model Edition {
   @@index([bookId, language, publicationDate])
   @@index([bookId, language, title])
   @@index([bookId, language, subtitle])
+  @@index([title_search])
+  @@index([subtitle_search])
 }
 
 model EditionPublisher {
@@ -206,10 +217,12 @@ model GenreTranslation {
   genreId String
   genre   Genre  @relation(fields: [genreId], references: [id])
 
-  language String
-  name     String
+  language    String
+  name        String
+  name_search String? @db.Text
 
   @@unique([genreId, language])
+  @@index([name_search])
 }
 
 model BookGenre {
@@ -229,7 +242,7 @@ model Review {
   userId    String
   editionId String
 
-  rating   Int?     @db.SmallInt // 1..5 (ograniczenie waliduj w kodzie albo CHECK w DB)
+  rating   Int?    @db.SmallInt // 1..5 (ograniczenie waliduj w kodzie albo CHECK w DB)
   body     String? // treść recenzji (plain/markdown)
   spoilers Boolean @default(false)
 

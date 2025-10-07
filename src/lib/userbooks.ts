@@ -8,8 +8,9 @@ import {
   ReviewVoteType,
   UserBook,
 } from '@prisma/client';
-import prisma from './prisma';
-import { getUserSession } from './session';
+import prisma from '@/lib/prisma';
+import { getUserSession } from '@/lib/session';
+import { normalizeForSearch } from '@/lib/utils';
 
 export type GenreDTO = {
   id: string;
@@ -181,7 +182,7 @@ export type BookDetailsDto = {
     slug: string;
     title: string;
     authors: { name: string; slug: string; order: number | null }[];
-    genres: (GenreTranslation & { slug: string })[];
+    genres: (Omit<GenreTranslation, 'name_search'> & { slug: string })[];
     ratingCount: number | null;
     averageRating: number | null;
   };
@@ -264,6 +265,7 @@ export async function getBooksAll(
   const includeUnrated = userRatings.includes('none');
   const numericRatings = userRatings.filter((r) => r !== 'none').map(Number);
   const ratingFilters: RatingFilter[] = [];
+  const normalized = search?.trim() ? normalizeForSearch(search) : '';
 
   if (numericRatings.length > 0 && userId) {
     ratingFilters.push({
@@ -282,46 +284,41 @@ export async function getBooksAll(
     });
   }
 
-  const searchConditions = search?.trim()
+  const searchConditions = normalized
     ? {
         OR: [
-          { title: { contains: search, mode: 'insensitive' as const } },
+          // Tytuł książki
+          { title_search: { contains: normalized } },
+
+          // Polskie tytuły / podtytuły edycji
           {
             editions: {
               some: {
                 language: 'pl',
                 OR: [
-                  { title: { contains: search, mode: 'insensitive' as const } },
-                  {
-                    subtitle: {
-                      contains: search,
-                      mode: 'insensitive' as const,
-                    },
-                  },
+                  { title_search: { contains: normalized } },
+                  { subtitle_search: { contains: normalized } },
                 ],
               },
             },
           },
+
+          // Autorzy: name / sortName / aliases (znormalizowane)
           {
             authors: {
               some: {
                 person: {
                   OR: [
-                    {
-                      name: { contains: search, mode: 'insensitive' as const },
-                    },
-                    {
-                      sortName: {
-                        contains: search,
-                        mode: 'insensitive' as const,
-                      },
-                    },
-                    { aliases: { has: search } },
+                    { name_search: { contains: normalized } },
+                    { sortName_search: { contains: normalized } },
+                    { aliasesSearch: { has: normalized } }, // szybkie sprawdzenie w tablicy
                   ],
                 },
               },
             },
           },
+
+          // Gatunki (polskie tłumaczenia)
           {
             genres: {
               some: {
@@ -329,7 +326,7 @@ export async function getBooksAll(
                   translations: {
                     some: {
                       language: 'pl',
-                      name: { contains: search, mode: 'insensitive' as const },
+                      name_search: { contains: normalized },
                     },
                   },
                 },
