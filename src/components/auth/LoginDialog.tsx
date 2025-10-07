@@ -33,7 +33,7 @@ const LoginDialog = ({
         </DialogTitle>
       </DialogHeader>
       <div className="flex justify-center p-5">
-        <div className="lg:w-2/3">
+        <div className="w-full">
           <GoogleLoginButton callbackUrl={pathname} />
         </div>
       </div>

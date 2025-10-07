@@ -61,7 +61,7 @@ export default function Sidebar() {
         <div className="mb-20 mx-auto">
           <Button
             className="cursor-pointer"
-            onClick={() => signOut({ callbackUrl: '/login' })}
+            onClick={() => signOut({ callbackUrl: '/' })}
           >
             Wyloguj się
           </Button>

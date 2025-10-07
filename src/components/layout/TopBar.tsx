@@ -31,6 +31,7 @@ import ModeToggle from '@/components/layout/ModeToggle';
 import logo from '@/app/assets/logo.png';
 import { Separator } from '../ui/separator';
 import { Book } from 'lucide-react';
+import LoginDialog from '@/components/auth/LoginDialog';
 
 export default function Topbar() {
   const { data: session, status } = useSession();
@@ -96,7 +97,7 @@ export default function Topbar() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="cursor-pointer"
-                    onClick={() => signOut({ callbackUrl: '/login' })}
+                    onClick={() => signOut({ callbackUrl: '/' })}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     Wyloguj się
@@ -106,9 +107,7 @@ export default function Topbar() {
             ) : null}
           </div>
         ) : (
-          <Link href="/login">
-            <Button className="w-full">Zaloguj się</Button>
-          </Link>
+          <LoginDialog dialogTriggerBtn={<Button>Zaloguj się</Button>} />
         )}
         <ModeToggle />
       </div>
@@ -141,7 +140,7 @@ export default function Topbar() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="cursor-pointer"
-                    onClick={() => signOut({ callbackUrl: '/login' })}
+                    onClick={() => signOut({ callbackUrl: '/' })}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     Wyloguj się
@@ -151,9 +150,7 @@ export default function Topbar() {
             )}
           </>
         ) : (
-          <Link href="/login">
-            <Button size="sm">Zaloguj się</Button>
-          </Link>
+          <LoginDialog dialogTriggerBtn={<Button>Zaloguj się</Button>} />
         )}
 
         <Sheet>
@@ -198,7 +195,7 @@ export default function Topbar() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => signOut({ callbackUrl: '/login' })}
+                      onClick={() => signOut({ callbackUrl: '/' })}
                     >
                       Wyloguj
                     </Button>
