@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import AddPersonForm from '@/components/admin/person/AddPersonForm';
+import { SearchBar } from '@/components/shared/SearchBar';
 
 export default function AddPublisherDialog() {
   const [open, setOpen] = useState(false);
@@ -20,6 +21,9 @@ export default function AddPublisherDialog() {
       <DialogTrigger asChild>
         <Button className="cursor-pointer self-start">Dodaj osobę +</Button>
       </DialogTrigger>
+      <div className="ms-10 w-2/6">
+        <SearchBar placeholder="wyszukaj osobę" />
+      </div>
       <DialogContent className="sm:max-w-[825px]">
         <DialogHeader>
           <DialogTitle>Dodaj nową osobę</DialogTitle>

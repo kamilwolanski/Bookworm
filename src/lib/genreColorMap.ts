@@ -1,6 +1,4 @@
-import { GenreSlug } from '@prisma/client';
-
-export const genreColorMap: Record<keyof typeof GenreSlug, string> = {
+export const genreColorMap: Record<string, string> = {
   FANTASY: 'bg-purple-500',
   SCIENCE_FICTION: 'bg-blue-600',
   THRILLER: 'bg-red-700',
@@ -53,7 +51,6 @@ export const genreColorMap: Record<keyof typeof GenreSlug, string> = {
   CONTEMPORARY_FICTION: 'bg-cyan-500',
 };
 
-export function getColor(genre: GenreSlug) {
-  const key = GenreSlug[genre] as keyof typeof GenreSlug;
-  return genreColorMap[key];
+export function getColor(genre: string) {
+  return genreColorMap[genre];
 }

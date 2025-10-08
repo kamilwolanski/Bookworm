@@ -122,6 +122,7 @@ interface MultiSelectProps
   searchValue?: string;
   onSearchChange?: (q: string) => void;
   searchPlaceholder?: string;
+  value: string[];
 }
 
 export const MultiSelect = React.forwardRef<
@@ -138,13 +139,13 @@ export const MultiSelect = React.forwardRef<
       animation = 0,
       maxCount = 3,
       modalPopover = false,
-      asChild = false,
       className,
       showSelectedValues = true,
       contentClassName,
       searchValue,
       onSearchChange,
       searchPlaceholder,
+      value,
       ...props
     },
     ref
@@ -169,10 +170,10 @@ export const MultiSelect = React.forwardRef<
     };
 
     React.useEffect(() => {
-      if (props.value) {
-        setSelectedValues(props.value);
+      if (value) {
+        setSelectedValues(value);
       }
-    }, [props.value]);
+    }, [value]);
 
     const toggleOption = (option: string) => {
       const newSelectedValues = selectedValues.includes(option)
@@ -195,16 +196,6 @@ export const MultiSelect = React.forwardRef<
       const newSelectedValues = selectedValues.slice(0, maxCount);
       setSelectedValues(newSelectedValues);
       onValueChange(newSelectedValues);
-    };
-
-    const toggleAll = () => {
-      if (selectedValues.length === options.length) {
-        handleClear();
-      } else {
-        const allValues = options.map((option) => option.value);
-        setSelectedValues(allValues);
-        onValueChange(allValues);
-      }
     };
 
     return (

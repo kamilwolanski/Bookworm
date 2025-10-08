@@ -219,7 +219,9 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                   {bookItem.representativeEdition.title}
                 </h3>
                 <p className="text-xs lg:text-base">
-                  {bookItem.book.authors.map((author) => author.name)}
+                  {bookItem.book.authors
+                    .map((author) => author.name)
+                    .join(', ')}
                 </p>
               </div>
 

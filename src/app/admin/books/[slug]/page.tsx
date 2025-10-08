@@ -1,6 +1,5 @@
 import AddEditionDialog from '@/components/admin/edition/AddEditionDialog';
 import AdminEditionsTable from '@/components/admin/edition/AdminEditionsTable';
-import { SearchBar } from '@/components/shared/SearchBar';
 import { getBookBySlug } from '@/lib/adminBooks';
 import { getAllEditionsBasic } from '@/lib/editions';
 
@@ -13,7 +12,6 @@ export default async function BookEdition({ params }: BookPageProps) {
 
   const book = await getBookBySlug(slug);
   const response = await getAllEditionsBasic(book.id);
-  console.log('response', response);
 
   return (
     <div className="min-h-full flex flex-col">
@@ -23,9 +21,6 @@ export default async function BookEdition({ params }: BookPageProps) {
           bookSlug={slug}
           bookTitle={book.title}
         />
-        <div className="ms-10 w-full">
-          <SearchBar placeholder="wyszukaj wydanie" />
-        </div>
       </div>
       <h1 className="mt-5 text-2xl">
         <b>{book.title}</b>

@@ -161,14 +161,17 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
             </div>
             {edition.subtitle && <h3>{edition.subtitle}</h3>}
             <div className="mt-3">
-              {book.authors.map((a) => (
-                <Link
-                  key={a.slug}
-                  href={`/author/${a.slug}`}
-                  className="underline underline-offset-2 text-link hover:text-link-hover"
-                >
-                  {a.name}
-                </Link>
+              {book.authors.map((a, i) => (
+                <>
+                  <Link
+                    key={a.slug}
+                    href={`/author/${a.slug}`}
+                    className="underline underline-offset-2 text-link hover:text-link-hover"
+                  >
+                    {a.name}
+                  </Link>
+                  {i < book.authors.length - 1 && ', '}
+                </>
               ))}
             </div>
 

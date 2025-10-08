@@ -175,9 +175,8 @@ export async function updateBookRating(
 
 export async function getTheNewestEditions(userId?: string, take: number = 5) {
   const newestEditions = await prisma.edition.findMany({
-    where: { publicationDate: { not: null } },
     orderBy: {
-      publicationDate: 'desc',
+      createdAt: 'desc',
     },
     select: {
       id: true,

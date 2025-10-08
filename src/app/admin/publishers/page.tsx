@@ -1,13 +1,12 @@
 import AdminPublishersTable from '@/components/admin/publisher/AdminPublishersTable';
-import { SearchBar } from '@/components/shared/SearchBar';
 import { getAllPublishers } from '@/lib/publishers';
 import AddPublisherDialog from '@/components/admin/publisher/AddPublisherDialog';
 
 type Props = {
-  searchParams?: {
+  searchParams?: Promise<{
     page?: string;
     search?: string;
-  };
+  }>;
 };
 
 const ITEMS_PER_PAGE = 16;
@@ -21,9 +20,6 @@ export default async function PublishersPage({ searchParams }: Props) {
     <div className="min-h-full flex flex-col">
       <div className="flex">
         <AddPublisherDialog />
-        <div className="ms-10 w-full">
-          <SearchBar placeholder="wyszukaj wydawcę" />
-        </div>
       </div>
 
       <div className="flex flex-1">

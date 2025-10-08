@@ -1,8 +1,23 @@
 import { Person } from '@prisma/client';
 import prisma from '@/lib/prisma';
 
-export type CreatePersonData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>;
-export type UpdatePersonData = Omit<Person, 'createdAt' | 'updatedAt'>;
+export type CreatePersonData = Omit<
+  Person,
+  | 'id'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'sortName_search'
+  | 'name_search'
+  | 'aliasesSearch'
+>;
+export type UpdatePersonData = Omit<
+  Person,
+  | 'createdAt'
+  | 'updatedAt'
+  | 'sortName_search'
+  | 'name_search'
+  | 'aliasesSearch'
+>;
 
 export async function findPersonBySlug(slug: string) {
   return prisma.person.findUnique({

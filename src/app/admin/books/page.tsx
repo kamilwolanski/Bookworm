@@ -1,18 +1,17 @@
 import { getBookGenres } from '@/lib/userbooks';
-import { SearchBar } from '@/components/shared/SearchBar';
 
 import AdminBooksTable from '@/components/admin/book/AdminBooksTable';
 import AddBookDialog from '@/components/admin/book/AddBookDialog';
 import { getAllBooksBasic } from '@/lib/adminBooks';
 
 type Props = {
-  searchParams?: {
+  searchParams?: Promise<{
     page?: string;
     search?: string;
     genre?: string;
     rating?: string;
     status?: string;
-  };
+  }>;
 };
 
 const ITEMS_PER_PAGE = 16;
@@ -37,9 +36,6 @@ export default async function BooksPage({ searchParams }: Props) {
     <div className="min-h-full flex flex-col">
       <div className="flex">
         <AddBookDialog bookGenres={bookGenres} />
-        <div className="ms-10 w-full">
-          <SearchBar placeholder="wyszukaj książke" />
-        </div>
       </div>
 
       <div className="flex flex-1">

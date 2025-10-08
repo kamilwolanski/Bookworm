@@ -23,7 +23,7 @@ export type UpdateBookData = {
 
 export type BookBasicDTO = Omit<
   Book,
-  'averageRating' | 'ratingCount' | 'updatedAt'
+  'averageRating' | 'ratingCount' | 'updatedAt' | 'title_search'
 > & {
   genres: GenreDTO[];
   authors: {

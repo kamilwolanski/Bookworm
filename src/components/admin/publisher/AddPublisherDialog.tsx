@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import AddPublisherForm from './AddPublisherForm';
+import { SearchBar } from '@/components/shared/SearchBar';
 
 export default function AddPublisherDialog() {
   const [open, setOpen] = useState(false);
@@ -20,6 +21,9 @@ export default function AddPublisherDialog() {
       <DialogTrigger asChild>
         <Button className="cursor-pointer self-start">Dodaj wydawcę +</Button>
       </DialogTrigger>
+      <div className="ms-10 w-2/6">
+        <SearchBar placeholder="wyszukaj wydawcę" />
+      </div>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Dodaj nowego wydawcę</DialogTitle>

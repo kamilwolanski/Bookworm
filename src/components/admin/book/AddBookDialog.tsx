@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import AddBookForm from '@/components/admin/book/AddBookForm';
 import { GenreDTO } from '@/lib/userbooks';
+import { SearchBar } from '@/components/shared/SearchBar';
 
 const AddBookDialog = ({ bookGenres }: { bookGenres: GenreDTO[] }) => {
   const [open, setOpen] = useState(false);
@@ -21,6 +22,9 @@ const AddBookDialog = ({ bookGenres }: { bookGenres: GenreDTO[] }) => {
       <DialogTrigger asChild>
         <Button className="cursor-pointer self-start">Dodaj książkę +</Button>
       </DialogTrigger>
+      <div className="ms-10 w-2/6">
+        <SearchBar placeholder="wyszukaj książke" />
+      </div>
       <DialogContent className="sm:max-w-[825px]">
         <DialogHeader>
           <DialogTitle>Dodaj nową książkę</DialogTitle>

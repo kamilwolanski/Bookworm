@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { X, XCircle } from 'lucide-react';
 import { useMemo } from 'react';
-import { cn } from '@/lib/utils';
 import { polishGenres } from '@/app/admin/data';
 
 type KeyMulti = 'genre' | 'status' | 'userrating';

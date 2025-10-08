@@ -35,7 +35,7 @@ const AddBookStepperDialog = ({
 }) => {
   const [open, setOpen] = useState(false);
   const closeDialog = () => setOpen(false);
-  console.log('userReviews dialog', userReviews);
+
   const Content = (
     <DialogContent
       className="sm:max-w-[625px] p-6 rounded-2xl

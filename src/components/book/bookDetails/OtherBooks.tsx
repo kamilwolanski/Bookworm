@@ -1,4 +1,4 @@
-import { OtherEditionDto } from '@/lib/userbooks';
+import { OtherEditionDto } from '@/lib/books';
 import Image from 'next/image';
 import Link from 'next/link';
 

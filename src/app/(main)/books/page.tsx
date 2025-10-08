@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import ActiveFilters from '@/components/shared/ActiveFilters';
 
 type Props = {
-  searchParams?: {
+  searchParams?: Promise<{
     page?: string;
     search?: string;
     genre?: string;
@@ -27,7 +27,7 @@ type Props = {
     rating?: string;
     status?: string;
     myshelf?: string;
-  };
+  }>;
 };
 
 const ITEMS_PER_PAGE = 18;

@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import AddEditionForm from '@/components/admin/edition/AddEditionForm';
+import { SearchBar } from '@/components/shared/SearchBar';
 
 const AddEditionDialog = ({
   bookId,
@@ -28,6 +29,9 @@ const AddEditionDialog = ({
       <DialogTrigger asChild>
         <Button className="cursor-pointer self-start">Dodaj wydanie +</Button>
       </DialogTrigger>
+      <div className="ms-10 w-2/6">
+        <SearchBar placeholder="wyszukaj wydanie" />
+      </div>
       <DialogContent className="sm:max-w-[825px]">
         <DialogHeader>
           <DialogTitle>Dodaj nowe wydanie książki: {bookTitle}</DialogTitle>

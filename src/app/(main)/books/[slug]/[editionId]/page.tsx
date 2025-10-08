@@ -7,9 +7,9 @@ import BookReviews from '@/components/book/bookDetails/BookReviews';
 
 interface BookPageProps {
   params: Promise<{ editionId: string; slug: string }>;
-  searchParams?: {
-    page?: string;
-  };
+  searchParams?: Promise<{
+    page: string;
+  }>;
 }
 
 export default async function BookEdition({
