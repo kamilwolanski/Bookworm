@@ -13,7 +13,7 @@ export default async function RootLayout({
 }>) {
   return (
     <div className="flex-1 flex flex-col">
-      <main className="flex-1 p-8 lg:p-16 pt-8">{children}</main>
+      <main className="flex-1 p-5 sm:p-8 lg:p-16 pt-4 sm:pt-8">{children}</main>
     </div>
   );
 }

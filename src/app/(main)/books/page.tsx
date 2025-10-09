@@ -69,7 +69,7 @@ export default async function ShelfBooks({ searchParams }: Props) {
           <BookFilters bookGenres={bookGenres} genresParams={genresParams} />
         </div>
         <div className="md:ms-16 flex flex-col min-h-[80vh] w-full">
-          <div className="flex items-center mb-10 gap-3">
+          <div className="flex items-center mb-6 sm:mb-10 gap-3">
             <div className="w-full lg:max-w-lg">
               <Sheet>
                 <SearchBar placeholder="Wyszukaj książkę" />
