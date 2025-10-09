@@ -77,8 +77,8 @@ export default async function ShelfBooks({ searchParams }: Props) {
                   <ActiveFilters />
                 </div>
                 <SheetContent
-                  side="bottom"
-                  className="max-h-screen overflow-y-scroll"
+                  side="right"
+                  className="max-h-screen w-full overflow-y-scroll"
                 >
                   <SheetHeader className="pb-0">
                     <SheetTitle className="text-center">
@@ -100,7 +100,7 @@ export default async function ShelfBooks({ searchParams }: Props) {
                     />
                   </div>
 
-                  <SheetFooter className="bg-white sticky bottom-0">
+                  <SheetFooter className="bg-card sticky bottom-0">
                     <SheetClose asChild>
                       <Button className="cursor-pointer">
                         Pokaż wyniki ({totalCount})

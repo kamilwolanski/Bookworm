@@ -67,7 +67,7 @@ const ReadingStatusComponent = () => {
                     <Label
                       key={radioId}
                       htmlFor={radioId}
-                      className={`flex flex-col flex-1 border rounded-md p-3 cursor-pointer ${isSelected ? 'border-primary bg-primary/20' : 'border-muted bg-white/50'}`}
+                      className={`flex flex-col flex-1 border rounded-md p-3 cursor-pointer ${isSelected ? 'border-primary bg-primary/20' : 'border-muted bg-card'}`}
                     >
                       <RadioGroupItem
                         id={radioId}

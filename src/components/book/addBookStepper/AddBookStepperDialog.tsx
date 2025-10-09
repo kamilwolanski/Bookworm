@@ -41,7 +41,7 @@ const AddBookStepperDialog = ({
       className="sm:max-w-[625px] p-6 rounded-2xl
       border border-border
       shadow-2xl
-      bg-background/95 backdrop-blur"
+      bg-background/95 backdrop-blur max-h-[85vh] overflow-y-scroll md:overflow-y-auto md:max-h-fit"
       data-no-nav="true"
     >
       <DialogHeader>
