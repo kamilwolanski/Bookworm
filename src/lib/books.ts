@@ -407,7 +407,7 @@ export async function getBestRatedBooks(userId?: string, take: number = 5) {
 
   const items: BookCardDTO[] = topBooks.map((b) => {
     const newestEdition = b.editions[0];
-    const userRating = userId ? newestEdition.reviews[0].rating : null;
+    const userRating = userId ? newestEdition.reviews[0]?.rating : null;
 
     const userEditions = b.userEditions ?? [];
     const hasAnyEdition = userEditions.length > 0;
