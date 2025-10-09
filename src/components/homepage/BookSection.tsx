@@ -19,7 +19,9 @@ export function BookSection({
   variant,
 }: BookSectionProps) {
   return (
-    <section className={`py-18 px-6 ${variant === 'white' ? 'bg-card' : ''}`}>
+    <section
+      className={`py-9 md:py-18 px-6 ${variant === 'white' ? 'bg-card' : ''}`}
+    >
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="flex items-center justify-between mb-8">
@@ -37,7 +39,7 @@ export function BookSection({
         </div>
 
         {/* Books Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-5">
           {bookItems.map((item) => (
             <BookCard bookItem={item} key={item.book.id} />
           ))}

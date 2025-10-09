@@ -42,7 +42,7 @@ const RateBookDialog = ({
       data-no-nav="true"
     >
       <DialogHeader>
-        <DialogTitle className="text-xl tracking-tight text-dialog-foreground">
+        <DialogTitle className="text-xl tracking-tight text-dialog-foreground px-8">
           {dialogTitle}
         </DialogTitle>
       </DialogHeader>
