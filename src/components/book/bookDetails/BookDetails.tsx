@@ -265,12 +265,12 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                 >
                   {onShelfOptimistic ? (
                     <>
-                      <Minus className="w-4 h-4 mr-2" />
+                      <Minus className="w-4 h-4 mr-1" />
                       Usuń z półki
                     </>
                   ) : (
                     <>
-                      <Plus className="w-4 h-4 mr-2" />
+                      <Plus className="w-4 h-4 mr-1" />
                       Dodaj na półkę
                     </>
                   )}
@@ -279,7 +279,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                 <LoginDialog
                   dialogTriggerBtn={
                     <Button className="cursor-pointer bg-badge-new text-secondary-foreground hover:bg-badge-new-hover">
-                      <Plus className="w-4 h-4 mr-2" />
+                      <Plus className="w-4 h-4 mr-1" />
                       Dodaj na półkę
                     </Button>
                   }
@@ -296,7 +296,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                     variant="outline"
                     className="bg-sidebar cursor-pointer"
                   >
-                    <Star className="w-4 h-4 mr-2" />
+                    <Star className="w-4 h-4 mr-1" />
                     {userBook?.userReview ? 'Edytuj ocenę' : 'Oceń'}
                   </Button>
                 </RateBookDialog>
@@ -307,7 +307,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                       variant="outline"
                       className="bg-sidebar cursor-pointer"
                     >
-                      <Star className="w-4 h-4 mr-2" />
+                      <Star className="w-4 h-4 mr-1" />
                       oceń
                     </Button>
                   }

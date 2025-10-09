@@ -20,10 +20,10 @@ import { FormProvider } from 'react-hook-form';
 import { Review } from '@prisma/client';
 
 const { useStepper, steps, utils } = defineStepper(
-  { id: 'edition', label: 'Wybór wydania', schema: chooseEditionSchema },
+  { id: 'edition', label: 'Wydanie', schema: chooseEditionSchema },
   {
     id: 'statusReview',
-    label: 'Status i recenzja',
+    label: 'Opinia',
     schema: addBookToShelfSchema,
   }
 );
