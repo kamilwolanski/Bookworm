@@ -28,7 +28,7 @@ const LoginDialog = ({
       data-no-nav="true"
     >
       <DialogHeader>
-        <DialogTitle className="text-xl font-semibold tracking-tight text-dialog-foreground">
+        <DialogTitle className="text-lg sm:text-xl font-semibold tracking-tight text-dialog-foreground px-8">
           Zaloguj się, aby kontynuować
         </DialogTitle>
       </DialogHeader>

@@ -44,7 +44,7 @@ const ChooseEditonComponent = ({
       <Link
         key={edition.id}
         href={`/books/${bookSlug}/${edition.id}`}
-        className={`relative flex items-start gap-4 rounded-md p-3 border transition cursor-pointer hover:border-primary/50 bg-white/50 hover:bg-white/50 
+        className={`relative flex items-start gap-4 rounded-md p-3 border transition cursor-pointer hover:border-primary/50 bg-card hover:bg-card/50 
    
     `}
       >

@@ -88,13 +88,13 @@ const AddBookForm = ({
         <nav aria-label="Add book Steps" className="group my-4">
           <ol
             role="tablist"
-            className="flex items-center justify-between gap-2"
+            className="flex items-center justify-between gap-1 sm:gap-2"
             aria-orientation="horizontal"
           >
             {!otherEditionsMode &&
               stepper.all.map((step, index, array) => (
                 <React.Fragment key={step.id}>
-                  <li className="flex items-center gap-4 flex-shrink-0">
+                  <li className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
                     <Button
                       type="button"
                       role="tab"
@@ -146,7 +146,6 @@ const AddBookForm = ({
                     goNext={stepper.next}
                   />
                 )}
-                ,
               </FormProvider>
             ),
             statusReview: () => (

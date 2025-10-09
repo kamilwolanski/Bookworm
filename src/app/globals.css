@@ -136,9 +136,9 @@
   --card: oklch(0.2931 0 0);
   --card-foreground: oklch(1 0 0);
   --accent-2: oklch(72.3% 0.219 149.579);
-  --accent: oklch(0.97 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
   --accent-foreground-2: oklch(1 0 0);
-  --accent-foreground: oklch(0.145 0 0);
   --surface-primary: oklch(66.766% 0.17693 143.987);
   --surface-primary-foreground: oklch(1 0 0);
   --surface-primary-muted-foreground: oklch(96.2% 0.044 156.743);

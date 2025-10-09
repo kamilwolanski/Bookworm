@@ -35,7 +35,7 @@ const ChooseEditonRadioComponent = ({
         key={edition.id}
         htmlFor={radioId}
         className={`relative flex items-start gap-4 rounded-md p-3 border transition
-    ${isSelected ? 'border-primary bg-primary/20' : 'border-muted bg-white/50'}
+    ${isSelected ? 'border-primary bg-primary/20' : 'border-muted bg-card/50'}
     ${isDisabled ? 'pointer-events-none' : 'cursor-pointer hover:border-primary/50'}`}
       >
         {/* BADGES – poza wrapperem z opacity, więc zawsze w 100% widoczne */}

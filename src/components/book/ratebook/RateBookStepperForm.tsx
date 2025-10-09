@@ -81,13 +81,13 @@ const RateBookStepperForm = ({
         <nav aria-label="Add book Steps" className="group my-4">
           <ol
             role="tablist"
-            className="flex items-center justify-between gap-2"
+            className="flex items-center justify-between gap-1 sm:gap-2"
             aria-orientation="horizontal"
           >
             {showSteps &&
               stepper.all.map((step, index, array) => (
                 <React.Fragment key={step.id}>
-                  <li className="flex items-center gap-4 flex-shrink-0">
+                  <li className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
                     <Button
                       type="button"
                       role="tab"
@@ -109,7 +109,9 @@ const RateBookStepperForm = ({
                     >
                       {index + 1}
                     </Button>
-                    <span className="text-sm font-medium">{step.label}</span>
+                    <span className="text-xs sm:text-sm font-medium">
+                      {step.label}
+                    </span>
                   </li>
                   {index < array.length - 1 && (
                     <Separator
