@@ -25,7 +25,6 @@ const LoginDialog = ({
       border border-border
       shadow-2xl
       bg-background/95 backdrop-blur"
-      data-no-nav="true"
     >
       <DialogHeader>
         <DialogTitle className="text-lg sm:text-xl font-semibold tracking-tight text-dialog-foreground px-8">

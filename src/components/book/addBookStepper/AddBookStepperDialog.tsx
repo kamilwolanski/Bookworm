@@ -42,7 +42,6 @@ const AddBookStepperDialog = ({
       border border-border
       shadow-2xl
       bg-background/95 backdrop-blur max-h-[85vh] overflow-y-scroll md:overflow-y-auto md:max-h-fit"
-      data-no-nav="true"
     >
       <DialogHeader>
         <DialogTitle className="text-lg sm:text-xl font-semibold tracking-tight text-dialog-foreground px-8">
@@ -70,7 +69,6 @@ const AddBookStepperDialog = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button
-          data-no-nav="true"
           className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer "
         >
           <div className="flex items-center gap-2">

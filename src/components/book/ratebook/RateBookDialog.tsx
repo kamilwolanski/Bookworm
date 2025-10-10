@@ -39,7 +39,6 @@ const RateBookDialog = ({
       shadow-2xl
       bg-background/95 backdrop-blur
    "
-      data-no-nav="true"
     >
       <DialogHeader>
         <DialogTitle className="text-xl tracking-tight text-dialog-foreground px-8">
