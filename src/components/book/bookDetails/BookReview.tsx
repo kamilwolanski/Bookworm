@@ -124,7 +124,7 @@ const BookReview = ({
         <div className="flex items-center gap-2">
           <Button
             type="button"
-            variant="ghost"
+            variant="noStyle"
             disabled={disabled}
             size="sm"
             aria-pressed={likeActive}
@@ -141,7 +141,7 @@ const BookReview = ({
 
           <Button
             type="button"
-            variant="ghost"
+            variant="noStyle"
             disabled={disabled}
             size="sm"
             aria-pressed={dislikeActive}
