@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Star, MoreVertical, LibraryBig, BookPlus, Plus } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { BookCardDTO } from '@/lib/userbooks';
 import {
   DropdownMenu,
@@ -21,9 +21,10 @@ import multipleUsersIcon from '@/app/assets/icons/multiple_users.svg';
 import AddBookStepperDialog from '@/components/book/addBookStepper/AddBookStepperDialog';
 import RateBookStepperDialog from '@/components/book/ratebook/RateBookStepperDialog';
 import LoginDialog from '@/components/auth/LoginDialog';
+import Link from 'next/link';
 
 export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
-  const router = useRouter();
+  // const router = useRouter();
   const { status } = useSession();
 
   const { book, representativeEdition } = bookItem;
@@ -35,218 +36,224 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   >(null);
   const openDialog = dialogType !== null;
 
-  const handleCardClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    // ignoruj kliknięcia z elementów interaktywnych / oznaczonych jako no-nav
-    const target = e.target as HTMLElement;
+  // const handleCardClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
+  //   // ignoruj kliknięcia z elementów interaktywnych / oznaczonych jako no-nav
+  //   const target = e.target as HTMLElement;
 
-    if (
-      e.defaultPrevented ||
-      e.button !== 0 || // tylko lewy przycisk
-      e.metaKey ||
-      e.altKey ||
-      e.ctrlKey ||
-      e.shiftKey || // modyfikatory
-      target.closest('button, a, [role="button"], [data-no-nav="true"]')
-    ) {
-      return;
-    }
+  //   if (
+  //     e.defaultPrevented ||
+  //     e.button !== 0 || // tylko lewy przycisk
+  //     e.metaKey ||
+  //     e.altKey ||
+  //     e.ctrlKey ||
+  //     e.shiftKey || // modyfikatory
+  //     target.closest('button, a, [role="button"], [data-no-nav="true"]')
+  //   ) {
+  //     return;
+  //   }
 
-    router.push(`/books/${book.slug}/${representativeEdition.id}`);
-  };
+  //   router.push(`/books/${book.slug}/${representativeEdition.id}`);
+  // };
 
   return (
-    <Card
-      className="cursor-pointer border-none h-full shadow-md hover:shadow-xl p-1 rounded-xl"
-      onClick={handleCardClick}
-      key={book.id}
-    >
-      <div className="relative aspect-[3/4] w-full">
-        {bookItem.representativeEdition.coverUrl ? (
-          <Image
-            src={bookItem.representativeEdition.coverUrl}
-            alt={`Okładka książki ${bookItem.representativeEdition.title}`}
-            fill
-            className="object-cover rounded-lg"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          />
-        ) : (
-          <div className="h-full w-full bg-gray-200 flex items-center justify-center rounded-lg">
-            Brak okładki
-          </div>
-        )}
-
-        <div className="absolute top-0 left-0 p-2 w-full flex justify-between items-center gap-2">
-          {bookItem.badges.onShelf ? (
-            bookItem.badges.hasOtherEdition ? (
-              <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs sm:text-sm font-medium">
-                    Na półce (inne wyd.)
-                  </span>{' '}
-                </div>
-              </div>
-            ) : (
-              <div className="px-3 py-1 rounded-2xl bg-badge-owned text-primary border border-badge-owned-border">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs sm:text-sm  font-medium">
-                    Na półce
-                  </span>{' '}
-                  <LibraryBig size={16} />
-                </div>
-              </div>
-            )
-          ) : status === 'authenticated' ? (
-            <AddBookStepperDialog
-              bookId={book.id}
-              bookSlug={book.slug}
-              editions={book.editions}
-              dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
-              userEditions={bookItem.userState?.byEdition}
-              userReviews={bookItem.ratings.userReviews}
+    <Link href={`/books/${book.slug}/${representativeEdition.id}`}>
+      <Card
+        className="cursor-pointer border-none h-full shadow-md hover:shadow-xl p-1 rounded-xl"
+        // onClick={handleCardClick}
+        key={book.id}
+      >
+        <div className="relative aspect-[3/4] w-full">
+          {bookItem.representativeEdition.coverUrl ? (
+            <Image
+              src={bookItem.representativeEdition.coverUrl}
+              alt={`Okładka książki ${bookItem.representativeEdition.title}`}
+              fill
+              className="object-cover rounded-lg"
+              sizes="(max-width: 768px) 100vw, 33vw"
             />
           ) : (
-            <LoginDialog
-              dialogTriggerBtn={
-                <button
-                  data-no-nav="true"
-                  className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer "
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs sm:text-sm font-medium">
-                      Dodaj
-                    </span>{' '}
-                    <Plus size={16} />
-                  </div>
-                </button>
-              }
-            />
+            <div className="h-full w-full bg-gray-200 flex items-center justify-center rounded-lg">
+              Brak okładki
+            </div>
           )}
 
-          <Dialog
-            open={openDialog}
-            onOpenChange={(o) => !o && setDialogType(null)}
-          >
-            <div data-no-nav="true">
-              <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild className="w-8" data-no-nav="true">
-                  <button
-                    type="button"
-                    className="bg-card-menu-trigger hover:bg-card-menu-trigger-hover rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"
-                    aria-label="Więcej akcji"
-                    data-no-nav="true"
-                  >
-                    <MoreVertical
-                      className="text-popover-foreground"
-                      size={18}
-                    />
-                  </button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="start" data-no-nav="true">
-                  <DropdownMenuItem
-                    className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
-                    data-no-nav="true"
-                    onClick={() => {
-                      setDialogType('showOtherEditions');
-                    }}
-                  >
-                    <BookPlus className={`w-4 h-4`} />
-                    Pokaż inne wydania
-                  </DropdownMenuItem>
-                  {/* RATE */}
-                  <DropdownMenuSeparator />
-                  {status === 'authenticated' ? (
-                    <DropdownMenuItem
-                      className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
-                      data-no-nav="true"
-                      onClick={() => {
-                        setDialogType('rate');
-                      }}
-                    >
-                      <Star className="w-4 h-4 fill-current text-yellow-400" />
-                      Oceń
-                    </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuItem
-                      className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
-                      data-no-nav="true"
-                      onClick={() => {
-                        setDialogType('login');
-                      }}
-                    >
-                      <Star className="w-4 h-4 fill-current text-yellow-400" />
-                      Oceń
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-
-            {dialogType === 'rate' && (
-              <RateBookStepperDialog
-                bookId={bookItem.book.id}
-                dialogTitle="Oceń książkę"
-                onlyContent={true}
-                afterSuccess={() => setDialogType(null)}
-                editions={book.editions}
-                userReviews={bookItem.ratings.userReviews}
-              />
-            )}
-
-            {dialogType === 'showOtherEditions' && (
+          <div className="absolute top-0 left-0 p-2 w-full flex justify-between items-center gap-2">
+            {bookItem.badges.onShelf ? (
+              bookItem.badges.hasOtherEdition ? (
+                <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs sm:text-sm font-medium">
+                      Na półce (inne wyd.)
+                    </span>{' '}
+                  </div>
+                </div>
+              ) : (
+                <div className="px-3 py-1 rounded-2xl bg-badge-owned text-primary border border-badge-owned-border">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs sm:text-sm  font-medium">
+                      Na półce
+                    </span>{' '}
+                    <LibraryBig size={16} />
+                  </div>
+                </div>
+              )
+            ) : status === 'authenticated' ? (
               <AddBookStepperDialog
                 bookId={book.id}
                 bookSlug={book.slug}
                 editions={book.editions}
                 dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
                 userEditions={bookItem.userState?.byEdition}
-                onlyContent={true}
-                otherEditionsMode={true}
                 userReviews={bookItem.ratings.userReviews}
-                afterSuccess={() => setDialogType(null)}
+              />
+            ) : (
+              <LoginDialog
+                dialogTriggerBtn={
+                  <button
+                    data-no-nav="true"
+                    className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer "
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs sm:text-sm font-medium">
+                        Dodaj
+                      </span>{' '}
+                      <Plus size={16} />
+                    </div>
+                  </button>
+                }
               />
             )}
 
-            {dialogType === 'login' && <LoginDialog onlyContent />}
-          </Dialog>
-        </div>
+            <Dialog
+              open={openDialog}
+              onOpenChange={(o) => !o && setDialogType(null)}
+            >
+              <div data-no-nav="true">
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger
+                    asChild
+                    className="w-8"
+                    data-no-nav="true"
+                  >
+                    <button
+                      type="button"
+                      className="bg-card-menu-trigger hover:bg-card-menu-trigger-hover rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"
+                      aria-label="Więcej akcji"
+                      data-no-nav="true"
+                    >
+                      <MoreVertical
+                        className="text-popover-foreground"
+                        size={18}
+                      />
+                    </button>
+                  </DropdownMenuTrigger>
 
-        <div className="bg-gradient-to-t from-black/90 via-black/50 to-black/40 backdrop-blur-sm absolute bottom-0 left-0 px-3 pt-2 pb-3 w-full flex justify-between lg:min-h-32 rounded-b-lg">
-          <div className="flex justify-between w-full">
-            <div className="w-full flex flex-col justify-between">
-              <div className="pb-1">
-                <h3 className="font-semibold text-md md:text-lg">
-                  {bookItem.representativeEdition.title}
-                </h3>
-                <p className="text-xs lg:text-base">
-                  {bookItem.book.authors
-                    .map((author) => author.name)
-                    .join(', ')}
-                </p>
+                  <DropdownMenuContent align="start" data-no-nav="true">
+                    <DropdownMenuItem
+                      className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
+                      data-no-nav="true"
+                      onClick={() => {
+                        setDialogType('showOtherEditions');
+                      }}
+                    >
+                      <BookPlus className={`w-4 h-4`} />
+                      Pokaż inne wydania
+                    </DropdownMenuItem>
+                    {/* RATE */}
+                    <DropdownMenuSeparator />
+                    {status === 'authenticated' ? (
+                      <DropdownMenuItem
+                        className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
+                        data-no-nav="true"
+                        onClick={() => {
+                          setDialogType('rate');
+                        }}
+                      >
+                        <Star className="w-4 h-4 fill-current text-yellow-400" />
+                        Oceń
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        className="px-2 py-1.5 text-sm flex items-center gap-2 cursor-pointer"
+                        data-no-nav="true"
+                        onClick={() => {
+                          setDialogType('login');
+                        }}
+                      >
+                        <Star className="w-4 h-4 fill-current text-yellow-400" />
+                        Oceń
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
-              <div className="flex gap-2 pt-1 border-gray-300/30 border-t">
-                <div className="flex gap-1">
-                  <Image src={multipleUsersIcon} alt="icon" />
-                  <span className="flex items-center gap-1 text-sm">
-                    {bookItem.ratings.bookAverage ?? 0}/5{' '}
-                    <Star className="w-3 h-3 fill-current text-yellow-400" />
-                  </span>
+              {dialogType === 'rate' && (
+                <RateBookStepperDialog
+                  bookId={bookItem.book.id}
+                  dialogTitle="Oceń książkę"
+                  onlyContent={true}
+                  afterSuccess={() => setDialogType(null)}
+                  editions={book.editions}
+                  userReviews={bookItem.ratings.userReviews}
+                />
+              )}
+
+              {dialogType === 'showOtherEditions' && (
+                <AddBookStepperDialog
+                  bookId={book.id}
+                  bookSlug={book.slug}
+                  editions={book.editions}
+                  dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
+                  userEditions={bookItem.userState?.byEdition}
+                  onlyContent={true}
+                  otherEditionsMode={true}
+                  userReviews={bookItem.ratings.userReviews}
+                  afterSuccess={() => setDialogType(null)}
+                />
+              )}
+
+              {dialogType === 'login' && <LoginDialog onlyContent />}
+            </Dialog>
+          </div>
+
+          <div className="bg-gradient-to-t from-black/90 via-black/50 to-black/40 backdrop-blur-sm absolute bottom-0 left-0 px-3 pt-2 pb-3 w-full flex justify-between lg:min-h-32 rounded-b-lg">
+            <div className="flex justify-between w-full">
+              <div className="w-full flex flex-col justify-between">
+                <div className="pb-1">
+                  <h3 className="font-semibold text-md md:text-lg">
+                    {bookItem.representativeEdition.title}
+                  </h3>
+                  <p className="text-xs lg:text-base">
+                    {bookItem.book.authors
+                      .map((author) => author.name)
+                      .join(', ')}
+                  </p>
                 </div>
-                {bookItem.ratings.representativeEditionRating && (
+
+                <div className="flex gap-2 pt-1 border-gray-300/30 border-t">
                   <div className="flex gap-1">
-                    <Image src={userIcon} alt="icon" />
+                    <Image src={multipleUsersIcon} alt="icon" />
                     <span className="flex items-center gap-1 text-sm">
-                      {bookItem.ratings.representativeEditionRating}/5{' '}
+                      {bookItem.ratings.bookAverage ?? 0}/5{' '}
                       <Star className="w-3 h-3 fill-current text-yellow-400" />
                     </span>
                   </div>
-                )}
+                  {bookItem.ratings.representativeEditionRating && (
+                    <div className="flex gap-1">
+                      <Image src={userIcon} alt="icon" />
+                      <span className="flex items-center gap-1 text-sm">
+                        {bookItem.ratings.representativeEditionRating}/5{' '}
+                        <Star className="w-3 h-3 fill-current text-yellow-400" />
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+    </Link>
   );
 }
