@@ -19,13 +19,16 @@ export default async function BookEdition({
   const { editionId, slug } = await params;
   const { page } = searchParams ? await searchParams : {};
   const currentPage = parseInt(page || '1', 10);
-  const book = await getBook(editionId);
-  const otherEditions = await getOtherEditions(slug, editionId);
-  const reviewsResponse = await getBookReviews(slug, {
-    page: currentPage,
-    pageSize: 2,
-    onlyWithContent: true,
-  });
+
+  const [book, otherEditions, reviewsResponse] = await Promise.all([
+    getBook(editionId),
+    getOtherEditions(slug, editionId),
+    getBookReviews(slug, {
+      page: currentPage,
+      pageSize: 2,
+      onlyWithContent: true,
+    }),
+  ]);
 
   return (
     <>
