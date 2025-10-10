@@ -1,9 +1,10 @@
 import BookDetails from '@/components/book/bookDetails/BookDetails';
-import { getBook, getBookReviews } from '@/lib/userbooks';
+import { getBook } from '@/lib/userbooks';
 import { getOtherEditions } from '@/lib/books';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OtherBooks from '@/components/book/bookDetails/OtherBooks';
-import BookReviews from '@/components/book/bookDetails/BookReviews';
+import { Suspense } from 'react';
+import ReviewsServer from './Reviews';
 
 interface BookPageProps {
   params: Promise<{ editionId: string; slug: string }>;
@@ -11,6 +12,8 @@ interface BookPageProps {
     page: string;
   }>;
 }
+
+export const revalidate = 21600; // 6h
 
 export default async function BookEdition({
   params,
@@ -20,14 +23,10 @@ export default async function BookEdition({
   const { page } = searchParams ? await searchParams : {};
   const currentPage = parseInt(page || '1', 10);
 
-  const [book, otherEditions, reviewsResponse] = await Promise.all([
+  const [book, otherEditions] = await Promise.all([
     getBook(editionId),
     getOtherEditions(slug, editionId),
-    getBookReviews(slug, {
-      page: currentPage,
-      pageSize: 2,
-      onlyWithContent: true,
-    }),
+    ,
   ]);
 
   return (
@@ -66,19 +65,23 @@ export default async function BookEdition({
             </TabsContent>
           </Tabs>
 
-          <BookReviews
-            bookId={book.book.id}
-            bookSlug={slug}
-            editionId={editionId}
-            editionTitle={book.edition.title}
-            userReview={book.userBook?.userReview}
-            reviews={reviewsResponse.items}
-            paginationData={{
-              page: currentPage,
-              pageSize: reviewsResponse.pageSize,
-              total: reviewsResponse.total,
-            }}
-          />
+          <Suspense
+            fallback={
+              <div className="bg-sidebar rounded-xl p-6">
+                Ładowanie recenzji…
+              </div>
+            }
+          >
+            <ReviewsServer
+              slug={slug}
+              page={currentPage}
+              bookId={book.book.id}
+              editionId={editionId}
+              userReview={book.userBook?.userReview}
+              editionTitle={book.edition.title}
+              currentPage={currentPage}
+            />
+          </Suspense>
         </div>
       </div>
     </>
