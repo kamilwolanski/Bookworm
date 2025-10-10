@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -23,19 +24,24 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetClose,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, LogOut } from 'lucide-react';
+import { Menu, LogOut, Book } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import ModeToggle from '@/components/layout/ModeToggle';
 import logo from '@/app/assets/logo.png';
 import { Separator } from '../ui/separator';
-import { Book } from 'lucide-react';
 import LoginDialog from '@/components/auth/LoginDialog';
 
 export default function Topbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   const isActive = (path: string) =>
     pathname.includes(path) ? 'text-link! focus:text-link' : '';
@@ -64,7 +70,7 @@ export default function Topbar() {
               <NavigationMenuLink asChild>
                 <Link
                   href="/books"
-                  className={`font-bold focus:bg-transparent  ${isActive('/books')}`}
+                  className={`font-bold focus:bg-transparent ${isActive('/books')}`}
                 >
                   Książki
                 </Link>
@@ -153,7 +159,7 @@ export default function Topbar() {
           <LoginDialog dialogTriggerBtn={<Button>Zaloguj się</Button>} />
         )}
 
-        <Sheet>
+        <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Otwórz menu">
               <Menu className=" w-6" />
@@ -166,14 +172,16 @@ export default function Topbar() {
             <Separator />
             <nav className="my-2 flex flex-col justify-between gap-2 h-full">
               <div>
-                <Link
-                  href="/books"
-                  className={`font-bold mb-2 focus:text-white focus:bg-transparent focus-visible:bg-transparent ${isActive('/books')}`}
-                >
-                  <div className="flex items-center">
-                    <Book className="me-2" /> Książki
-                  </div>
-                </Link>
+                <SheetClose asChild>
+                  <Link
+                    href="/books"
+                    className={`font-bold mb-2 focus:bg-transparent focus-visible:bg-transparent ${isActive('/books')}`}
+                  >
+                    <div className="flex items-center">
+                      <Book className="me-2" /> Książki
+                    </div>
+                  </Link>
+                </SheetClose>
               </div>
               <div>
                 {status === 'loading' ? null : session ? (
@@ -195,15 +203,20 @@ export default function Topbar() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => signOut({ callbackUrl: '/' })}
+                      onClick={() => {
+                        setOpen(false);
+                        signOut({ callbackUrl: '/' });
+                      }}
                     >
                       Wyloguj
                     </Button>
                   </div>
                 ) : (
-                  <Link href="/login" className="w-full">
-                    <Button className="w-full">Zaloguj się</Button>
-                  </Link>
+                  <SheetClose asChild>
+                    <Link href="/login" className="w-full">
+                      <Button className="w-full">Zaloguj się</Button>
+                    </Link>
+                  </SheetClose>
                 )}
               </div>
             </nav>

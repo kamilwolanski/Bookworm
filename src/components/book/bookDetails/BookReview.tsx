@@ -63,7 +63,7 @@ const BookReview = ({
 
   return (
     <div
-      className={`border rounded-lg p-6 bg-sidebar shadow-sm mt-5 ${
+      className={`border rounded-lg p-4 md:p-6 bg-sidebar shadow-sm mt-5 ${
         review.isOwner ? 'border-green-200 bg-green-50/30' : 'border-border'
       }`}
       data-pending={isPending ? 'true' : 'false'}
@@ -81,16 +81,35 @@ const BookReview = ({
         </Avatar>
 
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h4 className="font-medium">{review.user.name}</h4>
+          <div className="flex items-start gap-3 mb-2">
+            <div>
+              <h4 className="font-medium">{review.user.name}</h4>
+              <p className="text-sm text-muted-foreground">
+                <time dateTime={createdAtIso}>
+                  {new Date(createdAtIso).toLocaleDateString('pl-PL', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </time>
+              </p>
+            </div>
             {review.isOwner && (
-              <Badge className="bg-green-100 text-green-700 border-green-200 font-medium">
+              <Badge className="bg-green-100 text-green-700 border-green-200 font-medium hidden sm:block">
                 Twoja recenzja
               </Badge>
             )}
-            <StarRating rating={review.rating ?? 0} size="sm" />
+            <div className="flex flex-col">
+              <StarRating rating={review.rating ?? 0} size="sm" />
+
+              {review.isOwner && (
+                <Badge className="bg-green-100 text-green-700 border-green-200 font-medium sm:hidden align-bottom mt-2">
+                  Twoja recenzja
+                </Badge>
+              )}
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">
+          {/* <p className="text-sm text-muted-foreground">
             <time dateTime={createdAtIso}>
               {new Date(createdAtIso).toLocaleDateString('pl-PL', {
                 year: 'numeric',
@@ -98,13 +117,13 @@ const BookReview = ({
                 day: 'numeric',
               })}
             </time>
-          </p>
+          </p> */}
         </div>
       </div>
 
       <p className="mb-4 leading-relaxed">{review.body}</p>
 
-      <div className="flex items-center gap-4 pt-4 border-t border-border">
+      <div className="flex items-center gap-4 pt-2 md:pt-4 border-t border-border">
         <span className="text-sm text-muted-foreground">
           {review.isOwner
             ? 'Twoja recenzja otrzymała:'

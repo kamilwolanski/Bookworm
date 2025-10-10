@@ -54,7 +54,7 @@ export function StarRating({
   };
 
   return (
-    <div className="inline-flex flex-col items-start gap-1">
+    <div className="flex-col items-start gap-1 flex">
       <div
         className="flex gap-1"
         role={interactive ? 'radiogroup' : undefined}
