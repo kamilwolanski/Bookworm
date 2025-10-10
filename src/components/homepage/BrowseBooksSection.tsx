@@ -7,10 +7,10 @@ export function BrowseBooksSection() {
     <section className="bg-surface-primary dark:bg-surface-primary-dark py-20 px-6">
       <div className="max-w-6xl mx-auto text-center">
         <div className="mb-12 text-surface-primary-foreground">
-          <h2 className="text-4xl font-bold mb-6">
+          <h2 className="text-3xl font-bold mb-6">
             Potrzebujesz dokładniejszego wyszukiwania?
           </h2>
-          <p className="text-xl mb-8 max-w-3xl mx-auto text-surface-primary-muted-foreground">
+          <p className="text-lg md:text-xl mb-8 max-w-3xl mx-auto text-surface-primary-muted-foreground">
             Skorzystaj z zaawansowanych filtrów, przeglądaj książki według
             gatunków, ocen i wielu innych kryteriów. Znajdź dokładnie to, czego
             szukasz w naszej bibliotece tysięcy tytułów.

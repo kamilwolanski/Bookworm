@@ -35,7 +35,7 @@ const BookReview = ({
 
   const likeActive = myVoteOptimistic === 'LIKE';
   const dislikeActive = myVoteOptimistic === 'DISLIKE';
-  const disabled = isPending || review.isOwner;
+  const disabled = review.isOwner;
 
   const handleLike = useCallback(() => {
     if (disabled) return;
@@ -131,7 +131,7 @@ const BookReview = ({
             aria-label={likeActive ? 'Cofnij lajka' : 'Daj lajka'}
             title={likeActive ? 'Cofnij lajka' : 'Daj lajka'}
             className={`flex items-center gap-1 ${
-              likeActive ? 'bg-green-50 text-green-600' : 'text-gray-500'
+              likeActive ? 'bg-accent-2 text-accent-foreground-2' : ''
             }`}
             onClick={handleLike}
           >
@@ -148,7 +148,7 @@ const BookReview = ({
             aria-label={dislikeActive ? 'Cofnij dislajka' : 'Daj dislajka'}
             title={dislikeActive ? 'Cofnij dislajka' : 'Daj dislajka'}
             className={`flex items-center gap-1 ${
-              dislikeActive ? 'bg-red-50 text-red-600' : 'text-gray-500'
+              dislikeActive ? 'bg-destructive text-accent-foreground-2' : ''
             }`}
             onClick={handleDislike}
           >

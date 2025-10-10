@@ -17,7 +17,7 @@ export function HeroSection() {
             Odkryj świat książek z
             <span className="text-primary"> BookWorm</span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Znajdź swoją następną ulubioną książkę, oceniaj, pisz recenzje i
             dziel się opinią z społecznością miłośników literatury.
           </p>
@@ -36,7 +36,7 @@ export function HeroSection() {
                   placeholder="Wpisz tytuł książki, autora lub wydawnictwo..."
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
-                  className="pl-10 pr-12 py-5"
+                  className="pl-10 pr-12 py-5 text-sm md:text-base"
                 />
               </div>
             </div>
@@ -84,7 +84,7 @@ export function HeroSection() {
             <div className="flex justify-center mb-3">
               <Book className="w-12 h-12 text-accent-2" />
             </div>
-            <div className="text-3xl font-bold">50,000+</div>
+            <div className="text-2xl md:text-3xl font-bold">50,000+</div>
             <div className="text-muted-foreground">Książek w bazie</div>
           </div>
 
@@ -92,7 +92,7 @@ export function HeroSection() {
             <div className="flex justify-center mb-3">
               <Users className="w-12 h-12 text-accent-2" />
             </div>
-            <div className="text-3xl font-bold">25,000+</div>
+            <div className="text-2xl md:text-3xl font-bold">25,000+</div>
             <div className="text-muted-foreground">Aktywnych czytelników</div>
           </div>
 
@@ -100,7 +100,7 @@ export function HeroSection() {
             <div className="flex justify-center mb-3">
               <Star className="w-12 h-12 text-accent-2" />
             </div>
-            <div className="text-3xl font-bold">100,000+</div>
+            <div className="text-2xl md:text-3xl font-bold">100,000+</div>
             <div className="text-muted-foreground">Ocen i recenzji</div>
           </div>
         </div>
