@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
-import { Star, MoreVertical, LibraryBig, BookPlus, Plus } from 'lucide-react';
+import { Star, MoreVertical, BookPlus, Plus } from 'lucide-react';
 import { BookCardDTO } from '@/lib/userbooks';
 import {
   DropdownMenu,
@@ -67,7 +67,6 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                   <span className="text-xs sm:text-sm font-medium">
                     Na półce
                   </span>
-                  <LibraryBig size={16} />
                 </div>
               </div>
             )
@@ -107,12 +106,12 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                 <DropdownMenuTrigger asChild className="w-8">
                   <button
                     type="button"
-                    className="bg-card-menu-trigger hover:bg-card-menu-trigger-hover rounded-full w-8 h-8 flex items-center justify-center cursor-pointer"
+                    className="bg-card-menu-trigger hover:bg-card-menu-trigger-hover rounded-full w-7 h-7 flex items-center justify-center cursor-pointer"
                     aria-label="Więcej akcji"
                   >
                     <MoreVertical
                       className="text-popover-foreground"
-                      size={18}
+                      size={17}
                     />
                   </button>
                 </DropdownMenuTrigger>
@@ -189,16 +188,30 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
               </div>
 
               <div className="flex gap-2 pt-1 border-gray-300/30 border-t">
-                <div className="flex gap-1">
-                  <Image src={multipleUsersIcon} alt="icon" />
-                  <span className="flex items-center gap-1 text-sm">
+                <div className="flex gap-1 items-center">
+                  <div className="relative w-4 h-4 sm:w-5 sm:h-5">
+                    <Image
+                      src={multipleUsersIcon}
+                      alt="icon"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <span className="flex items-center gap-1 text-xs sm:text-sm">
                     {bookItem.ratings.bookAverage ?? 0}/5{' '}
                     <Star className="w-3 h-3 fill-current text-yellow-400" />
                   </span>
                 </div>
                 {bookItem.ratings.representativeEditionRating && (
-                  <div className="flex gap-1">
-                    <Image src={userIcon} alt="icon" />
+                  <div className="flex gap-1 items-center">
+                    <div className="relative w-4 h-4 sm:w-5 sm:h-5">
+                      <Image
+                        src={userIcon}
+                        alt="icon"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
                     <span className="flex items-center gap-1 text-sm">
                       {bookItem.ratings.representativeEditionRating}/5{' '}
                       <Star className="w-3 h-3 fill-current text-yellow-400" />
