@@ -135,7 +135,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
 
         <div className="lg:col-span-2 space-y-6">
           <div>
-            <div className="flex items-start gap-3 mb-2">
+            <div className="flex items-start gap-2 sm:gap-3 mb-2">
               <h2 className="text-lg font-semibold flex-1">{edition.title}</h2>
               <Badge
                 variant={onShelfOptimistic ? 'default' : 'secondary'}
@@ -345,8 +345,8 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                       'pl-PL',
                       {
                         year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
                       }
                     )}
                   </span>

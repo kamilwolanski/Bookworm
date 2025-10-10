@@ -17,7 +17,7 @@ export async function BookList(props: BookListProps) {
     <>
       {bookItems.length > 0 ? (
         <div className="flex-1">
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 gap-3 3xl:gap-14 ">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 gap-2 3xl:gap-14 ">
             {bookItems.map((item) => (
               <BookCard key={item.book.id} bookItem={item} />
             ))}

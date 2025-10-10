@@ -88,8 +88,8 @@ const BookReview = ({
                 <time dateTime={createdAtIso}>
                   {new Date(createdAtIso).toLocaleDateString('pl-PL', {
                     year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
                   })}
                 </time>
               </p>
@@ -109,15 +109,6 @@ const BookReview = ({
               )}
             </div>
           </div>
-          {/* <p className="text-sm text-muted-foreground">
-            <time dateTime={createdAtIso}>
-              {new Date(createdAtIso).toLocaleDateString('pl-PL', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </time>
-          </p> */}
         </div>
       </div>
 

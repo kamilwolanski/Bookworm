@@ -90,7 +90,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                     <span className="text-xs sm:text-sm font-medium">
                       Dodaj
                     </span>
-                    <Plus size={16} />
+                    <Plus size={14} />
                   </div>
                 </button>
               }

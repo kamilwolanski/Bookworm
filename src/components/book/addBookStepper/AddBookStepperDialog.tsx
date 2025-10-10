@@ -68,12 +68,10 @@ const AddBookStepperDialog = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button
-          className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer "
-        >
+        <button className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer ">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">Dodaj</span>{' '}
-            <Plus size={16} />
+            <span className="text-xs sm:text-sm font-medium">Dodaj</span>{' '}
+            <Plus size={14} />
           </div>
         </button>
       </DialogTrigger>
