@@ -112,6 +112,13 @@ export default async function ShelfBooks({ searchParams }: Props) {
             </div>
             <div className="hidden lg:block">{session && <ShelfSwitch />}</div>
           </div>
+          <div className="lg:hidden bg-card shadow-lg flex justify-between items-center rounded-lg py-2 px-3 mb-6">
+            <span className="text-sm">
+              <b>Tylko książki z mojej półki</b>
+            </span>
+            <ShelfSwitch showLabel={false} />
+          </div>
+
           <BookList
             bookItems={items}
             page={currentPage}

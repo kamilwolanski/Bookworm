@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
-import { X, XCircle } from 'lucide-react';
+import { XCircle } from 'lucide-react';
 import { useMemo } from 'react';
 import { polishGenres } from '@/app/admin/data';
 
@@ -25,17 +25,15 @@ export default function ActiveFilters() {
     const status = sp.get('status')?.split(',').filter(Boolean) ?? [];
     const userrating = sp.get('userrating')?.split(',').filter(Boolean) ?? [];
     const rating = sp.get('rating') || '';
-    const myshelf = sp.get('myshelf') || ''; // traktujemy jako single (obecność = aktywny)
 
-    return { genre, status, userrating, rating, myshelf };
+    return { genre, status, userrating, rating };
   }, [sp]);
 
   const hasAny =
     filters.genre.length ||
     filters.status.length ||
     filters.userrating.length ||
-    !!filters.rating ||
-    !!filters.myshelf;
+    !!filters.rating;
 
   // 2) Handlery usuwania
   const removeSingle = (key: KeySingle) => {
@@ -115,20 +113,6 @@ export default function ActiveFilters() {
         <Badge className="mx-1 py-1" onClick={() => removeSingle('rating')}>
           Ocena: {filters.rating}
           <XCircle className="!h-[15px] !w-[15px] shrink-0 ms-2" />
-        </Badge>
-      )}
-
-      {/* MYSHELF (single boolean) */}
-      {filters.myshelf && (
-        <Badge variant="secondary" className="pr-1 pl-2 h-7">
-          <span className="mr-1">Tylko moja półka</span>
-          <button
-            aria-label="Wyłącz moja półkę"
-            className="inline-flex items-center justify-center rounded-sm hover:bg-muted/60 h-5 w-5"
-            onClick={() => removeSingle('myshelf')}
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
         </Badge>
       )}
 

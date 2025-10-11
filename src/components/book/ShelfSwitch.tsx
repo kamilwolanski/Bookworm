@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
-const ShelfSwitch = () => {
+const ShelfSwitch = ({ showLabel = true }: { showLabel?: boolean }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -31,7 +31,7 @@ const ShelfSwitch = () => {
   return (
     <div className="flex items-center space-x-2">
       <Switch id="on-shelf" checked={myShelf} onCheckedChange={handleChange} />
-      <Label htmlFor="on-shelf">Na półce</Label>
+      {showLabel && <Label htmlFor="on-shelf">Na półce</Label>}
     </div>
   );
 };
