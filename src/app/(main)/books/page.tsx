@@ -1,6 +1,5 @@
-import { BookList } from '@/components/book/BookList';
 import { redirect } from 'next/navigation';
-import { getBookGenres, getBooksAll } from '@/lib/userbooks';
+import { getBookGenres } from '@/lib/userbooks';
 import { getUserSession } from '@/lib/session';
 import BookFilters from '@/components/book/BookFilters';
 import { ReadingStatus } from '@prisma/client';
@@ -17,6 +16,9 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import ActiveFilters from '@/components/shared/ActiveFilters';
+import { Suspense } from 'react';
+import BooksTableServer from './BooksTableServer';
+import CountResults from './CountResults';
 
 type Props = {
   searchParams?: Promise<{
@@ -48,18 +50,6 @@ export default async function ShelfBooks({ searchParams }: Props) {
     redirect('/login'); // albo wyświetl 401
   }
 
-  const { items, totalCount } = await getBooksAll(
-    currentPage,
-    ITEMS_PER_PAGE,
-    genresParams,
-    myShelf,
-    userRatings,
-    statuses,
-    rating,
-    search,
-    userId
-  );
-
   const bookGenres = await getBookGenres('pl');
 
   return (
@@ -68,7 +58,7 @@ export default async function ShelfBooks({ searchParams }: Props) {
         <div className="hidden lg:block">
           <BookFilters bookGenres={bookGenres} genresParams={genresParams} />
         </div>
-        <div className="md:ms-16 flex flex-col min-h-[80vh] w-full">
+        <div className="md:ms-16 flex flex-col min-h-[85vh] w-full">
           <div className="flex items-center mb-6 sm:mb-10 gap-3">
             <div className="w-full lg:max-w-lg">
               <Sheet>
@@ -103,7 +93,32 @@ export default async function ShelfBooks({ searchParams }: Props) {
                   <SheetFooter className="bg-card sticky bottom-0">
                     <SheetClose asChild>
                       <Button className="cursor-pointer">
-                        Pokaż wyniki ({totalCount})
+                        Pokaż wyniki (
+                        <Suspense
+                          key={JSON.stringify({
+                            search,
+                            genre,
+                            userrating,
+                            status,
+                            myshelf,
+                            rating,
+                            userId,
+                          })}
+                          fallback="…"
+                        >
+                          <CountResults
+                            params={{
+                              genresParams,
+                              myShelf,
+                              statuses,
+                              search,
+                              userRatings,
+                              rating,
+                              userId,
+                            }}
+                          />
+                        </Suspense>
+                        )
                       </Button>
                     </SheetClose>
                   </SheetFooter>
@@ -112,19 +127,45 @@ export default async function ShelfBooks({ searchParams }: Props) {
             </div>
             <div className="hidden lg:block">{session && <ShelfSwitch />}</div>
           </div>
-          <div className="lg:hidden bg-card shadow-lg flex justify-between items-center rounded-lg py-2 px-3 mb-6">
-            <span className="text-sm">
-              <b>Tylko książki z mojej półki</b>
-            </span>
-            <ShelfSwitch showLabel={false} />
-          </div>
-
-          <BookList
-            bookItems={items}
-            page={currentPage}
-            pageSize={ITEMS_PER_PAGE}
-            totalCount={totalCount}
-          />
+          {session && (
+            <div className="lg:hidden bg-card shadow-lg flex justify-between items-center rounded-lg py-2 px-3 mb-6">
+              <span className="text-sm">
+                <b>Tylko książki z mojej półki</b>
+              </span>
+              <ShelfSwitch showLabel={false} />
+            </div>
+          )}
+          <Suspense
+            key={JSON.stringify({
+              currentPage,
+              search,
+              genre,
+              userrating,
+              status,
+              myshelf,
+              rating,
+              userId,
+            })}
+            fallback={
+              <div className="flex items-center justify-center min-h-[calc(100vh-300px)] lg:min-h-[calc(100vh-380px)] w-full">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-foreground" />
+              </div>
+            }
+          >
+            <BooksTableServer
+              currentPage={currentPage}
+              itemsPerPage={ITEMS_PER_PAGE}
+              userId={userId}
+              params={{
+                genresParams,
+                myShelf,
+                statuses,
+                search,
+                userRatings,
+                rating,
+              }}
+            />
+          </Suspense>
         </div>
       </div>
     </div>

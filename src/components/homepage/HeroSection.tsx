@@ -65,9 +65,9 @@ export function HeroSection() {
                 &quot;Tolkien&quot;
               </Button>
             </Link>
-            <Link href="/books?genre=thriller">
+            <Link href="/books?genre=history">
               <Button className="px-1" variant="link">
-                &quot;thriller&quot;
+                &quot;historia&quot;
               </Button>
             </Link>
             <Link href="/books?search=chlopki">
