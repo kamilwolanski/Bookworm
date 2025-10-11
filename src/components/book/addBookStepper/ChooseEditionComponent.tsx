@@ -86,11 +86,6 @@ const ChooseEditonComponent = ({
                   <h2 className="leading-tight">
                     <b>{edition.title}</b>
                   </h2>
-                  {edition.subtitle && (
-                    <h3 className="text-xs sm:text-sm text-foreground">
-                      {edition.subtitle}
-                    </h3>
-                  )}
                 </div>
 
                 <div>

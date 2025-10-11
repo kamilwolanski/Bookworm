@@ -27,7 +27,7 @@ import {
   SheetClose,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, LogOut, Book } from 'lucide-react';
+import { Menu, LogOut, Book, Home } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import ModeToggle from '@/components/layout/ModeToggle';
 import logo from '@/app/assets/logo.png';
@@ -43,8 +43,12 @@ export default function Topbar() {
     setOpen(false);
   }, [pathname]);
 
-  const isActive = (path: string) =>
-    pathname.includes(path) ? 'text-link! focus:text-link' : '';
+  const isActive = (path: string) => {
+    if (path === '/') return pathname === '/';
+    return pathname.startsWith(path);
+  };
+
+  const activeClassNames = 'text-link! focus:text-link';
 
   return (
     <header className="flex items-center justify-between gap-4 px-4 py-3 lg:px-8 lg:py-4 border-b border-border bg-card backdrop-blur">
@@ -69,8 +73,18 @@ export default function Topbar() {
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link
+                  href="/"
+                  className={`font-bold focus:bg-transparent ${isActive('/') ? activeClassNames : ''}`}
+                >
+                  Strona główna
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link
                   href="/books"
-                  className={`font-bold focus:bg-transparent ${isActive('/books')}`}
+                  className={`font-bold focus:bg-transparent ${isActive('/books') ? activeClassNames : ''}`}
                 >
                   Książki
                 </Link>
@@ -174,11 +188,21 @@ export default function Topbar() {
               <div>
                 <SheetClose asChild>
                   <Link
-                    href="/books"
-                    className={`font-bold mb-2 focus:bg-transparent focus-visible:bg-transparent ${isActive('/books')}`}
+                    href="/"
+                    className={`font-bold focus:bg-transparent focus-visible:bg-transparent ${isActive('/') ? activeClassNames : ''}`}
                   >
-                    <div className="flex items-center">
-                      <Book className="me-2" /> Książki
+                    <div className="flex items-center text-sm mb-3">
+                      <Home className="me-2" width={16} /> Strona główna
+                    </div>
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link
+                    href="/books"
+                    className={`font-bold mb-2 focus:bg-transparent focus-visible:bg-transparent ${isActive('/books') ? activeClassNames : ''}`}
+                  >
+                    <div className="flex items-center text-sm">
+                      <Book className="me-2" width={16} /> Książki
                     </div>
                   </Link>
                 </SheetClose>
