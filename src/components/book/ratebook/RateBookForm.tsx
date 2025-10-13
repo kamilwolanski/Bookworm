@@ -12,11 +12,13 @@ import {
 
 const RateBookForm = ({
   bookId,
+  bookSlug,
   editionId,
   userReview,
   afterSuccess,
 }: {
   bookId: string;
+  bookSlug: string;
   editionId: string;
   userReview?: {
     editionId: string;
@@ -25,7 +27,7 @@ const RateBookForm = ({
   };
   afterSuccess: () => void;
 }) => {
-  const boundAction = rateBookAction.bind(null, bookId);
+  const boundAction = rateBookAction.bind(null, bookId, bookSlug);
   const { form, isPending, handleSubmit } =
     useActionForm<AddEditionReviewInput>({
       action: boundAction,
@@ -52,7 +54,7 @@ const RateBookForm = ({
               disabled={isPending}
               className="cursor-pointer"
             >
-              Zapisz
+              {isPending ? 'Zapisywanie' : 'Zapisz'}
             </Button>
           </div>
         </div>

@@ -27,6 +27,7 @@ const { useStepper, steps, utils } = defineStepper(
 
 const RateBookStepperForm = ({
   bookId,
+  bookSlug,
   editions,
   userReviews,
   userEditions = [],
@@ -34,13 +35,14 @@ const RateBookStepperForm = ({
   afterSuccess,
 }: {
   bookId: string;
+  bookSlug: string;
   editions: EditionDto[];
   userReviews?: Review[];
   userEditions?: UserEditionDto[];
   showSteps: boolean;
   afterSuccess: () => void;
 }) => {
-  const boundAction = rateBookAction.bind(null, bookId);
+  const boundAction = rateBookAction.bind(null, bookId, bookSlug);
   const stepper = useStepper();
   const { form, isPending, handleSubmit } =
     useActionForm<AddEditionReviewInput>({

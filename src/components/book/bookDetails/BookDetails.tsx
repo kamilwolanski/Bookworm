@@ -162,7 +162,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
             {edition.subtitle && <h3>{edition.subtitle}</h3>}
             <div className="mt-3">
               {book.authors.map((a, i) => (
-                <>
+                <div key={i}>
                   <Link
                     key={a.slug}
                     href={`/author/${a.slug}`}
@@ -171,7 +171,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                     {a.name}
                   </Link>
                   {i < book.authors.length - 1 && ', '}
-                </>
+                </div>
               ))}
             </div>
 
@@ -288,6 +288,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
               {status === 'authenticated' ? (
                 <RateBookDialog
                   bookId={book.id}
+                  bookSlug={book.slug}
                   editionId={edition.id}
                   dialogTitle={`Napisz opinie o : ${edition.title}`}
                   userReview={userBook?.userReview}

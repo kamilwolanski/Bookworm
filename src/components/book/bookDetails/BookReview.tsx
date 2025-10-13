@@ -1,19 +1,40 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
-import { ReviewItem } from '@/lib/userbooks';
-import { ThumbsDown, ThumbsUp } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
+import {
+  MoreVertical,
+  Pencil,
+  Share2,
+  ThumbsDown,
+  ThumbsUp,
+  Trash2,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StarRating } from '@/components/book/StarRating';
 import { Button } from '@/components/ui/button';
 import { useOptimisticVoteReview } from '@/lib/optimistics/useOptimisticVoteReview';
 import { setReviewVoteAction } from '@/app/(main)/books/actions/bookActions';
+import { ReviewItem } from '@/lib/reviews';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
+import { Dialog } from '@/components/ui/dialog';
+import DeleteReviewDialog from '@/components/book/bookDetails/DeleteReviewDialog';
 
 const BookReview = ({
+  bookId,
+  editionTitle,
   review,
   bookSlug,
 }: {
+  bookId: string;
+  editionTitle: string;
   review: ReviewItem;
   bookSlug: string;
 }) => {
@@ -24,7 +45,8 @@ const BookReview = ({
     vote,
     isPending,
   } = useOptimisticVoteReview(review.votes);
-
+  const [dialogType, setDialogType] = useState<null | 'delete' | 'edit'>(null);
+  const openDialog = dialogType !== null;
   const createdAtIso = useMemo(
     () =>
       typeof review.createdAt === 'string'
@@ -81,33 +103,100 @@ const BookReview = ({
         </Avatar>
 
         <div className="flex-1">
-          <div className="flex items-start gap-3 mb-2">
-            <div>
-              <h4 className="font-medium">{review.user.name}</h4>
-              <p className="text-sm text-muted-foreground">
-                <time dateTime={createdAtIso}>
-                  {new Date(createdAtIso).toLocaleDateString('pl-PL', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                  })}
-                </time>
-              </p>
-            </div>
-            {review.isOwner && (
-              <Badge className="bg-green-100 text-green-700 border-green-200 font-medium hidden sm:block">
-                Twoja recenzja
-              </Badge>
-            )}
-            <div className="flex flex-col">
-              <StarRating rating={review.rating ?? 0} size="sm" />
-
+          <div className="flex justify-between">
+            <div className="flex items-start gap-3 mb-2">
+              <div>
+                <h4 className="font-medium">{review.user.name}</h4>
+                <p className="text-sm text-muted-foreground">
+                  <time dateTime={createdAtIso}>
+                    {new Date(createdAtIso).toLocaleDateString('pl-PL', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                    })}
+                  </time>
+                </p>
+              </div>
               {review.isOwner && (
-                <Badge className="bg-green-100 text-green-700 border-green-200 font-medium sm:hidden align-bottom mt-2">
+                <Badge className="border border-badge-owned-border bg-badge-owned text-primary font-medium hidden sm:block">
                   Twoja recenzja
                 </Badge>
               )}
+              <div className="flex flex-col">
+                <StarRating rating={review.rating ?? 0} size="sm" />
+
+                {review.isOwner && (
+                  <Badge className="border border-badge-owned-border bg-badge-owned text-primary font-medium sm:hidden align-bottom mt-2">
+                    Twoja recenzja
+                  </Badge>
+                )}
+              </div>
             </div>
+
+            {review.isOwner && (
+              <Dialog
+                open={openDialog}
+                onOpenChange={(o) => !o && setDialogType(null)}
+              >
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 -mr-2"
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                      <span className="sr-only">Otwórz menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-40">
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setDialogType('edit');
+                      }}
+                      className="cursor-pointer"
+                    >
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Edytuj
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Share2 className="mr-2 h-4 w-4" />
+                      Udostępnij
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive cursor-pointer"
+                      onClick={() => {
+                        setDialogType('delete');
+                      }}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Usuń
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                {dialogType === 'delete' && (
+                  <DeleteReviewDialog
+                    reviewId={review.id}
+                    bookSlug={bookSlug}
+                    editionId={review.editionId}
+                    onlyContent={true}
+                    dialogTitle={<>Czy na pewno chcesz usunąć tę opinię?</>}
+                  />
+                )}
+                {dialogType === 'edit' && (
+                  <RateBookDialog
+                    bookId={bookId}
+                    bookSlug={bookSlug}
+                    editionId={review.editionId}
+                    dialogTitle={`Edytuj opinie o : ${editionTitle}`}
+                    userReview={review}
+                    onlyContent={true}
+                    afterSuccess={() => setDialogType(null)}
+                  />
+                )}
+              </Dialog>
+            )}
           </div>
         </div>
       </div>

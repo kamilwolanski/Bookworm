@@ -1,8 +1,8 @@
 import { useOptimistic, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ActionResult } from '@/types/actions';
-import { VoteState } from '../userbooks';
 import { ReviewVoteType } from '@prisma/client';
+import { VoteState } from '../reviews';
 
 type VoteAction =
   | { type: 'apply'; next: ReviewVoteType | null }

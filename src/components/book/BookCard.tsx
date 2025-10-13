@@ -106,7 +106,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                 <DropdownMenuTrigger asChild className="w-8">
                   <button
                     type="button"
-                    className="bg-card-menu-trigger hover:bg-card-menu-trigger-hover rounded-full w-7 h-7 flex items-center justify-center cursor-pointer"
+                    className="bg-card-menu-trigger hover:bg-card-menu-trigger-hover rounded-full !w-7 !h-7 flex items-center justify-center cursor-pointer"
                     aria-label="Więcej akcji"
                   >
                     <MoreVertical
@@ -149,6 +149,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
             {dialogType === 'rate' && (
               <RateBookStepperDialog
                 bookId={bookItem.book.id}
+                bookSlug={book.slug}
                 dialogTitle="Oceń książkę"
                 onlyContent
                 afterSuccess={() => setDialogType(null)}

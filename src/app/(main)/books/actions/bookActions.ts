@@ -14,7 +14,7 @@ import {
   unauthorizedResponse,
 } from '@/lib/responses';
 import { getUserSession } from '@/lib/session';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import type { ActionResult } from '@/types/actions';
 import { findUniqueBook, updateBookRating } from '@/lib/books';
 import {
@@ -32,6 +32,7 @@ type VoteActionPayload = {
 
 export const rateBookAction = async (
   bookId: string,
+  bookSlug: string,
   _currentState: unknown,
   formData: FormData
 ): Promise<ActionResult> => {
@@ -56,7 +57,7 @@ export const rateBookAction = async (
       body,
     });
 
-    revalidatePath(`/books`);
+    revalidateTag(`reviews:${bookSlug}`);
 
     return {
       isError: false,
@@ -225,7 +226,9 @@ export const addRatingAction = async ({
       rating,
     });
 
-    revalidatePath(`/books/${bookSlug}/${editionId}`);
+    revalidateTag(`reviews:${bookSlug}`);
+
+    // revalidatePath(`/books/${bookSlug}/${editionId}`);
 
     return {
       isError: false,

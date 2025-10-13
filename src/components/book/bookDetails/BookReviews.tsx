@@ -3,9 +3,9 @@ import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
-import { ReviewItem } from '@/lib/userbooks';
 import BookReview from '@/components/book/bookDetails/BookReview';
 import LoginDialog from '@/components/auth/LoginDialog';
+import { ReviewItem } from '@/lib/reviews';
 
 const BookReviews = ({
   bookId,
@@ -41,6 +41,7 @@ const BookReviews = ({
         {status === 'authenticated' ? (
           <RateBookDialog
             bookId={bookId}
+            bookSlug={bookSlug}
             editionId={editionId}
             dialogTitle={`Napisz opinie o : ${editionTitle}`}
             userReview={userReview}
@@ -64,7 +65,13 @@ const BookReviews = ({
       {reviews.length > 0 ? (
         <>
           {reviews.map((review) => (
-            <BookReview key={review.id} review={review} bookSlug={bookSlug} />
+            <BookReview
+              key={review.id}
+              review={review}
+              bookSlug={bookSlug}
+              bookId={bookId}
+              editionTitle={editionTitle}
+            />
           ))}
           <PaginationWithLinks
             page={paginationData.page}

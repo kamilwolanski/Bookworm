@@ -13,8 +13,6 @@ interface BookPageProps {
   }>;
 }
 
-export const revalidate = 21600; // 6h
-
 export default async function BookEdition({
   params,
   searchParams,
@@ -26,7 +24,6 @@ export default async function BookEdition({
   const [book, otherEditions] = await Promise.all([
     getBook(editionId),
     getOtherEditions(slug, editionId),
-    ,
   ]);
 
   return (
@@ -66,9 +63,10 @@ export default async function BookEdition({
           </Tabs>
 
           <Suspense
+            key={`reviews-${slug}-${currentPage}`}
             fallback={
-              <div className="bg-sidebar rounded-xl p-6">
-                Ładowanie recenzji…
+              <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-foreground" />
               </div>
             }
           >

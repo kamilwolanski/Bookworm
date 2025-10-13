@@ -1,5 +1,5 @@
 import BookReviews from '@/components/book/bookDetails/BookReviews';
-import { getBookReviews } from '@/lib/userbooks';
+import { getBookReviews } from '@/lib/reviews';
 
 export default async function ReviewsServer({
   slug,
@@ -24,7 +24,7 @@ export default async function ReviewsServer({
 }) {
   const reviewsResponse = await getBookReviews(slug, {
     page,
-    pageSize: 2,
+    pageSize: 3,
     onlyWithContent: true,
   });
 
@@ -34,7 +34,6 @@ export default async function ReviewsServer({
       bookSlug={slug}
       editionId={editionId}
       editionTitle={editionTitle}
-      //   userReview={book.userBook?.userReview}
       userReview={userReview}
       reviews={reviewsResponse.items}
       paginationData={{
