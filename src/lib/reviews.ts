@@ -157,6 +157,7 @@ export async function getBookReviews(
     String(opts.page ?? 1),
     String(opts.pageSize ?? 20),
     String(!!opts.onlyWithContent),
+    currentUserId ?? 'anon',
   ];
 
   // ważne: tag zależny od sluga
