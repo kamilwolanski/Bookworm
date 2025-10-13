@@ -33,7 +33,7 @@ type GetBookReviewsOptions = {
   onlyWithContent?: boolean;
 };
 
-export type DeleteReviewPayload = { reviewId: string };
+export type DeleteReviewPayload = { reviewId: string; bookId: string };
 
 async function _getBookReviewsRaw(
   bookSlug: string,
@@ -171,12 +171,31 @@ export async function getBookReviews(
 
 export async function deleteReview(
   userId: string,
-  { reviewId }: DeleteReviewPayload
+  { reviewId, bookId }: DeleteReviewPayload
 ): Promise<void> {
-  await prisma.review.delete({
-    where: {
-      id: reviewId,
-      userId,
-    },
+  await prisma.$transaction(async (tx) => {
+    await prisma.review.delete({
+      where: {
+        id: reviewId,
+        userId,
+      },
+    });
+    const aggs = await tx.review.aggregate({
+      where: { edition: { bookId } }, // <— kluczowa zmiana
+      _avg: { rating: true },
+      _count: { rating: true }, // liczy tylko nie-NULL
+    });
+
+    const avg =
+      aggs._avg.rating == null ? null : Number(aggs._avg.rating.toFixed(2));
+    const count = aggs._count.rating;
+
+    await tx.book.update({
+      where: { id: bookId },
+      data: {
+        averageRating: avg, // możesz trzymać null gdy brak ocen
+        ratingCount: count,
+      },
+    });
   });
 }

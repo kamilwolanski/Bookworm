@@ -179,7 +179,7 @@ const BookReview = ({
                   <DeleteReviewDialog
                     reviewId={review.id}
                     bookSlug={bookSlug}
-                    editionId={review.editionId}
+                    bookId={bookId}
                     onlyContent={true}
                     dialogTitle={<>Czy na pewno chcesz usunąć tę opinię?</>}
                   />

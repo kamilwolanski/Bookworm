@@ -9,11 +9,12 @@ import { revalidateTag } from 'next/cache';
 type Payload = {
   reviewId: string;
   bookSlug: string;
+  bookId: string;
 };
 
 export const deleteReviewAction = async (
   _state: ActionResult,
-  { reviewId, bookSlug }: Payload
+  { reviewId, bookSlug, bookId }: Payload
 ): Promise<ActionResult<void>> => {
   const session = await getUserSession();
   if (!session?.user?.id) return unauthorizedResponse();
@@ -21,6 +22,7 @@ export const deleteReviewAction = async (
   try {
     const result = await deleteReview(session.user.id, {
       reviewId,
+      bookId,
     });
 
     revalidateTag(`reviews:${bookSlug}`);

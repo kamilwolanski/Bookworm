@@ -19,14 +19,14 @@ import { deleteReviewAction } from '@/app/(main)/books/actions/reviewActions';
 const DeleteReviewDialog = ({
   reviewId,
   bookSlug,
-  editionId,
+  bookId,
   dialogTitle,
   onlyContent = false,
   children,
 }: {
   reviewId: string;
   bookSlug: string;
-  editionId: string;
+  bookId: string;
   dialogTitle: string | ReactNode;
   onlyContent?: boolean;
   children?: ReactNode;
@@ -39,7 +39,7 @@ const DeleteReviewDialog = ({
     {
       reviewId: string;
       bookSlug: string;
-      editionId: string;
+      bookId: string;
     }
   >(deleteReviewAction, { isError: false });
 
@@ -76,7 +76,7 @@ const DeleteReviewDialog = ({
               doAction({
                 reviewId: reviewId,
                 bookSlug: bookSlug,
-                editionId: editionId,
+                bookId: bookId,
               });
             });
           }}
