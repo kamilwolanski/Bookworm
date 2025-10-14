@@ -11,7 +11,6 @@ import RateBookForm from './RateBookForm';
 
 const RateBookDialog = ({
   bookId,
-  bookSlug,
   editionId,
   dialogTitle,
   onlyContent = false,
@@ -20,7 +19,6 @@ const RateBookDialog = ({
   children,
 }: {
   bookId: string;
-  bookSlug: string;
   editionId: string;
   dialogTitle: string;
   onlyContent?: boolean;
@@ -50,7 +48,6 @@ const RateBookDialog = ({
 
       <RateBookForm
         bookId={bookId}
-        bookSlug={bookSlug}
         editionId={editionId}
         userReview={userReview}
         afterSuccess={afterSuccess ? afterSuccess : closeDialog}

@@ -14,7 +14,7 @@ import {
   unauthorizedResponse,
 } from '@/lib/responses';
 import { getUserSession } from '@/lib/session';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import type { ActionResult } from '@/types/actions';
 import { findUniqueBook, updateBookRating } from '@/lib/books';
 import {
@@ -25,14 +25,13 @@ import { ReadingStatus, ReviewVoteType, UserBook } from '@prisma/client';
 
 type VoteActionPayload = {
   reviewId: string;
-  bookSlug: string;
   editionId: string;
+  bookSlug: string;
   type: ReviewVoteType;
 };
 
 export const rateBookAction = async (
   bookId: string,
-  bookSlug: string,
   _currentState: unknown,
   formData: FormData
 ): Promise<ActionResult> => {
@@ -56,8 +55,6 @@ export const rateBookAction = async (
       rating,
       body,
     });
-
-    revalidateTag(`reviews:${bookSlug}`);
 
     return {
       isError: false,
@@ -226,9 +223,9 @@ export const addRatingAction = async ({
       rating,
     });
 
-    revalidateTag(`reviews:${bookSlug}`);
+    // revalidateTag(`reviews:${bookSlug}`);
 
-    // revalidatePath(`/books/${bookSlug}/${editionId}`);
+    revalidatePath(`/books/${bookSlug}/${editionId}`);
 
     return {
       isError: false,

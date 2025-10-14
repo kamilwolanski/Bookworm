@@ -178,16 +178,15 @@ const BookReview = ({
                 {dialogType === 'delete' && (
                   <DeleteReviewDialog
                     reviewId={review.id}
-                    bookSlug={bookSlug}
                     bookId={bookId}
                     onlyContent={true}
                     dialogTitle={<>Czy na pewno chcesz usunąć tę opinię?</>}
+                    afterSuccess={() => setDialogType(null)}
                   />
                 )}
                 {dialogType === 'edit' && (
                   <RateBookDialog
                     bookId={bookId}
-                    bookSlug={bookSlug}
                     editionId={review.editionId}
                     dialogTitle={`Edytuj opinie o : ${editionTitle}`}
                     userReview={review}

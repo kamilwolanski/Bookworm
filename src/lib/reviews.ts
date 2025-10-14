@@ -1,7 +1,6 @@
 import { MediaFormat, Review, ReviewVoteType } from '@prisma/client';
 import { getUserSession } from '@/lib/session';
 import prisma from '@/lib/prisma';
-import { unstable_cache } from 'next/cache';
 
 export type VoteState = {
   myVote?: ReviewVoteType | null;
@@ -35,15 +34,17 @@ type GetBookReviewsOptions = {
 
 export type DeleteReviewPayload = { reviewId: string; bookId: string };
 
-async function _getBookReviewsRaw(
+export async function getBookReviews(
   bookSlug: string,
   {
     page = 1,
     pageSize = 20,
     onlyWithContent = false,
-  }: GetBookReviewsOptions = {},
-  currentUserId: string | null // <— nowy argument
+  }: GetBookReviewsOptions = {}
 ): Promise<GetBookReviewsResult> {
+  const session = await getUserSession();
+  const currentUserId = session?.user?.id ?? null;
+
   const contentWhere = onlyWithContent
     ? { AND: [{ body: { not: null } }, { body: { not: '' } }] }
     : {};
@@ -143,31 +144,6 @@ async function _getBookReviewsRaw(
   const items: ReviewItem[] = [...ownerPageItems, ...otherItems];
 
   return { items, total, page, pageSize };
-}
-
-export async function getBookReviews(
-  bookSlug: string,
-  opts: GetBookReviewsOptions = {}
-): Promise<GetBookReviewsResult> {
-  const session = await getUserSession();
-  const currentUserId = session?.user?.id ?? null;
-  const key = [
-    'reviews',
-    bookSlug,
-    String(opts.page ?? 1),
-    String(opts.pageSize ?? 20),
-    String(!!opts.onlyWithContent),
-    currentUserId ?? 'anon',
-  ];
-
-  // ważne: tag zależny od sluga
-  const cached = unstable_cache(
-    async () => _getBookReviewsRaw(bookSlug, opts, currentUserId),
-    key,
-    { tags: [`reviews:${bookSlug}`] }
-  );
-  console.log('Cache key:', key, 'tags:', [`reviews:${bookSlug}`]);
-  return cached();
 }
 
 export async function deleteReview(

@@ -9,16 +9,15 @@ import {
   AddEditionReviewInput,
   addEditionReviewSchema,
 } from '@/lib/validations/addBookToShelfValidation';
+import { useRouter } from 'next/navigation';
 
 const RateBookForm = ({
   bookId,
-  bookSlug,
   editionId,
   userReview,
   afterSuccess,
 }: {
   bookId: string;
-  bookSlug: string;
   editionId: string;
   userReview?: {
     editionId: string;
@@ -27,7 +26,9 @@ const RateBookForm = ({
   };
   afterSuccess: () => void;
 }) => {
-  const boundAction = rateBookAction.bind(null, bookId, bookSlug);
+  const router = useRouter();
+
+  const boundAction = rateBookAction.bind(null, bookId);
   const { form, isPending, handleSubmit } =
     useActionForm<AddEditionReviewInput>({
       action: boundAction,
@@ -37,7 +38,10 @@ const RateBookForm = ({
         rating: userReview?.rating ?? undefined,
         body: userReview?.body ?? undefined,
       },
-      onSuccess: afterSuccess,
+      onSuccess: () => {
+        router.refresh();
+        afterSuccess();
+      },
     });
 
   return (

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogClose,
@@ -18,30 +19,36 @@ import { deleteReviewAction } from '@/app/(main)/books/actions/reviewActions';
 
 const DeleteReviewDialog = ({
   reviewId,
-  bookSlug,
   bookId,
   dialogTitle,
   onlyContent = false,
   children,
+  afterSuccess,
 }: {
   reviewId: string;
-  bookSlug: string;
   bookId: string;
   dialogTitle: string | ReactNode;
   onlyContent?: boolean;
   children?: ReactNode;
+  afterSuccess?: () => void;
 }) => {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [state, doAction, isPending] = useActionState<
     ActionResult,
     {
       reviewId: string;
-      bookSlug: string;
       bookId: string;
     }
   >(deleteReviewAction, { isError: false });
+
+  useEffect(() => {
+    if (state.status === 'success') {
+      if (afterSuccess) afterSuccess();
+      router.refresh();
+    }
+  }, [afterSuccess, router, state.status]);
 
   const Content = (
     <DialogContent
@@ -75,7 +82,6 @@ const DeleteReviewDialog = ({
             startTransition(() => {
               doAction({
                 reviewId: reviewId,
-                bookSlug: bookSlug,
                 bookId: bookId,
               });
             });

@@ -15,6 +15,7 @@ import {
   addEditionReviewSchema,
 } from '@/lib/validations/addBookToShelfValidation';
 import { Review } from '@prisma/client';
+import { useRouter } from 'next/navigation';
 
 const { useStepper, steps, utils } = defineStepper(
   { id: 'edition', label: 'Wydanie', schema: chooseEditionSchema },
@@ -27,7 +28,6 @@ const { useStepper, steps, utils } = defineStepper(
 
 const RateBookStepperForm = ({
   bookId,
-  bookSlug,
   editions,
   userReviews,
   userEditions = [],
@@ -42,7 +42,8 @@ const RateBookStepperForm = ({
   showSteps: boolean;
   afterSuccess: () => void;
 }) => {
-  const boundAction = rateBookAction.bind(null, bookId, bookSlug);
+  const router = useRouter();
+  const boundAction = rateBookAction.bind(null, bookId);
   const stepper = useStepper();
   const { form, isPending, handleSubmit } =
     useActionForm<AddEditionReviewInput>({
@@ -52,7 +53,10 @@ const RateBookStepperForm = ({
         editionId: editions[0].id,
         rating: undefined,
       },
-      onSuccess: afterSuccess,
+      onSuccess: () => {
+        router.refresh();
+        afterSuccess();
+      },
     });
   const isDisabled = !form.watch('editionId');
   const currentIndex = utils.getIndex(stepper.current.id);
