@@ -153,10 +153,6 @@ const BookReview = ({
                       <Pencil className="mr-2 h-4 w-4" />
                       Edytuj
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Udostępnij
-                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="text-destructive focus:text-destructive cursor-pointer"

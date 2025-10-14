@@ -8,7 +8,7 @@ import Emoji from '@/components/shared/Emoji';
 import { RadioGroup } from '@/components/ui/radio-group';
 import { FormField, FormItem } from '@/components/ui/form';
 import { useFormContext } from 'react-hook-form';
-import { LibraryBig, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
 const ChooseEditonComponent = ({
@@ -52,8 +52,7 @@ const ChooseEditonComponent = ({
           (isOnShelf ? (
             <div className="absolute right-4 top-4 z-10 px-3 py-1 rounded-2xl bg-badge-owned text-primary border border-badge-owned-border">
               <div className="flex items-center gap-2">
-                <span className="text-sm">Na półce</span>
-                <LibraryBig size={16} />
+                <span className="text-xs sm:text-sm font-medium">Na półce</span>
               </div>
             </div>
           ) : (
@@ -62,7 +61,8 @@ const ChooseEditonComponent = ({
               onClick={handleClick}
             >
               <div className="flex items-center gap-2">
-                <span className="text-sm">Dodaj</span> <Plus size={16} />
+                <span className="text-xs sm:text-sm font-medium">Dodaj</span>{' '}
+                <Plus size={14} />
               </div>
             </button>
           ))}

@@ -48,8 +48,7 @@ const ChooseEditonRadioComponent = ({
         {isOnShelf && (
           <div className="absolute right-4 top-4 z-10 bg-badge-owned text-primary-foreground px-3 py-1 rounded-2xl">
             <div className="flex items-center gap-2">
-              <span className="text-sm">Na półce</span>
-              <LibraryBig size={16} />
+              <span className="text-xs sm:text-sm font-medium">Na półce</span>
             </div>
           </div>
         )}

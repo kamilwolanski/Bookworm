@@ -57,7 +57,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
               <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
                 <div className="flex items-center gap-2">
                   <span className="text-xs sm:text-sm font-medium">
-                    Na półce (inne wyd.)
+                    Masz inne wydanie
                   </span>
                 </div>
               </div>
@@ -122,7 +122,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                     onClick={() => setDialogType('showOtherEditions')}
                   >
                     <BookPlus className="w-4 h-4" />
-                    Pokaż inne wydania
+                    Wszystkie wydania
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {status === 'authenticated' ? (
