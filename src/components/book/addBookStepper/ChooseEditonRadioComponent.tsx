@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { FormField, FormItem } from '@/components/ui/form';
 import { ControllerRenderProps, useFormContext } from 'react-hook-form';
-import { Check, LibraryBig } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 const ChooseEditonRadioComponent = ({
   editions,

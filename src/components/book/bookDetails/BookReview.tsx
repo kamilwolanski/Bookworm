@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   MoreVertical,
   Pencil,
-  Share2,
   ThumbsDown,
   ThumbsUp,
   Trash2,
