@@ -20,12 +20,12 @@ export function useOptimisticReadingStatus(
   >(initial, (_state, next) => next);
 
   function change<T = unknown>(next: ReadingStatus, fn: ChangeFn<T>) {
-    if (isPending || next === statusOpt) return;
-
-    const prev = statusOpt;
-    setStatusOpt(next);
-
     startTransition(async () => {
+      if (isPending || next === statusOpt) return;
+
+      const prev = statusOpt;
+      setStatusOpt(next);
+
       try {
         const res = await fn();
         if (res.isError) {

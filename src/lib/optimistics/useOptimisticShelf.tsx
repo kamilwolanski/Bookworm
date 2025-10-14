@@ -17,16 +17,16 @@ export function useOptimisticShelf(initialOnShelf: boolean) {
     next: 'add' | 'remove',
     fn: () => Promise<ActionResult<T>>
   ) {
-    if (
-      (next === 'add' && onShelfOptimistic) ||
-      (next === 'remove' && !onShelfOptimistic)
-    ) {
-      return;
-    }
-
-    setOptimistic({ type: next });
-
     startTransition(async () => {
+      if (
+        (next === 'add' && onShelfOptimistic) ||
+        (next === 'remove' && !onShelfOptimistic)
+      ) {
+        return;
+      }
+
+      setOptimistic({ type: next });
+
       try {
         const res = await fn();
 

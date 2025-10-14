@@ -16,7 +16,6 @@ export function StarRating({
   rating,
   bookId,
   editionId,
-  bookSlug,
   maxRating = 5,
   size = 'md',
   interactive = false,
@@ -36,19 +35,15 @@ export function StarRating({
   // (opcjonalnie) obsługa klawiatury: strzałki lewo/prawo zmieniają wybór
   const onKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
     if (!interactive || isRatingOpt) return;
-    if (!bookId || !editionId || !bookSlug) return;
+    if (!bookId || !editionId) return;
 
     if (e.key === 'ArrowRight') {
       const next = Math.min(maxRating, (ratingOpt || 0) + 1);
-      rate?.(next, () =>
-        addRatingAction({ bookId, editionId, bookSlug, rating: next })
-      );
+      rate?.(next, () => addRatingAction({ bookId, editionId, rating: next }));
       e.preventDefault();
     } else if (e.key === 'ArrowLeft') {
       const next = Math.max(1, (ratingOpt || 1) - 1);
-      rate?.(next, () =>
-        addRatingAction({ bookId, editionId, bookSlug, rating: next })
-      );
+      rate?.(next, () => addRatingAction({ bookId, editionId, rating: next }));
       e.preventDefault();
     }
   };
@@ -99,12 +94,11 @@ export function StarRating({
               ].join(' ')}
               onClick={() => {
                 if (!interactive || !rate) return;
-                if (!bookId || !editionId || !bookSlug) return;
+                if (!bookId || !editionId) return;
                 rate(starNumber, () =>
                   addRatingAction({
                     bookId,
                     editionId,
-                    bookSlug,
                     rating: starNumber,
                   })
                 );

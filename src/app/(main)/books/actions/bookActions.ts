@@ -8,7 +8,6 @@ import {
 } from '@/lib/userbooks';
 import { serverErrorResponse, unauthorizedResponse } from '@/lib/responses';
 import { getUserSession } from '@/lib/session';
-import { revalidatePath } from 'next/cache';
 import type { ActionResult } from '@/types/actions';
 import { parseFormAddBookToShelfData } from '@/lib/parsers/books';
 import { ReadingStatus, UserBook } from '@prisma/client';
@@ -38,7 +37,6 @@ export const addBookToShelfAction = async (
       rating,
     });
 
-    revalidatePath(`/books`);
     return {
       isError: false,
       status: 'success',
@@ -53,11 +51,9 @@ export const addBookToShelfAction = async (
 
 export const addBookToShelfBasicAction = async ({
   bookId,
-  bookSlug,
   editionId,
 }: {
   bookId: string;
-  bookSlug: string;
   editionId: string;
 }): Promise<ActionResult<UserBook>> => {
   const session = await getUserSession();
@@ -69,7 +65,6 @@ export const addBookToShelfBasicAction = async ({
       editionId: editionId,
     });
 
-    revalidatePath(`/books/${bookSlug}/${editionId}`);
     return {
       isError: false,
       status: 'success',
@@ -84,12 +79,10 @@ export const addBookToShelfBasicAction = async ({
 
 export const changeBookStatusAction = async ({
   bookId,
-  bookSlug,
   editionId,
   readingStatus,
 }: {
   bookId: string;
-  bookSlug: string;
   editionId: string;
   readingStatus: ReadingStatus;
 }): Promise<ActionResult<UserBook>> => {
@@ -103,7 +96,6 @@ export const changeBookStatusAction = async ({
       readingStatus,
     });
 
-    revalidatePath(`/books/${bookSlug}/${editionId}`);
     return {
       isError: false,
       status: 'success',
@@ -118,11 +110,9 @@ export const changeBookStatusAction = async ({
 
 export const removeBookFromShelfAction = async ({
   bookId,
-  bookSlug,
   editionId,
 }: {
   bookId: string;
-  bookSlug: string;
   editionId: string;
 }): Promise<ActionResult<void>> => {
   const session = await getUserSession();
@@ -134,7 +124,6 @@ export const removeBookFromShelfAction = async ({
       editionId,
     });
 
-    revalidatePath(`/books/${bookSlug}/${editionId}`);
     return {
       isError: false,
       status: 'success',

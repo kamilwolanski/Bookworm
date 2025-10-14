@@ -1,7 +1,9 @@
 import { ActionResult } from '@/types/actions';
+import { useRouter } from 'next/navigation';
 import { useOptimistic, useTransition } from 'react';
 
 export function useOptimisticRating(initialUserRating: number) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const [ratingOpt, setOptimistic] = useOptimistic<number, number>(
@@ -23,6 +25,8 @@ export function useOptimisticRating(initialUserRating: number) {
 
           return;
         }
+
+        router.refresh();
       } catch {
         setOptimistic(prev);
       }

@@ -12,7 +12,6 @@ import { getUserSession } from '@/lib/session';
 import { upsertReviewVote, VoteActionResult } from '@/lib/userbooks';
 import { ActionResult } from '@/types/actions';
 import { ReviewVoteType } from '@prisma/client';
-import { revalidatePath } from 'next/cache';
 
 type DeleteReviewPayload = {
   reviewId: string;
@@ -21,19 +20,15 @@ type DeleteReviewPayload = {
 
 type VoteActionPayload = {
   reviewId: string;
-  editionId: string;
-  bookSlug: string;
   type: ReviewVoteType;
 };
 
 export const addRatingAction = async ({
   bookId,
-  bookSlug,
   editionId,
   rating,
 }: {
   bookId: string;
-  bookSlug: string;
   editionId: string;
   rating: number;
 }): Promise<ActionResult> => {
@@ -46,10 +41,6 @@ export const addRatingAction = async ({
       editionId,
       rating,
     });
-
-    // revalidateTag(`reviews:${bookSlug}`);
-
-    revalidatePath(`/books/${bookSlug}/${editionId}`);
 
     return {
       isError: false,
@@ -128,8 +119,6 @@ export const deleteReviewAction = async (
 
 export const setReviewVoteAction = async ({
   reviewId,
-  bookSlug,
-  editionId,
   type,
 }: VoteActionPayload): Promise<ActionResult<VoteActionResult>> => {
   const session = await getUserSession();
@@ -137,7 +126,6 @@ export const setReviewVoteAction = async ({
 
   try {
     const result = await upsertReviewVote(session.user.id, { reviewId, type });
-    revalidatePath(`/books/${bookSlug}/${editionId}`);
 
     return {
       isError: false,

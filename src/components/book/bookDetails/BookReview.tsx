@@ -31,12 +31,10 @@ const BookReview = ({
   bookId,
   editionTitle,
   review,
-  bookSlug,
 }: {
   bookId: string;
   editionTitle: string;
   review: ReviewItem;
-  bookSlug: string;
 }) => {
   const {
     myVoteOptimistic,
@@ -64,29 +62,25 @@ const BookReview = ({
     return vote('LIKE', () =>
       setReviewVoteAction({
         reviewId: review.id,
-        bookSlug,
-        editionId: review.editionId,
         type: 'LIKE',
       })
     );
-  }, [disabled, vote, review.id, bookSlug, review.editionId]);
+  }, [disabled, review.id, vote]);
 
   const handleDislike = useCallback(() => {
     if (disabled) return;
     return vote('DISLIKE', () =>
       setReviewVoteAction({
         reviewId: review.id,
-        bookSlug,
-        editionId: review.editionId,
         type: 'DISLIKE',
       })
     );
-  }, [disabled, vote, review.id, bookSlug, review.editionId]);
+  }, [disabled, review.id, vote]);
 
   return (
     <div
       className={`border rounded-lg p-4 md:p-6 bg-sidebar shadow-sm mt-5 ${
-        review.isOwner ? 'border-green-200 bg-green-50/30' : 'border-border'
+        review.isOwner ? 'border-accent-2/50' : 'border-border'
       }`}
       data-pending={isPending ? 'true' : 'false'}
     >

@@ -9,7 +9,6 @@ import { ReviewItem } from '@/lib/reviews';
 
 const BookReviews = ({
   bookId,
-  bookSlug,
   editionId,
   editionTitle,
   reviews,
@@ -17,7 +16,6 @@ const BookReviews = ({
   paginationData,
 }: {
   bookId: string;
-  bookSlug: string;
   editionId: string;
   editionTitle: string;
   userReview?: {
@@ -67,7 +65,6 @@ const BookReviews = ({
             <BookReview
               key={review.id}
               review={review}
-              bookSlug={bookSlug}
               bookId={bookId}
               editionTitle={editionTitle}
             />

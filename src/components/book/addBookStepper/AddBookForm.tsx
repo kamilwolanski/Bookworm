@@ -18,6 +18,7 @@ import {
 import ReadingStatusComponent from './ReadingStatusComponent';
 import { FormProvider } from 'react-hook-form';
 import { Review } from '@prisma/client';
+import { useRouter } from 'next/navigation';
 
 const { useStepper, steps, utils } = defineStepper(
   { id: 'edition', label: 'Wydanie', schema: chooseEditionSchema },
@@ -46,6 +47,7 @@ const AddBookForm = ({
   afterSuccess: () => void;
 }) => {
   const boundAction = addBookToShelfAction.bind(null, bookId);
+  const router = useRouter();
   const stepper = useStepper();
   const { status } = useSession();
   const { form, isPending, handleSubmit } = useActionForm<AddBookToShelfInput>({
@@ -56,7 +58,10 @@ const AddBookForm = ({
       readingStatus: 'WANT_TO_READ',
       rating: undefined,
     },
-    onSuccess: afterSuccess,
+    onSuccess: () => {
+      router.refresh();
+      afterSuccess();
+    },
   });
   const isDisabled = !form.watch('editionId');
   const currentIndex = utils.getIndex(stepper.current.id);
@@ -176,7 +181,7 @@ const AddBookForm = ({
                   className="cursor-pointer"
                   disabled={isPending}
                 >
-                  Zapisz
+                  {isPending ? 'Dodawanie...' : 'Dodaj'}
                 </Button>
               ) : (
                 <Button

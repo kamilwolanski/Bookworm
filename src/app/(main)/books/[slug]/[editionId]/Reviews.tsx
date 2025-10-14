@@ -31,7 +31,6 @@ export default async function ReviewsServer({
   return (
     <BookReviews
       bookId={bookId}
-      bookSlug={slug}
       editionId={editionId}
       editionTitle={editionTitle}
       userReview={userReview}

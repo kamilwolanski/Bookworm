@@ -99,7 +99,6 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
       toggle('remove', () =>
         removeBookFromShelfAction({
           bookId: book.id,
-          bookSlug: book.slug,
           editionId: edition.id,
         })
       );
@@ -107,7 +106,6 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
       toggle('add', () =>
         addBookToShelfBasicAction({
           bookId: book.id,
-          bookSlug: book.slug,
           editionId: edition.id,
         })
       );
@@ -235,7 +233,6 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                     change(value as ReadingStatus, () =>
                       changeBookStatusAction({
                         bookId: book.id,
-                        bookSlug: book.slug,
                         editionId: edition.id,
                         readingStatus: value as ReadingStatus,
                       })
