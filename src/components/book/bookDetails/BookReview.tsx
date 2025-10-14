@@ -132,12 +132,12 @@ const BookReview = ({
                 open={openDialog}
                 onOpenChange={(o) => !o && setDialogType(null)}
               >
-                <DropdownMenu>
+                <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 -mr-2"
+                      className="h-5 w-5 -mr-2"
                     >
                       <MoreVertical className="h-4 w-4" />
                       <span className="sr-only">Otwórz menu</span>
@@ -218,7 +218,7 @@ const BookReview = ({
             onClick={handleLike}
           >
             <ThumbsUp className="w-4 h-4" aria-hidden="true" />
-            {likesOptimistic}
+            <span className="w-1 text-center">{likesOptimistic}</span>{' '}
           </Button>
 
           <Button
@@ -235,7 +235,7 @@ const BookReview = ({
             onClick={handleDislike}
           >
             <ThumbsDown className="w-4 h-4" aria-hidden="true" />
-            {dislikesOptimistic}
+            <span className="w-1 text-center">{dislikesOptimistic}</span>
           </Button>
         </div>
       </div>
