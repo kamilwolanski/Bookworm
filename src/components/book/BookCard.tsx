@@ -57,7 +57,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
               <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
                 <div className="flex items-center gap-2">
                   <span className="text-xs sm:text-sm font-medium">
-                    Masz inne wydanie
+                    Na półce (inne wyd.)
                   </span>
                 </div>
               </div>
