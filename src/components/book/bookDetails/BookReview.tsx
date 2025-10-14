@@ -14,7 +14,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StarRating } from '@/components/book/StarRating';
 import { Button } from '@/components/ui/button';
 import { useOptimisticVoteReview } from '@/lib/optimistics/useOptimisticVoteReview';
-import { setReviewVoteAction } from '@/app/(main)/books/actions/bookActions';
 import { ReviewItem } from '@/lib/reviews';
 import {
   DropdownMenu,
@@ -26,6 +25,7 @@ import {
 import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
 import { Dialog } from '@/components/ui/dialog';
 import DeleteReviewDialog from '@/components/book/bookDetails/DeleteReviewDialog';
+import { setReviewVoteAction } from '@/app/(main)/books/actions/reviewActions';
 
 const BookReview = ({
   bookId,

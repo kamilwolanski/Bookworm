@@ -1,6 +1,6 @@
 import { Star } from 'lucide-react';
 import { useOptimisticRating } from '@/lib/optimistics/useOptimisticRating';
-import { addRatingAction } from '@/app/(main)/books/actions/bookActions';
+import { addRatingAction } from '@/app/(main)/books/actions/reviewActions';
 
 interface StarRatingProps {
   rating: number;

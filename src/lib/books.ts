@@ -12,13 +12,6 @@ export type CreateBookData = Omit<
   'id' | 'addedAt' | 'averageRating' | 'ratingCount'
 >;
 
-export type RatePayload = {
-  bookId: string;
-  editionId: string;
-  rating?: number;
-  body?: string;
-};
-
 export type RateData = {
   averageRating: number;
   ratingCount: number;
@@ -31,99 +24,6 @@ export type OtherEditionDto = {
   title: string | null;
 };
 
-export async function getAllBooks(
-  currentPage: number,
-  booksPerPage: number,
-  genres: string[],
-  ratings: string[],
-  search?: string
-): Promise<{
-  books: BookDTO[];
-  totalCount: number;
-}> {
-  const skip = (currentPage - 1) * booksPerPage;
-
-  const searchConditions = search
-    ? {
-        OR: [
-          { title: { contains: search, mode: 'insensitive' as const } },
-          { author: { contains: search, mode: 'insensitive' as const } },
-          {
-            genres: {
-              some: {
-                genre: {
-                  translations: {
-                    some: {
-                      language: 'pl',
-                      name: {
-                        contains: search,
-                        mode: 'insensitive' as const,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        ],
-      }
-    : {};
-
-  const where = {
-    ...searchConditions,
-    ...(genres.length > 0 && {
-      genres: {
-        some: {
-          genre: {
-            slug: { in: genres },
-          },
-        },
-      },
-    }),
-  };
-
-  const [books, totalCount] = await Promise.all([
-    prisma.book.findMany({
-      skip,
-      take: booksPerPage,
-      where,
-      orderBy: { addedAt: 'desc' },
-      include: {
-        genres: {
-          include: {
-            genre: {
-              include: {
-                translations: {
-                  where: { language: 'pl' },
-                },
-              },
-            },
-          },
-        },
-      },
-    }),
-    prisma.book.count({ where }),
-  ]);
-
-  const booksDto: BookDTO[] = books.map((book) => ({
-    ...book,
-    genres: book.genres.map((g) => {
-      const t = g.genre.translations[0];
-      return {
-        id: g.genre.id,
-        slug: g.genre.slug,
-        language: t.language,
-        name: t.name,
-      };
-    }),
-  }));
-
-  return {
-    books: booksDto,
-    totalCount,
-  };
-}
-
 export async function findUniqueBook(bookId: string) {
   const book = await prisma.book.findUnique({
     where: { id: bookId },
@@ -131,46 +31,6 @@ export async function findUniqueBook(bookId: string) {
   });
 
   return book;
-}
-
-export async function updateBookRating(
-  userId: string,
-  { editionId, bookId, rating, body }: RatePayload
-): Promise<void> {
-  // walidacja: tylko jeśli rating został przekazany
-  if (rating != null) {
-    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-      throw new Error('Rating must be an integer between 1 and 5.');
-    }
-  }
-
-  await prisma.$transaction(async (tx) => {
-    // Upsert recenzji użytkownika dla danej EDYCJI
-    await tx.review.upsert({
-      where: { userId_editionId: { userId, editionId } },
-      create: { editionId, userId, rating, body },
-      update: { rating, body },
-    });
-
-    // 🔧 Agregaty dla CAŁEJ KSIĄŻKI (po wszystkich edycjach)
-    const aggs = await tx.review.aggregate({
-      where: { edition: { bookId } }, // <— kluczowa zmiana
-      _avg: { rating: true },
-      _count: { rating: true }, // liczy tylko nie-NULL
-    });
-
-    const avg =
-      aggs._avg.rating == null ? null : Number(aggs._avg.rating.toFixed(2));
-    const count = aggs._count.rating;
-
-    await tx.book.update({
-      where: { id: bookId },
-      data: {
-        averageRating: avg, // możesz trzymać null gdy brak ocen
-        ratingCount: count,
-      },
-    });
-  });
 }
 
 export async function getTheNewestEditions(userId?: string, take: number = 5) {

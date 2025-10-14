@@ -7,7 +7,6 @@ import { Separator } from '@/components/ui/separator';
 import ChooseEditonRadioComponent from '@/components/book/addBookStepper/ChooseEditonRadioComponent';
 import ReviewEditionComponent from '@/components/book/ratebook/ReviewEditionComponent';
 import { EditionDto, UserEditionDto } from '@/lib/userbooks';
-import { rateBookAction } from '@/app/(main)/books/actions/bookActions';
 import { FormProvider } from 'react-hook-form';
 import {
   chooseEditionSchema,
@@ -16,6 +15,7 @@ import {
 } from '@/lib/validations/addBookToShelfValidation';
 import { Review } from '@prisma/client';
 import { useRouter } from 'next/navigation';
+import { rateBookAction } from '@/app/(main)/books/actions/reviewActions';
 
 const { useStepper, steps, utils } = defineStepper(
   { id: 'edition', label: 'Wydanie', schema: chooseEditionSchema },

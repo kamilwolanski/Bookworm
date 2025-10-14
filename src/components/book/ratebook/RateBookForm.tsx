@@ -3,13 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import ReviewEditionComponent from '@/components/book/ratebook/ReviewEditionComponent';
-import { rateBookAction } from '@/app/(main)/books/actions/bookActions';
 import { FormProvider } from 'react-hook-form';
 import {
   AddEditionReviewInput,
   addEditionReviewSchema,
 } from '@/lib/validations/addBookToShelfValidation';
 import { useRouter } from 'next/navigation';
+import { rateBookAction } from '@/app/(main)/books/actions/reviewActions';
 
 const RateBookForm = ({
   bookId,
