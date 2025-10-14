@@ -41,7 +41,6 @@ const BookReviews = ({
         {status === 'authenticated' ? (
           <RateBookDialog
             bookId={bookId}
-            bookSlug={bookSlug}
             editionId={editionId}
             dialogTitle={`Napisz opinie o : ${editionTitle}`}
             userReview={userReview}

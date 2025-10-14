@@ -288,7 +288,6 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
               {status === 'authenticated' ? (
                 <RateBookDialog
                   bookId={book.id}
-                  bookSlug={book.slug}
                   editionId={edition.id}
                   dialogTitle={`Napisz opinie o : ${edition.title}`}
                   userReview={userBook?.userReview}
