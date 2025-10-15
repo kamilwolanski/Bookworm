@@ -13,12 +13,11 @@ export async function sendWelcomeEmail(to: string, name?: string) {
     </div>
   `;
 
-  const { data, error } = await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: `BookWorm <${process.env.EMAIL_FROM!}>`, // np. "TwojaAplikacja <onboarding@resend.dev>"
     to: to,
     subject: 'Witamy na pokładzie!',
     html,
-    
   });
 
   if (error) {
