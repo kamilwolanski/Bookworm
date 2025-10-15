@@ -1,18 +1,10 @@
-import { Session, getServerSession } from 'next-auth';
+// server session helpers
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const session = async ({ session, token }: any) => {
-  session.user.id = token.id;
-  session.user.role = token.role;
-  return session;
-};
+import type { Session } from 'next-auth';
+import { auth } from '../../auth';
 
-export const getUserSession = async (): Promise<Session> => {
-  const authUserSession = await getServerSession({
-    callbacks: {
-      session,
-    },
-  });
+// (callback session przeniesiony do auth.ts → patrz wyżej)
 
-  return authUserSession;
+export const getUserSession = async (): Promise<Session | null> => {
+  return await auth();
 };

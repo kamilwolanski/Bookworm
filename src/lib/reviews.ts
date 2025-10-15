@@ -9,7 +9,7 @@ export type VoteState = {
 };
 
 export type ReviewItem = Review & {
-  user: { id: string; name: string | null; avatarUrl: string | null };
+  user: { id: string; name: string | null; image: string | null };
   edition: {
     id: string;
     language: string | null;
@@ -73,7 +73,7 @@ export async function getBookReviews(
       where: { ...baseWhere, userId: currentUserId },
       orderBy: { createdAt: 'desc' },
       include: {
-        user: { select: { id: true, name: true, avatarUrl: true } },
+        user: { select: { id: true, name: true, image: true } },
         edition: { select: { id: true, language: true, format: true } },
         votes: true,
       },
@@ -128,7 +128,7 @@ export async function getBookReviews(
           skip: othersSkip,
           take: needOthers,
           include: {
-            user: { select: { id: true, name: true, avatarUrl: true } },
+            user: { select: { id: true, name: true, image: true } },
             edition: { select: { id: true, language: true, format: true } },
             votes: true,
           },
