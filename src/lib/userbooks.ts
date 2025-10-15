@@ -752,7 +752,7 @@ export async function addBookToShelfWithReview(
         _count: { rating: true },
       });
 
-      const avg = Number((aggs._avg.rating ?? 0).toFixed(2));
+      const avg = Number((aggs._avg.rating ?? 0).toFixed(1));
       const count = aggs._count.rating;
 
       await tx.book.update({

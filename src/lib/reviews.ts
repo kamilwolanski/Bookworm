@@ -180,7 +180,7 @@ export async function updateBookRating(
     });
 
     const avg =
-      aggs._avg.rating == null ? null : Number(aggs._avg.rating.toFixed(2));
+      aggs._avg.rating == null ? null : Number(aggs._avg.rating.toFixed(1));
     const count = aggs._count.rating;
 
     await tx.book.update({
@@ -211,7 +211,7 @@ export async function deleteReview(
     });
 
     const avg =
-      aggs._avg.rating == null ? null : Number(aggs._avg.rating.toFixed(2));
+      aggs._avg.rating == null ? null : Number(aggs._avg.rating.toFixed(1));
     const count = aggs._count.rating;
 
     await tx.book.update({
