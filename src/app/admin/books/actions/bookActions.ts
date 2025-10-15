@@ -32,7 +32,7 @@ export const createBookAction: Action<[unknown, FormData]> = async (
 ) => {
   const session = await getUserSession();
 
-  if (session.user.role !== Role.ADMIN) {
+  if (session?.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
 
@@ -77,7 +77,7 @@ export const updateBookAction = async (
 ): Promise<ActionResult> => {
   const session = await getUserSession();
 
-  if (session.user.role !== Role.ADMIN) {
+  if (session?.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
 
@@ -122,7 +122,7 @@ export const deleteBookAction: Action<[unknown, string]> = async (
 ) => {
   const session = await getUserSession();
 
-  if (session.user.role !== Role.ADMIN) {
+  if (session?.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
 

@@ -29,7 +29,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getUserSession();
-  if (session.user.role !== Role.ADMIN) {
+  if (session?.user.role !== Role.ADMIN) {
     redirect('/login');
   }
 

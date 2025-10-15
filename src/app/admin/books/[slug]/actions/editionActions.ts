@@ -35,7 +35,7 @@ export async function createEditionAction(
 ): Promise<ActionResult> {
   const session = await getUserSession();
 
-  if (session.user.role !== Role.ADMIN) {
+  if (session?.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
 
@@ -113,7 +113,7 @@ export async function updateEditionAction(
 ): Promise<ActionResult> {
   const session = await getUserSession();
 
-  if (session.user.role !== Role.ADMIN) {
+  if (session?.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
 
@@ -191,7 +191,7 @@ export async function deleteEditionAction(
 ): Promise<ActionResult> {
   const session = await getUserSession();
 
-  if (session.user.role !== Role.ADMIN) {
+  if (session?.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
 

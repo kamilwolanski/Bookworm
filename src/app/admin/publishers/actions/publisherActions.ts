@@ -26,7 +26,7 @@ export const createPublisherAction: Action<[unknown, FormData]> = async (
 ) => {
   const session = await getUserSession();
 
-  if (session.user.role !== Role.ADMIN) {
+  if (session?.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
 
@@ -68,7 +68,7 @@ export async function updatePublisherAction(
   formData: FormData
 ): Promise<ActionResult> {
   const session = await getUserSession();
-  if (session.user.role !== Role.ADMIN) return unauthorizedResponse();
+  if (session?.user.role !== Role.ADMIN) return unauthorizedResponse();
 
   const parsed = parseFormPublisherData(formData); // bez id w schemacie
   if (!parsed.success) return parsed.errorResponse;
@@ -104,7 +104,7 @@ export const deletePublisherAction: Action<[unknown, string]> = async (
 ) => {
   const session = await getUserSession();
 
-  if (session.user.role !== Role.ADMIN) {
+  if (session?.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
 

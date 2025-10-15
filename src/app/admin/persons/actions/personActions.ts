@@ -35,7 +35,7 @@ export const createPersonAction: Action<[unknown, FormData]> = async (
 ) => {
   const session = await getUserSession();
 
-  if (session.user.role !== Role.ADMIN) {
+  if (session?.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
 
@@ -109,7 +109,7 @@ export const updatePersonAction = async (
 ): Promise<ActionResult> => {
   const session = await getUserSession();
 
-  if (session.user.role !== Role.ADMIN) {
+  if (session?.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
 
@@ -185,7 +185,7 @@ export const deletePersonAction: Action<[unknown, string]> = async (
 ) => {
   const session = await getUserSession();
 
-  if (session.user.role !== Role.ADMIN) {
+  if (session?.user.role !== Role.ADMIN) {
     return unauthorizedResponse();
   }
 
