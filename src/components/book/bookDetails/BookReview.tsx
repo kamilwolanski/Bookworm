@@ -85,9 +85,9 @@ const BookReview = ({
     >
       <div className="flex items-start gap-4 mb-4">
         <Avatar className="w-10 h-10">
-          {review.user.avatarUrl ? (
+          {review.user.image ? (
             <AvatarImage
-              src={review.user.avatarUrl}
+              src={review.user.image}
               alt={`Avatar użytkownika ${review.user.name}`}
             />
           ) : (
