@@ -213,7 +213,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                         className="object-contain"
                       />
                     </div>
-                    <span className="flex items-center gap-1 text-sm">
+                    <span className="flex items-center gap-1 text-xs sm:text-sm">
                       {bookItem.ratings.representativeEditionRating}/5{' '}
                       <Star className="w-3 h-3 fill-current text-yellow-400" />
                     </span>
