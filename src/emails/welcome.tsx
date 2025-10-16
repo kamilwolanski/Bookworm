@@ -31,13 +31,13 @@ export const WelcomeEmail = ({ username }: WelcomeProps) => (
         theme: {
           extend: {
             colors: {
-              primary: '#16a34a',
+              primary: '#3ea843',
               'primary-foreground': '#ffffff',
               foreground: '#3a3a3a',
-              'muted-foreground': '#6b7280',
-              border: '#e5e7eb',
+              'muted-foreground': '#535353',
+              border: '#e5e5e5',
               card: '#ffffff',
-              background: '#f5f6f8',
+              background: '#f3f3f3',
             },
           },
         },
