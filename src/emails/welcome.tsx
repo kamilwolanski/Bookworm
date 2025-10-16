@@ -31,13 +31,13 @@ export const WelcomeEmail = ({ username }: WelcomeProps) => (
         theme: {
           extend: {
             colors: {
-              primary: 'oklch(64.821% 0.17043 144.05)',
-              'primary-foreground': 'oklch(1 0 0)',
-              foreground: 'oklch(23.929% 0.00003 271.152)',
-              'muted-foreground': 'oklch(44.226% 0.00005 271.152)',
-              border: 'oklch(0.922 0 0)',
-              card: 'oklch(1 0 0)',
-              background: 'oklch(96.416% 0.00011 271.152)',
+              primary: '#16a34a',
+              'primary-foreground': '#ffffff',
+              foreground: '#3a3a3a',
+              'muted-foreground': '#6b7280',
+              border: '#e5e7eb',
+              card: '#ffffff',
+              background: '#f5f6f8',
             },
           },
         },
@@ -56,10 +56,15 @@ export const WelcomeEmail = ({ username }: WelcomeProps) => (
                 <td>
                   <Img
                     src={getImageUrl('logo.png')}
-                    width="40"
-                    height="40"
+                    width={40}
+                    height={40}
                     alt="logo"
-                    style={{ display: 'block' }}
+                    style={{
+                      display: 'block',
+                      border: '0',
+                      outline: 'none',
+                      textDecoration: 'none',
+                    }}
                   />
                 </td>
                 <td style={{ paddingLeft: '8px', verticalAlign: 'middle' }}>
@@ -105,10 +110,21 @@ export const WelcomeEmail = ({ username }: WelcomeProps) => (
             <Section className="text-center mt-10">
               <Link
                 href="https://bookworm.today/books"
-                className="bg-primary text-primary-foreground px-8 py-2 rounded-md text-lg font-medium"
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#16a34a',
+                  color: '#ffffff',
+                  padding: '8px 24px',
+                  borderRadius: '8px',
+                  fontSize: '18px',
+                  lineHeight: '24px',
+                  textDecoration: 'none',
+                  fontWeight: 600,
+                }}
               >
                 Przejdź do aplikacji →
               </Link>
+
               <Text className="text-muted-foreground">
                 Zaloguj się i odkryj swoją pierwszą książkę
               </Text>
