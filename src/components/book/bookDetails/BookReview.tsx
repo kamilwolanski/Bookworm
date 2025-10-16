@@ -25,6 +25,8 @@ import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
 import { Dialog } from '@/components/ui/dialog';
 import DeleteReviewDialog from '@/components/book/bookDetails/DeleteReviewDialog';
 import { setReviewVoteAction } from '@/app/(main)/books/actions/reviewActions';
+import { useSession } from 'next-auth/react';
+import LoginDialog from '@/components/auth/LoginDialog';
 
 const BookReview = ({
   bookId,
@@ -42,6 +44,8 @@ const BookReview = ({
     vote,
     isPending,
   } = useOptimisticVoteReview(review.votes);
+  const { status } = useSession();
+
   const [dialogType, setDialogType] = useState<null | 'delete' | 'edit'>(null);
   const openDialog = dialogType !== null;
   const createdAtIso = useMemo(
@@ -199,39 +203,77 @@ const BookReview = ({
         </span>
 
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="noStyle"
-            disabled={disabled}
-            size="sm"
-            aria-pressed={likeActive}
-            aria-label={likeActive ? 'Cofnij lajka' : 'Daj lajka'}
-            title={likeActive ? 'Cofnij lajka' : 'Daj lajka'}
-            className={`flex items-center gap-1 ${
-              likeActive ? 'bg-accent-2 text-accent-foreground-2' : ''
-            }`}
-            onClick={handleLike}
-          >
-            <ThumbsUp className="w-4 h-4" aria-hidden="true" />
-            <span className="w-1 text-center">{likesOptimistic}</span>{' '}
-          </Button>
+          {status === 'authenticated' ? (
+            <Button
+              type="button"
+              variant="noStyle"
+              disabled={disabled}
+              size="sm"
+              aria-pressed={likeActive}
+              aria-label={likeActive ? 'Cofnij lajka' : 'Daj lajka'}
+              title={likeActive ? 'Cofnij lajka' : 'Daj lajka'}
+              className={`flex items-center gap-1 ${
+                likeActive ? 'bg-accent-2 text-accent-foreground-2' : ''
+              }`}
+              onClick={handleLike}
+            >
+              <ThumbsUp className="w-4 h-4" aria-hidden="true" />
+              <span className="w-1 text-center">{likesOptimistic}</span>{' '}
+            </Button>
+          ) : (
+            <LoginDialog
+              dialogTriggerBtn={
+                <Button
+                  type="button"
+                  variant="noStyle"
+                  size="sm"
+                  aria-label="Daj lajka"
+                  title="Daj lajka"
+                  className="flex items-center gap-1"
+                >
+                  <ThumbsUp className="w-4 h-4" aria-hidden="true" />
+                  <span className="w-1 text-center">
+                    {likesOptimistic}
+                  </span>{' '}
+                </Button>
+              }
+            />
+          )}
 
-          <Button
-            type="button"
-            variant="noStyle"
-            disabled={disabled}
-            size="sm"
-            aria-pressed={dislikeActive}
-            aria-label={dislikeActive ? 'Cofnij dislajka' : 'Daj dislajka'}
-            title={dislikeActive ? 'Cofnij dislajka' : 'Daj dislajka'}
-            className={`flex items-center gap-1 ${
-              dislikeActive ? 'bg-destructive text-accent-foreground-2' : ''
-            }`}
-            onClick={handleDislike}
-          >
-            <ThumbsDown className="w-4 h-4" aria-hidden="true" />
-            <span className="w-1 text-center">{dislikesOptimistic}</span>
-          </Button>
+          {status === 'authenticated' ? (
+            <Button
+              type="button"
+              variant="noStyle"
+              disabled={disabled}
+              size="sm"
+              aria-pressed={dislikeActive}
+              aria-label={dislikeActive ? 'Cofnij dislajka' : 'Daj dislajka'}
+              title={dislikeActive ? 'Cofnij dislajka' : 'Daj dislajka'}
+              className={`flex items-center gap-1 ${
+                dislikeActive ? 'bg-destructive text-accent-foreground-2' : ''
+              }`}
+              onClick={handleDislike}
+            >
+              <ThumbsDown className="w-4 h-4" aria-hidden="true" />
+              <span className="w-1 text-center">{dislikesOptimistic}</span>
+            </Button>
+          ) : (
+            <LoginDialog
+              dialogTriggerBtn={
+                <Button
+                  type="button"
+                  variant="noStyle"
+                  size="sm"
+                  aria-label="Daj dislajka"
+                  title="Daj dislajka"
+                  className="flex items-center gap-1"
+                >
+                  <ThumbsDown className="w-4 h-4" aria-hidden="true" />
+                  <span className="w-1 text-center">{dislikesOptimistic}</span>
+                </Button>
+              }
+            />
+          )}
         </div>
       </div>
     </div>
