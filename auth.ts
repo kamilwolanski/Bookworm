@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 
 import authConfig from './auth.config';
-import { sendWelcomeEmail } from '@/lib/emails/email';
+import { sendWelcomeEmail } from '@/lib/email';
 import prisma from '@/lib/prisma';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -28,6 +28,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   },
 
   events: {
+    async signIn({ user }) {
+      if (user.email) await sendWelcomeEmail(user.email, user.name ?? '');
+    },
     async createUser({ user }) {
       if (user.email) await sendWelcomeEmail(user.email, user.name ?? '');
     },
