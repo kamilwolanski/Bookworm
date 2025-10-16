@@ -3,7 +3,8 @@ import '../../globals.css';
 
 export const metadata: Metadata = {
   title: 'BookWorm',
-  description: 'BookWorm to aplikacja dla miłośników książek. Przeglądaj, oceniaj i recenzuj tytuły oraz dodawaj je do swojej wirtualnej półki.',
+  description:
+    'BookWorm to aplikacja dla miłośników książek. Przeglądaj, oceniaj i recenzuj tytuły oraz dodawaj je do swojej wirtualnej półki.',
 };
 
 export default async function RootLayout({
