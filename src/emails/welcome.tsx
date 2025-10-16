@@ -96,13 +96,13 @@ export const WelcomeEmail = ({ username }: WelcomeProps) => (
               <b>Teraz możesz:</b>
             </Text>
             <Section>
-              <Text className="text-base">
+              <Text className="text-base text-foreground">
                 <span>⭐</span> Oceniać i recenzować przeczytane tytuły
               </Text>
-              <Text className="text-base">
+              <Text className="text-base text-foreground">
                 <span>📖</span> Dodawać książki do swojej wirtualnej półki
               </Text>
-              <Text className="text-base">
+              <Text className="text-base text-foreground">
                 <span>🔍</span> Wyszukiwać książki według gatunku, oceny czy
                 statusu
               </Text>
