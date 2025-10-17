@@ -74,6 +74,9 @@ BookWorm to projekt aktywnie rozwijany — poniżej kilka planowanych kroków �
 **Tryb ciemny**
 ![Dark mode](public/docs/booksearch-darkmode.png)
 
+**Wersja mobile**
+![Dark mode](public/docs/booksearchmobile.png)
+
 Wszystkie zrzuty ekranu znajdziesz w katalogu `/docs/screenshots`.
 
 > 📍 Zobacz wersję live, jeśli chcesz zobaczyć więcej:  
