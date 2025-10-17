@@ -59,12 +59,28 @@ BookWorm to projekt aktywnie rozwijany — poniżej kilka planowanych kroków �
 
 ## 📸 Screeny
 
-Zrzuty ekranu znajdziesz w katalogu `/docs/screenshots`.
+**Ekran główny**
+![Home](public/docs/mainpage.png)
+
+**Ekran wyszukiwania**
+![Books](public/docs/booksearch.png)
+
+**Szczegóły książki**
+![Book details](public/docs/bookdetails.png)
+
+**Panel admina**
+![Admin panel](public/docs/admin.png)
+
+**Tryb ciemny**
+![Dark mode](public/docs/booksearch-darkmode.png)
+
+Wszystkie zrzuty ekranu znajdziesz w katalogu `/docs/screenshots`.
 
 > 📍 Zobacz wersję live, jeśli chcesz zobaczyć więcej:  
 > 🔗 **[https://bookworm.today](https://bookworm.today)**
 
 ---
+
 
 ## 🤝 Autor
 
