@@ -68,15 +68,14 @@ Zrzuty ekranu znajdziesz w katalogu `/docs/screenshots`.
 
 ## 🤝 Autor
 
-👨‍💻 **[Kamil Wolański]**  
+👨‍💻 **Kamil Wolański**  
 Frontend Developer – Next.js / React / TypeScript 
-📫 [kwolanski3@gmail.com]  
+📫 kwolanski3@gmail.com
 
 ---
 
 ## 🪪 Licencja
 
-**MIT**.  
+**MIT**  
 © 2025 
 
----
