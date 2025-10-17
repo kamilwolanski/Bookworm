@@ -122,7 +122,7 @@ export const WelcomeEmail = ({ username }: WelcomeProps) => (
                   fontWeight: 600,
                 }}
               >
-                Przejdź do aplikacji →
+                Zacznij korzystać →
               </Link>
 
               <Text className="text-muted-foreground">
