@@ -22,7 +22,31 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'BookWorm',
   description:
-    'BookWorm to aplikacja dla miłośników książek. Przeglądaj, oceniaj i recenzuj tytuły oraz dodawaj je do swojej wirtualnej półki.',
+    'BookWorm to platforma dla miłośników książek. Przeglądaj, oceniaj i recenzuj tytuły oraz dodawaj je do swojej wirtualnej półki.',
+  openGraph: {
+    title: 'BookWorm',
+    description:
+      'BookWorm to platforma dla miłośników książek. Przeglądaj, oceniaj i recenzuj tytuły oraz dodawaj je do swojej wirtualnej półki.',
+    url: 'https://bookworm.today',
+    siteName: 'BookWorm',
+    images: [
+      {
+        url: '/ogimage.png',
+        width: 1200,
+        height: 630,
+        alt: 'BookWorm OG Image',
+      },
+    ],
+    locale: 'pl_PL',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'BookWorm',
+    description:
+      'BookWorm to platforma dla miłośników książek. Przeglądaj, oceniaj i recenzuj tytuły oraz dodawaj je do swojej wirtualnej półki.',
+    images: ['/ogimage.png'],
+  },
 };
 
 export default async function RootLayout({
