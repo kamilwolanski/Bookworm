@@ -120,7 +120,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
             <Image
               src={edition.coverUrl}
               alt={edition.title}
-              width={280}
+              width={320}
               height={420}
               className="rounded-md object-cover mx-auto"
             />

@@ -348,7 +348,7 @@ export async function getBestRatedBooks(userId?: string, take: number = 5) {
 export async function getTopBooksWithTopEdition(
   userId?: string,
   take: number = 5,
-  lastDays: number = 7
+  lastDays: number = 14
 ) {
   const since = subDays(new Date(), lastDays);
 

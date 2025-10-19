@@ -58,19 +58,35 @@ export type BookFormat = (typeof BOOK_FORMATS)[number]['value'];
 
 export const LANGUAGES = [
   { value: 'pl', label: 'Polski', icon: '🇵🇱', meta: '(pl)' },
-  { value: 'en', label: 'Angielski', icon: '🇬🇧', meta: '(en)' },
+  { value: 'en', label: 'Angielski (UK)', icon: '🇬🇧', meta: '(en-GB)' },
+  { value: 'us', label: 'Angielski (USA)', icon: '🇺🇸', meta: '(en-US)' },
+  {
+    value: 'en-au',
+    label: 'Angielski (Australia)',
+    icon: '🇦🇺',
+    meta: '(en-AU)',
+  },
+  { value: 'en-ca', label: 'Angielski (Kanada)', icon: '🇨🇦', meta: '(en-CA)' },
+
   { value: 'de', label: 'Niemiecki', icon: '🇩🇪', meta: '(de)' },
-  { value: 'fr', label: 'Francuski', icon: '🇫🇷', meta: '(fr)' },
-  { value: 'es', label: 'Hiszpański', icon: '🇪🇸', meta: '(es)' },
+  { value: 'fr', label: 'Francuski (Francja)', icon: '🇫🇷', meta: '(fr-FR)' },
+  { value: 'fr-ca', label: 'Francuski (Kanada)', icon: '🇨🇦', meta: '(fr-CA)' },
+  { value: 'es', label: 'Hiszpański (Hiszpania)', icon: '🇪🇸', meta: '(es-ES)' },
+  { value: 'es-mx', label: 'Hiszpański (Meksyk)', icon: '🇲🇽', meta: '(es-MX)' },
+  {
+    value: 'pt',
+    label: 'Portugalski (Portugalia)',
+    icon: '🇵🇹',
+    meta: '(pt-PT)',
+  },
+  {
+    value: 'pt-br',
+    label: 'Portugalski (Brazylia)',
+    icon: '🇧🇷',
+    meta: '(pt-BR)',
+  },
+
   { value: 'it', label: 'Włoski', icon: '🇮🇹', meta: '(it)' },
-  { value: 'ru', label: 'Rosyjski', icon: '🇷🇺', meta: '(ru)' },
-  { value: 'uk', label: 'Ukraiński', icon: '🇺🇦', meta: '(uk)' },
-  { value: 'cs', label: 'Czeski', icon: '🇨🇿', meta: '(cs)' },
-  { value: 'sk', label: 'Słowacki', icon: '🇸🇰', meta: '(sk)' },
-  { value: 'zh', label: 'Chiński', icon: '🇨🇳', meta: '(zh)' },
-  { value: 'ja', label: 'Japoński', icon: '🇯🇵', meta: '(ja)' },
-  { value: 'ko', label: 'Koreański', icon: '🇰🇷', meta: '(ko)' },
-  { value: 'pt', label: 'Portugalski', icon: '🇵🇹', meta: '(pt)' },
   { value: 'nl', label: 'Niderlandzki', icon: '🇳🇱', meta: '(nl)' },
   { value: 'sv', label: 'Szwedzki', icon: '🇸🇪', meta: '(sv)' },
   { value: 'no', label: 'Norweski', icon: '🇳🇴', meta: '(no)' },
@@ -81,7 +97,31 @@ export const LANGUAGES = [
   { value: 'hu', label: 'Węgierski', icon: '🇭🇺', meta: '(hu)' },
   { value: 'ro', label: 'Rumuński', icon: '🇷🇴', meta: '(ro)' },
   { value: 'bg', label: 'Bułgarski', icon: '🇧🇬', meta: '(bg)' },
+  { value: 'cs', label: 'Czeski', icon: '🇨🇿', meta: '(cs)' },
+  { value: 'sk', label: 'Słowacki', icon: '🇸🇰', meta: '(sk)' },
+  { value: 'uk', label: 'Ukraiński', icon: '🇺🇦', meta: '(uk)' },
+  { value: 'ru', label: 'Rosyjski', icon: '🇷🇺', meta: '(ru)' },
+
+  { value: 'zh', label: 'Chiński (uproszczony)', icon: '🇨🇳', meta: '(zh-CN)' },
+  {
+    value: 'zh-tw',
+    label: 'Chiński (tradycyjny)',
+    icon: '🇹🇼',
+    meta: '(zh-TW)',
+  },
+  { value: 'ja', label: 'Japoński', icon: '🇯🇵', meta: '(ja)' },
+  { value: 'ko', label: 'Koreański', icon: '🇰🇷', meta: '(ko)' },
+
   { value: 'ar', label: 'Arabski', icon: '🇸🇦', meta: '(ar)' },
+  { value: 'he', label: 'Hebrajski', icon: '🇮🇱', meta: '(he)' },
+  { value: 'hi', label: 'Hindi', icon: '🇮🇳', meta: '(hi)' },
+  { value: 'bn', label: 'Bengalski', icon: '🇧🇩', meta: '(bn)' },
+  { value: 'th', label: 'Tajski', icon: '🇹🇭', meta: '(th)' },
+  { value: 'vi', label: 'Wietnamski', icon: '🇻🇳', meta: '(vi)' },
+  { value: 'id', label: 'Indonezyjski', icon: '🇮🇩', meta: '(id)' },
+  { value: 'fa', label: 'Perski (Farsi)', icon: '🇮🇷', meta: '(fa)' },
+  { value: 'ms', label: 'Malajski', icon: '🇲🇾', meta: '(ms)' },
+  { value: 'sw', label: 'Suahili', icon: '🇰🇪', meta: '(sw)' },
 ] as const;
 
 export type LanguageCode = (typeof LANGUAGES)[number]['value'];
