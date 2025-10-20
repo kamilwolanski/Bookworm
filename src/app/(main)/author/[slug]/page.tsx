@@ -1,13 +1,13 @@
 import AuthorDetails from '@/components/author/AuthorDetails';
 import { getAllAuthorSlugs, getAuthor } from '@/lib/author';
-// import { Suspense } from 'react';
-// import AuthorBooks from './AuthorBooks';
+import { Suspense } from 'react';
+import AuthorBooks from './AuthorBooks';
+export const dynamic = 'force-static';
 
 interface AuthorPageProps {
   params: Promise<{ slug: string }>;
 }
-
-export const revalidate = 3600;
+export const revalidate = 7600;
 
 export async function generateStaticParams() {
   const slugs = await getAllAuthorSlugs();
@@ -23,7 +23,7 @@ export default async function Author({ params }: AuthorPageProps) {
     <div className="mt-10 max-w-7xl mx-auto ">
       <div className="space-y-10">
         <AuthorDetails authorData={authorResponse} />
-        {/* <Suspense
+        <Suspense
           fallback={
             <div className="bg-sidebar shadow-lg rounded-xl p-4 sm:p-8">
               <h3 className="font-semibold">Książki autora</h3>
@@ -34,7 +34,7 @@ export default async function Author({ params }: AuthorPageProps) {
           }
         >
           <AuthorBooks authorSlug={slug} />
-        </Suspense> */}
+        </Suspense>
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 import prisma from '@/lib/prisma';
-
 export type AuthorDto = {
   id: string;
   name: string;
