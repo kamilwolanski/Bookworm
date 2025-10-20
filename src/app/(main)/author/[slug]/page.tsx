@@ -7,6 +7,8 @@ interface AuthorPageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const revalidate = 3600;
+
 export async function generateStaticParams() {
   const slugs = await getAllAuthorSlugs();
   return slugs.map((slug) => ({ slug }));
