@@ -2,12 +2,10 @@ import AuthorDetails from '@/components/author/AuthorDetails';
 import { getAllAuthorSlugs, getAuthor } from '@/lib/author';
 import { Suspense } from 'react';
 import AuthorBooks from './AuthorBooks';
-export const dynamic = 'force-static';
 
 interface AuthorPageProps {
   params: Promise<{ slug: string }>;
 }
-export const revalidate = 7600;
 
 export async function generateStaticParams() {
   const slugs = await getAllAuthorSlugs();
