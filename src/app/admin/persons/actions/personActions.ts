@@ -40,7 +40,6 @@ export const createPersonAction: Action<[unknown, FormData]> = async (
   }
 
   const parsed = parseFormPersonData(formData);
-  console.log('parsed', parsed);
   if (!parsed.success) {
     return parsed.errorResponse;
   }

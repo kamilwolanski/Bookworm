@@ -75,7 +75,6 @@ const AddBookForm = ({
   }, [onlyOption, otherEditionsMode, stepper]);
 
   const editionIdWatch = form.watch('editionId');
-  console.log(userReviews, 'userReviews');
   const choosenReview = userReviews?.find(
     (ur) => ur.editionId === editionIdWatch
   );

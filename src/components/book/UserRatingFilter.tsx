@@ -19,7 +19,6 @@ const UserRatingFilter = () => {
 
   const handleOnChange = (id: string) => {
     let updatedRatings = params.get('userrating')?.split(',') ?? [];
-    console.log('updatedRatings', updatedRatings);
     if (updatedRatings.includes(id)) {
       updatedRatings = updatedRatings.filter((el) => el !== id);
     } else {
