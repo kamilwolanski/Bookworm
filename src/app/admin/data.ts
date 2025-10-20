@@ -122,6 +122,7 @@ export const LANGUAGES = [
   { value: 'fa', label: 'Perski (Farsi)', icon: '🇮🇷', meta: '(fa)' },
   { value: 'ms', label: 'Malajski', icon: '🇲🇾', meta: '(ms)' },
   { value: 'sw', label: 'Suahili', icon: '🇰🇪', meta: '(sw)' },
+  { value: 'il', label: 'Hebrajski', icon: '🇮🇱', meta: '(il)' },
 ] as const;
 
 export type LanguageCode = (typeof LANGUAGES)[number]['value'];

@@ -1,6 +1,6 @@
 import { AuthorDto } from '@/lib/author';
 import { BookOpen, Calendar } from 'lucide-react';
-import { COUNTRIES, LANGUAGES } from '@/app/admin/data';
+import { COUNTRIES } from '@/app/admin/data';
 import Emoji from '@/components/shared/Emoji';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
@@ -55,7 +55,7 @@ const AuthorDetails = ({ authorData }: { authorData: AuthorDto }) => {
               {authorData.nationality && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Emoji>
-                    {LANGUAGES.find((l) => l.value === authorData.nationality)
+                    {COUNTRIES.find((l) => l.value === authorData.nationality)
                       ?.icon ?? ''}
                   </Emoji>
                   <span>

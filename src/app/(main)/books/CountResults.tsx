@@ -26,17 +26,17 @@ export default async function CountResults({ params }: Props) {
     userId,
   } = params;
 
-  const { totalCount } = await getBooksAll(
-    1,
-    1,
-    genresParams,
+  const { totalCount } = await getBooksAll({
+    currentPage: 1,
+    booksPerPage: 1,
+    genres: genresParams,
     myShelf,
     userRatings,
     statuses,
     rating,
     search,
-    userId
-  );
+    userId,
+  });
 
   return <>{totalCount}</>;
 }

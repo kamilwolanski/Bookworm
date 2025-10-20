@@ -219,17 +219,29 @@ export function statusPriority(s: ReadingStatus): number {
   }
 }
 
-export async function getBooksAll(
-  currentPage: number,
-  booksPerPage: number,
-  genres: string[],
-  myShelf: boolean,
-  userRatings: string[],
-  statuses: ReadingStatus[],
-  rating?: string,
-  search?: string,
-  userId?: string
-): Promise<GetBooksAllResponse> {
+export async function getBooksAll({
+  currentPage,
+  booksPerPage,
+  genres,
+  myShelf,
+  userRatings,
+  statuses,
+  rating,
+  search,
+  userId,
+  authorSlug,
+}: {
+  currentPage: number;
+  booksPerPage: number;
+  genres: string[];
+  myShelf: boolean;
+  userRatings: string[];
+  statuses: ReadingStatus[];
+  rating?: string;
+  search?: string;
+  userId?: string;
+  authorSlug?: string;
+}): Promise<GetBooksAllResponse> {
   const skip = (currentPage - 1) * booksPerPage;
 
   const includeUnrated = userRatings.includes('none');
@@ -323,6 +335,15 @@ export async function getBooksAll(
       userId && {
         userEditions: { some: { userId, readingStatus: { in: statuses } } },
       }),
+    ...(authorSlug && {
+      authors: {
+        some: {
+          person: {
+            slug: authorSlug,
+          },
+        },
+      },
+    }),
   };
 
   // --- query ---

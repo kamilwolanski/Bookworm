@@ -25,17 +25,17 @@ export default async function BooksTable(props: BooksTableProps) {
     params: { genresParams, myShelf, userRatings, statuses, rating, search },
   } = props;
 
-  const { items, totalCount } = await getBooksAll(
+  const { items, totalCount } = await getBooksAll({
     currentPage,
-    itemsPerPage,
-    genresParams,
+    booksPerPage: itemsPerPage,
+    genres: genresParams,
     myShelf,
     userRatings,
     statuses,
     rating,
     search,
-    userId
-  );
+    userId,
+  });
 
   return (
     <BookList

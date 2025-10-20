@@ -8,16 +8,19 @@ type BookListProps = {
   totalCount: number;
   pageSize: number;
   page: number;
+  gridColsClassNames?: string;
 };
 
 export async function BookList(props: BookListProps) {
-  const { bookItems, page, pageSize, totalCount } = props;
+  const { bookItems, page, pageSize, totalCount, gridColsClassNames } = props;
 
   return (
     <>
       {bookItems.length > 0 ? (
         <div className="flex-1">
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 gap-2 3xl:gap-10 ">
+          <div
+            className={`grid ${gridColsClassNames ? gridColsClassNames : 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 gap-2 3xl:gap-10'} `}
+          >
             {bookItems.map((item) => (
               <BookCard key={item.book.id} bookItem={item} />
             ))}
@@ -29,7 +32,7 @@ export async function BookList(props: BookListProps) {
         </div>
       )}
 
-      {bookItems.length > 0 && (
+      {totalCount > pageSize && (
         <PaginationWithLinks
           page={page}
           pageSize={pageSize}
