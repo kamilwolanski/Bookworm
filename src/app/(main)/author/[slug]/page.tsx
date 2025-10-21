@@ -2,9 +2,24 @@ import AuthorDetails from '@/components/author/AuthorDetails';
 import { getAllAuthorSlugs, getAuthor } from '@/lib/author';
 import { Suspense } from 'react';
 import AuthorBooks from './AuthorBooks';
+import { Metadata, ResolvingMetadata } from 'next';
 
 interface AuthorPageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata(
+  { params }: AuthorPageProps,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const slug = (await params).slug;
+
+  const authorResponse = await getAuthor(slug);
+  const parentMetadata = await parent;
+  return {
+    title: `${parentMetadata.title?.absolute} | ${authorResponse.name}`,
+    description: authorResponse.bio,
+  };
 }
 
 export async function generateStaticParams() {

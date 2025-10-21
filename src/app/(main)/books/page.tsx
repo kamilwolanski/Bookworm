@@ -19,8 +19,9 @@ import ActiveFilters from '@/components/shared/ActiveFilters';
 import { Suspense } from 'react';
 import BooksTableServer from './BooksTableServer';
 import CountResults from './CountResults';
+import type { Metadata } from 'next';
 
-type Props = {
+type BooksProps = {
   searchParams?: Promise<{
     page?: string;
     search?: string;
@@ -32,9 +33,15 @@ type Props = {
   }>;
 };
 
+export const metadata: Metadata = {
+  title: 'BookWorm | Książki',
+  description:
+    'Wyszukiwarka książek online – sprawdź opisy, oceny i recenzje. BookWorm to baza tysięcy tytułów, które możesz przeglądać, filtrować i dodać do swojej kolekcji.',
+};
+
 const ITEMS_PER_PAGE = 18;
 
-export default async function ShelfBooks({ searchParams }: Props) {
+export default async function Books({ searchParams }: BooksProps) {
   const { page, search, genre, userrating, status, myshelf, rating } =
     searchParams ? await searchParams : {};
   const currentPage = parseInt(page || '1', 10);

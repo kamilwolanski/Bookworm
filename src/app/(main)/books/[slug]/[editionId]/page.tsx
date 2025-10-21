@@ -1,16 +1,31 @@
 import BookDetails from '@/components/book/bookDetails/BookDetails';
 import { getBook } from '@/lib/userbooks';
-import { getOtherEditions } from '@/lib/books';
+import { getBookEditionMetaData, getOtherEditions } from '@/lib/books';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OtherBooks from '@/components/book/bookDetails/OtherBooks';
 import { Suspense } from 'react';
 import ReviewsServer from './Reviews';
+import { Metadata, ResolvingMetadata } from 'next';
 
 interface BookPageProps {
   params: Promise<{ editionId: string; slug: string }>;
   searchParams?: Promise<{
     page: string;
   }>;
+}
+
+export async function generateMetadata(
+  { params }: BookPageProps,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const editionId = (await params).editionId;
+
+  const editionResponse = await getBookEditionMetaData(editionId);
+  const parentMetadata = await parent;
+  return {
+    title: `${parentMetadata.title?.absolute} | ${editionResponse.title}`,
+    description: editionResponse.description,
+  };
 }
 
 export default async function BookEdition({

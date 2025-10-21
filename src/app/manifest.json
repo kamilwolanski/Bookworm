@@ -1,6 +1,7 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "BookwWorm",
+  "short_name": "BookWorm",
+  "description": "Platforma dla miłośników książek — przeglądaj, oceniaj i dodawaj tytuły do swojej półki.",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

@@ -10,6 +10,11 @@ export type AuthorDto = {
   authoredBooksCount: number;
 };
 
+type AuthorForSitemap = {
+  slug: string;
+  updatedAt: Date;
+};
+
 export async function getAuthor(authorSlug: string): Promise<AuthorDto> {
   const authorRaw = await prisma.person.findFirstOrThrow({
     where: { slug: authorSlug },
@@ -42,4 +47,18 @@ export async function getAuthor(authorSlug: string): Promise<AuthorDto> {
 export async function getAllAuthorSlugs(): Promise<string[]> {
   const authors = await prisma.person.findMany({ select: { slug: true } });
   return authors.map((a) => a.slug);
+}
+
+export async function getAllAuthorsForSitemap(): Promise<AuthorForSitemap[]> {
+  return await prisma.person.findMany({
+    where: {
+      authoredBooks: {
+        some: {},
+      },
+    },
+    select: {
+      slug: true,
+      updatedAt: true,
+    },
+  });
 }

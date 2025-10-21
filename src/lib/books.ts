@@ -24,6 +24,19 @@ export type OtherEditionDto = {
   title: string | null;
 };
 
+type BookEditionMetaData = {
+  title: string | null;
+  description: string | null;
+};
+
+type BookEditionForSitemap = {
+  id: string;
+  updatedAt: Date;
+  book: {
+    slug: string;
+  };
+};
+
 export async function findUniqueBook(bookId: string) {
   const book = await prisma.book.findUnique({
     where: { id: bookId },
@@ -572,4 +585,34 @@ export async function getOtherEditions(
   });
 
   return otherEditions?.editions ?? [];
+}
+
+export async function getBookEditionMetaData(
+  editionId: string
+): Promise<BookEditionMetaData> {
+  return await prisma.edition.findUniqueOrThrow({
+    where: {
+      id: editionId,
+    },
+    select: {
+      title: true,
+      description: true,
+    },
+  });
+}
+
+export async function getAllBooksEditionForSitemap(): Promise<
+  BookEditionForSitemap[]
+> {
+  return await prisma.edition.findMany({
+    select: {
+      id: true,
+      updatedAt: true,
+      book: {
+        select: {
+          slug: true,
+        },
+      },
+    },
+  });
 }
