@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/next';
 export const runtime = 'nodejs';
 export const preferredRegion = 'fra1';
 
@@ -71,10 +72,14 @@ export default async function RootLayout({
           <SessionProvider session={session}>
             <div className="flex-1 flex flex-col">
               <Topbar />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1">
+                {children}
+                <Analytics />
+              </main>
             </div>
           </SessionProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
