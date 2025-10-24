@@ -57,7 +57,7 @@ export function SearchBar({
           <SheetTrigger asChild>
             <Button
               size="icon"
-              className="absolute right-1 top-1/2 -translate-y-1/2 rounded-lg bg-gradient-to-tr from-primary to-secondary text-white shadow-lg hover:opacity-90 w-8 h-8 cursor-pointer"
+              className="absolute right-1 top-1/2 -translate-y-1/2 rounded-lg bg-linear-to-tr from-primary to-secondary text-white shadow-lg hover:opacity-90 w-8 h-8 cursor-pointer"
             >
               <SlidersHorizontal className="h-3 w-3" />
             </Button>
