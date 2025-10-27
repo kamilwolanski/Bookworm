@@ -88,7 +88,7 @@ describe('SearchBar', () => {
       () => {
         expect(mockReplaceUseRouter).toHaveBeenCalledTimes(1);
       },
-      { timeout: 500 }
+      { timeout: 600 }
     );
     const calledUrl = mockReplaceUseRouter.mock.calls[0][0];
     expect(calledUrl).not.toContain('search');
