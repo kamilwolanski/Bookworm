@@ -1,0 +1,11 @@
+services:
+  app:
+    build: 
+      context: .
+    image: bookworm-nextjs-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - .env.local

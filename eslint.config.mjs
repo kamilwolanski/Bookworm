@@ -18,6 +18,12 @@ const eslintConfig = [
     ],
     rules: {
       'prettier/prettier': 'warn',
+      'prettier/prettier': [
+        'error',
+        {
+          endOfLine: 'auto',
+        },
+      ],
     },
   }),
 ];
