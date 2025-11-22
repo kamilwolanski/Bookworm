@@ -1,6 +1,6 @@
 services:
   app:
-    build: 
+    build:
       context: .
     image: bookworm-nextjs-dev
     ports:
@@ -9,3 +9,12 @@ services:
       - NODE_ENV=development
     env_file:
       - .env.local
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+          ignore:
+            - node_modules
+        - action: rebuild
+          path: package.json

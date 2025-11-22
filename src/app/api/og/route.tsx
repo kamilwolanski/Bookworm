@@ -226,7 +226,7 @@ function OgImage({ logoUrl }: { logoUrl: string }) {
                   lineHeight: 1.1,
                   color: '#065f46',
                   margin: 0,
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
                 }}
               >
                 BookWorm
@@ -301,7 +301,7 @@ function OgImage({ logoUrl }: { logoUrl: string }) {
         </div>
 
         {/* Prawa kolumna (maskotka) */}
-        <div style={{ display: 'flex',  }}>
+        <div style={{ display: 'flex' }}>
           <div
             style={{ position: 'relative', display: 'flex' /* ✅ 2 dzieci */ }}
           >
@@ -317,7 +317,7 @@ function OgImage({ logoUrl }: { logoUrl: string }) {
                 filter: 'blur(40px)',
                 opacity: 0.3,
                 transform: 'scale(1.4)',
-                paddingRight: 64
+                paddingRight: 64,
               }}
             />
             <img
