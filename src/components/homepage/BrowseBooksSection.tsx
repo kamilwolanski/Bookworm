@@ -57,7 +57,7 @@ export function BrowseBooksSection() {
           </div>
         </div>
 
-        <Link href="/books" >
+        <Link href="/books">
           <Button
             size="lg"
             variant="outline"
