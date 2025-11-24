@@ -23,7 +23,7 @@ import LoginDialog from '@/components/auth/LoginDialog';
 import Link from 'next/link';
 
 export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
-  const { status } = useSession();
+  // const { status } = useSession();
   const { book, representativeEdition } = bookItem;
 
   const [dialogType, setDialogType] = useState<
@@ -52,7 +52,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
         )}
 
         <div className="absolute top-0 left-0 z-20 p-2 w-full flex justify-between items-center gap-2">
-          {bookItem.badges.onShelf ? (
+          {/* {bookItem.badges.onShelf ? (
             bookItem.badges.hasOtherEdition ? (
               <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
                 <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
             )}
 
             {dialogType === 'login' && <LoginDialog onlyContent />}
-          </Dialog>
+          </Dialog> */}
         </div>
 
         <div className="bg-gradient-to-t from-black/90 via-black/50 to-black/40 backdrop-blur-sm absolute bottom-0 left-0 px-3 pt-2 pb-3 w-full flex justify-between lg:min-h-32 rounded-b-lg z-10">
@@ -203,7 +203,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                     <Star className="w-3 h-3 fill-current text-yellow-400" />
                   </span>
                 </div>
-                {bookItem.ratings.representativeEditionRating && (
+                {/* {bookItem.ratings.representativeEditionRating && (
                   <div className="flex gap-1 items-center">
                     <div className="relative w-4 h-4 sm:w-5 sm:h-5">
                       <Image
@@ -218,7 +218,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                       <Star className="w-3 h-3 fill-current text-yellow-400" />
                     </span>
                   </div>
-                )}
+                )} */}
               </div>
             </div>
           </div>

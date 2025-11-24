@@ -89,7 +89,7 @@ export type AddBookToShelfPayload = {
 };
 
 export type RemoveBookFromShelfPayload = { bookId: string; editionId: string };
-export type EditionDto = {
+export type EditionDtoDeprecated = {
   id: string;
   language: string | null;
   format: MediaFormat | null;
@@ -108,12 +108,30 @@ export type EditionDto = {
   reviews: Review[];
 };
 
+export type EditionDto = {
+  id: string;
+  language: string | null;
+  format: MediaFormat | null;
+  publicationDate: Date | null;
+  title: string | null;
+  subtitle: string | null;
+  coverUrl: string | null;
+  isbn13: string | null;
+  isbn10: string | null;
+  publishers: {
+    editionId: string;
+    order: number | null;
+    publisher: Publisher;
+    publisherId: string;
+  }[];
+};
+
 export type UserEditionDto = {
   editionId: string;
   readingStatus: ReadingStatus;
 };
 
-export type BookCardDTO = {
+export type BookCardDTODeprecated = {
   book: {
     id: string;
     title: string;
@@ -121,7 +139,7 @@ export type BookCardDTO = {
     authors: { id: string; name: string }[];
     genres: string[];
     firstPublicationDate: Date | null;
-    editions: EditionDto[];
+    editions: EditionDtoDeprecated[];
   };
   representativeEdition: {
     id: string;
@@ -149,6 +167,31 @@ export type BookCardDTO = {
   badges: {
     onShelf: boolean;
     hasOtherEdition: boolean;
+  };
+};
+
+export type BookCardDTO = {
+  book: {
+    id: string;
+    title: string;
+    slug: string;
+    authors: { id: string; name: string }[];
+    genres: string[];
+    firstPublicationDate: Date | null;
+    editions: EditionDto[];
+  };
+  representativeEdition: {
+    id: string;
+    language: string | null;
+    format: MediaFormat | null;
+    publicationDate: Date | null;
+    title: string | null;
+    subtitle: string | null;
+    coverUrl: string | null;
+  };
+  ratings: {
+    bookAverage: number | null;
+    bookRatingCount: number | null;
   };
 };
 
@@ -421,7 +464,7 @@ export async function getBooksAll({
   }
 
   // helper: wybór najlepszej edycji
-  function pickBestEdition(editions: EditionDto[]) {
+  function pickBestEdition(editions: EditionDtoDeprecated[]) {
     return editions.reduce((best, e) => {
       const lang = e.language === 'pl' ? 1 : 0;
       const hasCover = e.coverUrl ? 1 : 0;

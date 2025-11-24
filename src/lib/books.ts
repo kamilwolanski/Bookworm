@@ -1,4 +1,9 @@
-import { BookCardDTO, GenreDTO, statusPriority } from './userbooks';
+import {
+  BookCardDTO,
+  BookCardDTODeprecated,
+  GenreDTO,
+  statusPriority,
+} from './userbooks';
 import prisma from '@/lib/prisma';
 import { Book, ReadingStatus } from '@prisma/client';
 import { subDays } from 'date-fns';
@@ -46,7 +51,10 @@ export async function findUniqueBook(bookId: string) {
   return book;
 }
 
-export async function getTheNewestEditions(userId?: string, take: number = 5) {
+export async function getTheNewestEditionsDeprecated(
+  userId?: string,
+  take: number = 5
+) {
   const newestEditions = await prisma.edition.findMany({
     orderBy: {
       createdAt: 'desc',
@@ -133,7 +141,7 @@ export async function getTheNewestEditions(userId?: string, take: number = 5) {
     },
     take,
   });
-  const items: BookCardDTO[] = newestEditions.map((edition) => {
+  const items: BookCardDTODeprecated[] = newestEditions.map((edition) => {
     const book = edition.book;
     const userRating = userId ? edition.reviews[0]?.rating : null;
     const userEditions = book.userEditions ?? [];
@@ -203,6 +211,116 @@ export async function getTheNewestEditions(userId?: string, take: number = 5) {
       badges: {
         onShelf: hasAnyEdition,
         hasOtherEdition: hasAnyEdition && !ownedEditionIds.includes(edition.id),
+      },
+    };
+  });
+  return items;
+}
+
+export async function getTheNewestEditions(take: number = 5) {
+  const newestEditions = await prisma.edition.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+    select: {
+      id: true,
+      language: true,
+      publicationDate: true,
+      format: true,
+      title: true,
+      subtitle: true,
+      coverUrl: true,
+      isbn13: true,
+      isbn10: true,
+      publishers: {
+        include: {
+          publisher: true,
+        },
+      },
+      book: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          firstPublicationDate: true,
+          averageRating: true,
+          ratingCount: true,
+          authors: {
+            select: {
+              personId: true,
+              order: true,
+              person: { select: { id: true, name: true } },
+            },
+          },
+          genres: {
+            select: {
+              genre: {
+                select: {
+                  translations: {
+                    where: { language: 'pl' },
+                    select: { name: true },
+                  },
+                },
+              },
+            },
+          },
+          editions: {
+            orderBy: [{ publicationDate: 'desc' }, { createdAt: 'desc' }],
+            select: {
+              id: true,
+              language: true,
+              publicationDate: true,
+              format: true,
+              title: true,
+              subtitle: true,
+              coverUrl: true,
+              isbn13: true,
+              isbn10: true,
+              publishers: {
+                include: {
+                  publisher: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    take,
+  });
+  const items: BookCardDTO[] = newestEditions.map((edition) => {
+    const book = edition.book;
+
+    return {
+      book: {
+        id: book.id,
+        title: book.title,
+        slug: book.slug ?? '',
+        authors: book.authors
+          .sort((a, c) => (a.order ?? 0) - (c.order ?? 0))
+          .map((a) => ({ id: a.person.id, name: a.person.name })),
+        genres: book.genres.flatMap((g) =>
+          g.genre.translations.map((t) => t.name)
+        ),
+        firstPublicationDate: book.firstPublicationDate
+          ? book.firstPublicationDate
+          : null,
+        editions: book.editions,
+      },
+      representativeEdition: {
+        id: edition.id,
+        language: edition.language,
+        format: edition.format,
+        publicationDate: edition.publicationDate
+          ? edition.publicationDate
+          : null,
+        title: edition.title,
+        subtitle: edition.subtitle,
+        coverUrl: edition.coverUrl,
+      },
+      ratings: {
+        bookAverage: book.averageRating ?? null,
+        bookRatingCount: book.ratingCount ?? null,
       },
     };
   });
@@ -370,7 +488,6 @@ export async function getTopBooksWithTopEdition(
     by: ['bookId'],
     where: { addedAt: { gte: since } },
     _count: { _all: true },
-    // ⬇️ zamiast { _count: { _all: "desc" } }
     orderBy: { _count: { bookId: 'desc' } },
     take,
   });

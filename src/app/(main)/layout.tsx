@@ -7,7 +7,6 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import '../globals.css';
 import SessionProvider from '@/components/auth/SessionProvider';
 import Topbar from '@/components/layout/TopBar';
-import { getUserSession } from '@/lib/session';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
 
 const geistSans = Geist({
@@ -55,7 +54,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getUserSession();
+  // const session = await getUserSession();
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -69,7 +68,7 @@ export default async function RootLayout({
           disableTransitionOnChange
           themes={['light', 'dark']}
         >
-          <SessionProvider session={session}>
+          <SessionProvider>
             <div className="flex-1 flex flex-col">
               <Topbar />
               <main className="flex-1">
