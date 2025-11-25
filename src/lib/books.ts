@@ -3,9 +3,10 @@ import {
   BookCardDTODeprecated,
   GenreDTO,
   statusPriority,
+  UserEditionDto,
 } from './userbooks';
 import prisma from '@/lib/prisma';
-import { Book, ReadingStatus } from '@prisma/client';
+import { Book, ReadingStatus, Review, UserBook } from '@prisma/client';
 import { subDays } from 'date-fns';
 
 export type BookDTO = Book & {
@@ -214,6 +215,91 @@ export async function getTheNewestEditionsDeprecated(
       },
     };
   });
+  return items;
+}
+
+export type EditionUserResponseItem = {
+  id: string;
+  userState: EditionUserState;
+};
+
+export type EditionUserState = {
+  hasAnyEdition: boolean;
+  representativeEditionRating: number | null;
+  userReviews: Review[];
+  userEditions: UserEditionDto[];
+};
+
+export async function getTheUserInformationForEditions(
+  userId: string,
+  editionIds: string[]
+): Promise<EditionUserResponseItem[]> {
+  const response = await prisma.edition.findMany({
+    where: {
+      id: {
+        in: editionIds,
+      },
+    },
+    select: {
+      title: true,
+      id: true,
+      reviews: {
+        where: {
+          userId: userId,
+        },
+        select: {
+          rating: true,
+        },
+      },
+      book: {
+        select: {
+          editions: {
+            select: {
+              title: true,
+              reviews: {
+                where: {
+                  userId: userId,
+                },
+              },
+            },
+          },
+          userEditions: {
+            where: {
+              userId: userId,
+            },
+            select: {
+              editionId: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const items = response.map((edition) => {
+    const book = edition.book;
+    const userRating =
+      edition.reviews.length > 0 ? edition.reviews[0].rating : null;
+    const userEditions = book.userEditions ?? [];
+    const hasAnyEdition = userEditions.length > 0;
+
+    return {
+      id: edition.id,
+      userState: {
+        hasAnyEdition,
+        representativeEditionRating: userRating,
+        userReviews: book.editions.map((e) => e.reviews).flat(),
+        userEditions: userEditions,
+      },
+      // badges: {
+      //   onShelf: hasAnyEdition,
+      //   hasOtherEdition: hasAnyEdition && !ownedEditionIds.includes(edition.id),
+      // },
+    };
+  });
+
+  // return items;
+
   return items;
 }
 

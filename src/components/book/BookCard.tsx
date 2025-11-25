@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
@@ -21,15 +21,28 @@ import AddBookStepperDialog from '@/components/book/addBookStepper/AddBookSteppe
 import RateBookStepperDialog from '@/components/book/ratebook/RateBookStepperDialog';
 import LoginDialog from '@/components/auth/LoginDialog';
 import Link from 'next/link';
+import { EditionUserState } from '@/lib/books';
 
-export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
-  // const { status } = useSession();
+export function BookCard({
+  bookItem,
+  userState,
+}: {
+  bookItem: BookCardDTO;
+  userState: EditionUserState | undefined;
+}) {
   const { book, representativeEdition } = bookItem;
+  const { status, data } = useSession();
 
   const [dialogType, setDialogType] = useState<
     null | 'delete' | 'rate' | 'showOtherEditions' | 'login'
   >(null);
   const openDialog = dialogType !== null;
+  const onShelf = userState?.hasAnyEdition;
+  const hasOtherEdition =
+    userState?.userEditions.findIndex(
+      (edition) => edition.editionId === representativeEdition.id
+    ) === -1;
+  console.log('userState bookcard', userState);
 
   return (
     <Card
@@ -52,8 +65,8 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
         )}
 
         <div className="absolute top-0 left-0 z-20 p-2 w-full flex justify-between items-center gap-2">
-          {/* {bookItem.badges.onShelf ? (
-            bookItem.badges.hasOtherEdition ? (
+          {onShelf ? (
+            hasOtherEdition ? (
               <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
                 <div className="flex items-center gap-2">
                   <span className="text-xs sm:text-sm font-medium">
@@ -76,8 +89,8 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
               bookSlug={book.slug}
               editions={book.editions}
               dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
-              userEditions={bookItem.userState?.byEdition}
-              userReviews={bookItem.ratings.userReviews}
+              userEditions={userState?.userEditions}
+              userReviews={userState?.userReviews}
             />
           ) : (
             <LoginDialog
@@ -154,7 +167,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                 onlyContent
                 afterSuccess={() => setDialogType(null)}
                 editions={book.editions}
-                userReviews={bookItem.ratings.userReviews}
+                userReviews={userState?.userReviews}
               />
             )}
 
@@ -164,16 +177,16 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                 bookSlug={book.slug}
                 editions={book.editions}
                 dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
-                userEditions={bookItem.userState?.byEdition}
+                userEditions={userState?.userEditions}
                 onlyContent
                 otherEditionsMode
-                userReviews={bookItem.ratings.userReviews}
+                userReviews={userState?.userReviews}
                 afterSuccess={() => setDialogType(null)}
               />
             )}
 
             {dialogType === 'login' && <LoginDialog onlyContent />}
-          </Dialog> */}
+          </Dialog>
         </div>
 
         <div className="bg-gradient-to-t from-black/90 via-black/50 to-black/40 backdrop-blur-sm absolute bottom-0 left-0 px-3 pt-2 pb-3 w-full flex justify-between lg:min-h-32 rounded-b-lg z-10">
@@ -203,7 +216,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                     <Star className="w-3 h-3 fill-current text-yellow-400" />
                   </span>
                 </div>
-                {/* {bookItem.ratings.representativeEditionRating && (
+                {userState?.representativeEditionRating && (
                   <div className="flex gap-1 items-center">
                     <div className="relative w-4 h-4 sm:w-5 sm:h-5">
                       <Image
@@ -214,11 +227,11 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
                       />
                     </div>
                     <span className="flex items-center gap-1 text-xs sm:text-sm">
-                      {bookItem.ratings.representativeEditionRating}/5{' '}
+                      {userState.representativeEditionRating}/5{' '}
                       <Star className="w-3 h-3 fill-current text-yellow-400" />
                     </span>
                   </div>
-                )} */}
+                )}
               </div>
             </div>
           </div>

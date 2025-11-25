@@ -128,7 +128,6 @@ export type EditionDto = {
 
 export type UserEditionDto = {
   editionId: string;
-  readingStatus: ReadingStatus;
 };
 
 export type BookCardDTODeprecated = {

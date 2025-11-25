@@ -4,6 +4,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import authConfig from './auth.config';
 import { sendWelcomeEmail } from '@/lib/email';
 import prisma from '@/lib/prisma';
+import { Role } from '@prisma/client';
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -20,8 +21,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+        session.user.id = token.id as string;
+        session.user.role = token.role as Role;
       }
       return session;
     },
