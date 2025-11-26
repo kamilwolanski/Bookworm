@@ -1,12 +1,17 @@
-import { getTheUserInformationForEditions } from '@/lib/books';
+import { getTheUserInformationForEditions } from '@/lib/userbooks';
 import { NextResponse } from 'next/server';
-
+import { getUserSession } from '@/lib/session';
 export async function POST(req: Request) {
   try {
-    const { userId, editionIds }: { userId: string; editionIds: string[] } =
-      await req.json();
+    const session = await getUserSession();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    if (!userId || !Array.isArray(editionIds)) {
+    const userId = session.user.id;
+    const { editionIds }: { editionIds: string[] } = await req.json();
+
+    if (!Array.isArray(editionIds) || editionIds.length === 0) {
       return NextResponse.json(
         { error: 'Missing userId or editionIds' },
         { status: 400 }
@@ -15,7 +20,7 @@ export async function POST(req: Request) {
 
     const response = await getTheUserInformationForEditions(userId, editionIds);
 
-    return NextResponse.json({ data: response });
+    return NextResponse.json(response);
   } catch (err) {
     console.error('API /api/editions error', err);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });

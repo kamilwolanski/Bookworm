@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Star, MoreVertical, BookPlus, Plus } from 'lucide-react';
-import { BookCardDTO } from '@/lib/userbooks';
+import { BookCardDTO, EditionUserState } from '@/lib/userbooks';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,17 +21,19 @@ import AddBookStepperDialog from '@/components/book/addBookStepper/AddBookSteppe
 import RateBookStepperDialog from '@/components/book/ratebook/RateBookStepperDialog';
 import LoginDialog from '@/components/auth/LoginDialog';
 import Link from 'next/link';
-import { EditionUserState } from '@/lib/books';
 
 export function BookCard({
   bookItem,
   userState,
+  userStateIsLoading,
 }: {
   bookItem: BookCardDTO;
   userState: EditionUserState | undefined;
+  userStateIsLoading: boolean;
 }) {
   const { book, representativeEdition } = bookItem;
-  const { status, data } = useSession();
+  const { status } = useSession();
+  const sessionIsLoading = status === 'loading';
 
   const [dialogType, setDialogType] = useState<
     null | 'delete' | 'rate' | 'showOtherEditions' | 'login'
@@ -42,7 +44,6 @@ export function BookCard({
     userState?.userEditions.findIndex(
       (edition) => edition.editionId === representativeEdition.id
     ) === -1;
-  console.log('userState bookcard', userState);
 
   return (
     <Card
@@ -65,49 +66,59 @@ export function BookCard({
         )}
 
         <div className="absolute top-0 left-0 z-20 p-2 w-full flex justify-between items-center gap-2">
-          {onShelf ? (
-            hasOtherEdition ? (
-              <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs sm:text-sm font-medium">
-                    Masz inne wydanie
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div className="px-3 py-1 rounded-2xl bg-badge-owned text-primary border border-badge-owned-border">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs sm:text-sm font-medium">
-                    Na półce
-                  </span>
-                </div>
-              </div>
-            )
-          ) : status === 'authenticated' ? (
-            <AddBookStepperDialog
-              bookId={book.id}
-              bookSlug={book.slug}
-              editions={book.editions}
-              dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
-              userEditions={userState?.userEditions}
-              userReviews={userState?.userReviews}
-            />
+          {userStateIsLoading || sessionIsLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-24 rounded-2xl bg-gray-300 opacity-30 animate-pulse" />
+            </div>
           ) : (
-            <LoginDialog
-              dialogTriggerBtn={
-                <button
-                  type="button"
-                  className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs sm:text-sm font-medium">
-                      Dodaj
-                    </span>
-                    <Plus size={14} />
+            <>
+              {onShelf ? (
+                hasOtherEdition ? (
+                  <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs sm:text-sm font-medium">
+                        Masz inne wydanie
+                      </span>
+                    </div>
                   </div>
-                </button>
-              }
-            />
+                ) : (
+                  <div className="px-3 py-1 rounded-2xl bg-badge-owned text-primary border border-badge-owned-border">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs sm:text-sm font-medium">
+                        Na półce
+                      </span>
+                    </div>
+                  </div>
+                )
+              ) : status === 'authenticated' ? (
+                <AddBookStepperDialog
+                  bookId={book.id}
+                  bookSlug={book.slug}
+                  editions={book.editions}
+                  dialogTitle={`${representativeEdition.title} - ${book.authors
+                    .map((a) => a.name)
+                    .join(', ')}`}
+                  userEditions={userState?.userEditions}
+                  userReviews={userState?.userReviews}
+                />
+              ) : (
+                <LoginDialog
+                  dialogTriggerBtn={
+                    <button
+                      type="button"
+                      className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs sm:text-sm font-medium">
+                          Dodaj
+                        </span>
+                        <Plus size={14} />
+                      </div>
+                    </button>
+                  }
+                />
+              )}
+            </>
           )}
 
           <Dialog
@@ -117,16 +128,20 @@ export function BookCard({
             <div>
               <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild className="w-8">
-                  <button
-                    type="button"
-                    className="bg-card-menu-trigger hover:bg-card-menu-trigger-hover rounded-full !w-7 !h-7 flex items-center justify-center cursor-pointer"
-                    aria-label="Więcej akcji"
-                  >
-                    <MoreVertical
-                      className="text-popover-foreground"
-                      size={17}
-                    />
-                  </button>
+                  {userStateIsLoading || sessionIsLoading ? (
+                    <div className="rounded-full !w-7 !h-7 bg-gray-300 opacity-30 animate-pulse" />
+                  ) : (
+                    <button
+                      type="button"
+                      className="bg-card-menu-trigger hover:bg-card-menu-trigger-hover rounded-full !w-7 !h-7 flex items-center justify-center cursor-pointer"
+                      aria-label="Więcej akcji"
+                    >
+                      <MoreVertical
+                        className="text-popover-foreground"
+                        size={17}
+                      />
+                    </button>
+                  )}
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="start">
@@ -176,7 +191,9 @@ export function BookCard({
                 bookId={book.id}
                 bookSlug={book.slug}
                 editions={book.editions}
-                dialogTitle={`${representativeEdition.title} - ${book.authors.map((a) => a.name).join(', ')}`}
+                dialogTitle={`${representativeEdition.title} - ${book.authors
+                  .map((a) => a.name)
+                  .join(', ')}`}
                 userEditions={userState?.userEditions}
                 onlyContent
                 otherEditionsMode
@@ -216,21 +233,28 @@ export function BookCard({
                     <Star className="w-3 h-3 fill-current text-yellow-400" />
                   </span>
                 </div>
-                {userState?.representativeEditionRating && (
+
+                {userStateIsLoading || sessionIsLoading ? (
                   <div className="flex gap-1 items-center">
-                    <div className="relative w-4 h-4 sm:w-5 sm:h-5">
-                      <Image
-                        src={userIcon}
-                        alt="icon"
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                    <span className="flex items-center gap-1 text-xs sm:text-sm">
-                      {userState.representativeEditionRating}/5{' '}
-                      <Star className="w-3 h-3 fill-current text-yellow-400" />
-                    </span>
+                    <div className="h-5 w-16 bg-gray-300 opacity-30 rounded animate-pulse" />
                   </div>
+                ) : (
+                  userState?.representativeEditionRating && (
+                    <div className="flex gap-1 items-center">
+                      <div className="relative w-4 h-4 sm:w-5 sm:h-5">
+                        <Image
+                          src={userIcon}
+                          alt="icon"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <span className="flex items-center gap-1 text-xs sm:text-sm">
+                        {userState.representativeEditionRating}/5{' '}
+                        <Star className="w-3 h-3 fill-current text-yellow-400" />
+                      </span>
+                    </div>
+                  )
                 )}
               </div>
             </div>
@@ -248,3 +272,5 @@ export function BookCard({
     </Card>
   );
 }
+
+export default BookCard;

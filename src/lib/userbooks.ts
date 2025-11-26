@@ -55,6 +55,18 @@ export interface BookAuthorForList {
   person: { name: string }; // bo selectujesz tylko name
 }
 
+export type EditionUserResponseItem = {
+  id: string;
+  userState: EditionUserState;
+};
+
+export type EditionUserState = {
+  hasAnyEdition: boolean;
+  representativeEditionRating: number | null;
+  userReviews: Review[];
+  userEditions: UserEditionDto[];
+};
+
 export interface RatingFilter {
   editions?:
     | {
@@ -872,4 +884,71 @@ export async function upsertReviewVote(
   });
 
   return { removed: false, currentType: created.type };
+}
+
+export async function getTheUserInformationForEditions(
+  userId: string,
+  editionIds: string[]
+): Promise<EditionUserResponseItem[]> {
+  const response = await prisma.edition.findMany({
+    where: {
+      id: {
+        in: editionIds,
+      },
+    },
+    select: {
+      title: true,
+      id: true,
+      reviews: {
+        where: {
+          userId: userId,
+        },
+        select: {
+          rating: true,
+        },
+      },
+      book: {
+        select: {
+          editions: {
+            select: {
+              title: true,
+              reviews: {
+                where: {
+                  userId: userId,
+                },
+              },
+            },
+          },
+          userEditions: {
+            where: {
+              userId: userId,
+            },
+            select: {
+              editionId: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const items = response.map((edition) => {
+    const book = edition.book;
+    const userRating =
+      edition.reviews.length > 0 ? edition.reviews[0].rating : null;
+    const userEditions = book.userEditions ?? [];
+    const hasAnyEdition = userEditions.length > 0;
+
+    return {
+      id: edition.id,
+      userState: {
+        hasAnyEdition,
+        representativeEditionRating: userRating,
+        userReviews: book.editions.map((e) => e.reviews).flat(),
+        userEditions: userEditions,
+      },
+    };
+  });
+
+  return items;
 }
