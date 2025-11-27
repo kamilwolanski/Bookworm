@@ -17,7 +17,7 @@ const ReviewEditionComponent = () => {
   const form = useFormContext<AddReviewInput>();
   const [hover, setHover] = useState<number>(0);
 
-  const rating = form.getValues('rating') ?? 0;
+  const rating = form.watch('rating') ?? 0;
 
   return (
     <>
@@ -33,22 +33,21 @@ const ReviewEditionComponent = () => {
               key={value}
               type="button"
               role="radio"
-              aria-checked={form.getValues('rating') === value}
+              aria-checked={rating === value}
               aria-label={`${value} ${value === 1 ? 'gwiazdka' : 'gwiazdki'}`}
               onClick={() => form.setValue('rating', value)}
               onMouseEnter={() => setHover(value)}
               onMouseLeave={() => setHover(0)}
               className="
-            rounded-full outline-none
-
-            transition-transform duration-150 hover:scale-110 active:scale-95 cursor-pointer
-          "
+                rounded-full outline-none
+                transition-transform duration-150 hover:scale-110 active:scale-95 cursor-pointer
+              "
             >
               <Star
                 className={cn(
-                  'h-9 w-9 transition-colors drop-shadow-sm ',
+                  'h-9 w-9 transition-colors drop-shadow-sm',
                   (hover || rating) >= value
-                    ? 'fill-amber-400 text-amber-400 '
+                    ? 'fill-amber-400 text-amber-400'
                     : 'text-muted-foreground'
                 )}
               />
@@ -69,9 +68,7 @@ const ReviewEditionComponent = () => {
                 }[hover || rating]}
           </span>
           <span className="opacity-60">•</span>
-          <span className="tabular-nums">
-            {hover || form.getValues('rating') || 0}/5
-          </span>
+          <span className="tabular-nums">{hover || rating || 0}/5</span>
         </div>
       </div>
       <div className="col-span-2">

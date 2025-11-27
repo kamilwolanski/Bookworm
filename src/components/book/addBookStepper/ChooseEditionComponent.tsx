@@ -127,12 +127,6 @@ const ChooseEditonComponent = ({
                       </b>
                     </h4>
                   )}
-
-                  {edition.isbn10 && (
-                    <h4 className="text-xs sm:text-sm">
-                      ISBN10: {edition.isbn10}
-                    </h4>
-                  )}
                 </div>
               </div>
             </div>

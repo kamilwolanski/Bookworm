@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import ChooseEditonRadioComponent from '@/components/book/addBookStepper/ChooseEditonRadioComponent';
 import ChooseEditonComponent from '@/components/book/addBookStepper/ChooseEditionComponent';
 import ReviewEditionComponent from '@/components/book/ratebook/ReviewEditionComponent';
-import { EditionDto, UserEditionDto } from '@/lib/userbooks';
+import { EditionDto, UserBookReview, UserEditionDto } from '@/lib/userbooks';
 import { addBookToShelfAction } from '@/app/(main)/books/actions/bookActions';
 import {
   AddBookToShelfInput,
@@ -17,8 +17,9 @@ import {
 } from '@/lib/validations/addBookToShelfValidation';
 import ReadingStatusComponent from './ReadingStatusComponent';
 import { FormProvider } from 'react-hook-form';
-import { Review } from '@prisma/client';
 import { useRouter } from 'next/navigation';
+import useSWR from 'swr';
+import { fetcher } from '@/app/services/fetcher';
 
 const { useStepper, steps, utils } = defineStepper(
   { id: 'edition', label: 'Wydanie', schema: chooseEditionSchema },
@@ -33,7 +34,6 @@ const AddBookForm = ({
   bookId,
   bookSlug,
   editions,
-  userReviews,
   userEditions,
   otherEditionsMode,
   afterSuccess,
@@ -41,11 +41,20 @@ const AddBookForm = ({
   bookId: string;
   bookSlug: string;
   editions: EditionDto[];
-  userReviews?: Review[];
   userEditions?: UserEditionDto[];
   otherEditionsMode: boolean;
   afterSuccess: () => void;
 }) => {
+  const { data: userReviews, isLoading } = useSWR<UserBookReview[]>(
+    `/api/reviews/${bookId}`,
+    fetcher,
+    {
+      revalidateIfStale: false,
+    }
+  );
+  console.log('isLoading', isLoading);
+  console.log('userReviews', userReviews);
+
   const boundAction = addBookToShelfAction.bind(null, bookId);
   const router = useRouter();
   const stepper = useStepper();
@@ -80,10 +89,8 @@ const AddBookForm = ({
   );
 
   useEffect(() => {
-    if (choosenReview) {
-      form.setValue('rating', choosenReview.rating ?? undefined);
-      form.setValue('body', choosenReview.body ?? undefined);
-    }
+    form.setValue('rating', choosenReview?.rating ?? undefined);
+    form.setValue('body', choosenReview?.body ?? undefined);
   }, [choosenReview, editionIdWatch, form]);
 
   return (

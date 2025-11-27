@@ -21,6 +21,8 @@ import AddBookStepperDialog from '@/components/book/addBookStepper/AddBookSteppe
 import RateBookStepperDialog from '@/components/book/ratebook/RateBookStepperDialog';
 import LoginDialog from '@/components/auth/LoginDialog';
 import Link from 'next/link';
+import { preload } from 'swr';
+import { fetcher } from '@/app/services/fetcher';
 
 export function BookCard({
   bookItem,
@@ -39,7 +41,11 @@ export function BookCard({
     null | 'delete' | 'rate' | 'showOtherEditions' | 'login'
   >(null);
   const openDialog = dialogType !== null;
-  const onShelf = userState?.hasAnyEdition;
+  const onShelf = userState
+    ? userState.userEditions.length > 0
+      ? true
+      : false
+    : false;
   const hasOtherEdition =
     userState?.userEditions.findIndex(
       (edition) => edition.editionId === representativeEdition.id
@@ -49,6 +55,9 @@ export function BookCard({
     <Card
       key={book.id}
       className="relative cursor-pointer border-none h-full shadow-md hover:shadow-xl p-1 rounded-xl"
+      onMouseEnter={() =>
+        !onShelf && preload(`/api/reviews/${bookItem.book.id}`, fetcher)
+      }
     >
       <div className="relative aspect-[3/4] w-full">
         {bookItem.representativeEdition.coverUrl ? (
@@ -99,7 +108,6 @@ export function BookCard({
                     .map((a) => a.name)
                     .join(', ')}`}
                   userEditions={userState?.userEditions}
-                  userReviews={userState?.userReviews}
                 />
               ) : (
                 <LoginDialog
@@ -182,7 +190,6 @@ export function BookCard({
                 onlyContent
                 afterSuccess={() => setDialogType(null)}
                 editions={book.editions}
-                userReviews={userState?.userReviews}
               />
             )}
 
@@ -197,7 +204,6 @@ export function BookCard({
                 userEditions={userState?.userEditions}
                 onlyContent
                 otherEditionsMode
-                userReviews={userState?.userReviews}
                 afterSuccess={() => setDialogType(null)}
               />
             )}
@@ -239,7 +245,7 @@ export function BookCard({
                     <div className="h-5 w-16 bg-gray-300 opacity-30 rounded animate-pulse" />
                   </div>
                 ) : (
-                  userState?.representativeEditionRating && (
+                  userState?.userRating && (
                     <div className="flex gap-1 items-center">
                       <div className="relative w-4 h-4 sm:w-5 sm:h-5">
                         <Image
@@ -250,7 +256,7 @@ export function BookCard({
                         />
                       </div>
                       <span className="flex items-center gap-1 text-xs sm:text-sm">
-                        {userState.representativeEditionRating}/5{' '}
+                        {userState.userRating}/5{' '}
                         <Star className="w-3 h-3 fill-current text-yellow-400" />
                       </span>
                     </div>

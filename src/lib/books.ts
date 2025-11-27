@@ -225,19 +225,9 @@ export async function getTheNewestEditions(take: number = 5) {
     },
     select: {
       id: true,
-      language: true,
-      publicationDate: true,
-      format: true,
       title: true,
       subtitle: true,
       coverUrl: true,
-      isbn13: true,
-      isbn10: true,
-      publishers: {
-        include: {
-          publisher: true,
-        },
-      },
       book: {
         select: {
           id: true,
@@ -253,30 +243,15 @@ export async function getTheNewestEditions(take: number = 5) {
               person: { select: { id: true, name: true } },
             },
           },
-          genres: {
-            select: {
-              genre: {
-                select: {
-                  translations: {
-                    where: { language: 'pl' },
-                    select: { name: true },
-                  },
-                },
-              },
-            },
-          },
           editions: {
             orderBy: [{ publicationDate: 'desc' }, { createdAt: 'desc' }],
             select: {
               id: true,
               language: true,
               publicationDate: true,
-              format: true,
               title: true,
               subtitle: true,
               coverUrl: true,
-              isbn13: true,
-              isbn10: true,
               publishers: {
                 include: {
                   publisher: true,
@@ -300,21 +275,10 @@ export async function getTheNewestEditions(take: number = 5) {
         authors: book.authors
           .sort((a, c) => (a.order ?? 0) - (c.order ?? 0))
           .map((a) => ({ id: a.person.id, name: a.person.name })),
-        genres: book.genres.flatMap((g) =>
-          g.genre.translations.map((t) => t.name)
-        ),
-        firstPublicationDate: book.firstPublicationDate
-          ? book.firstPublicationDate
-          : null,
         editions: book.editions,
       },
       representativeEdition: {
         id: edition.id,
-        language: edition.language,
-        format: edition.format,
-        publicationDate: edition.publicationDate
-          ? edition.publicationDate
-          : null,
         title: edition.title,
         subtitle: edition.subtitle,
         coverUrl: edition.coverUrl,

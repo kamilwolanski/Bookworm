@@ -57,13 +57,12 @@ export interface BookAuthorForList {
 
 export type EditionUserResponseItem = {
   id: string;
+  bookId: string;
   userState: EditionUserState;
 };
 
 export type EditionUserState = {
-  hasAnyEdition: boolean;
-  representativeEditionRating: number | null;
-  userReviews: Review[];
+  userRating: number | null | undefined;
   userEditions: UserEditionDto[];
 };
 
@@ -123,13 +122,10 @@ export type EditionDtoDeprecated = {
 export type EditionDto = {
   id: string;
   language: string | null;
-  format: MediaFormat | null;
   publicationDate: Date | null;
   title: string | null;
   subtitle: string | null;
   coverUrl: string | null;
-  isbn13: string | null;
-  isbn10: string | null;
   publishers: {
     editionId: string;
     order: number | null;
@@ -187,15 +183,10 @@ export type BookCardDTO = {
     title: string;
     slug: string;
     authors: { id: string; name: string }[];
-    genres: string[];
-    firstPublicationDate: Date | null;
     editions: EditionDto[];
   };
   representativeEdition: {
     id: string;
-    language: string | null;
-    format: MediaFormat | null;
-    publicationDate: Date | null;
     title: string | null;
     subtitle: string | null;
     coverUrl: string | null;
@@ -890,65 +881,80 @@ export async function getTheUserInformationForEditions(
   userId: string,
   editionIds: string[]
 ): Promise<EditionUserResponseItem[]> {
-  const response = await prisma.edition.findMany({
-    where: {
-      id: {
-        in: editionIds,
-      },
-    },
-    select: {
-      title: true,
-      id: true,
-      reviews: {
-        where: {
-          userId: userId,
-        },
-        select: {
-          rating: true,
-        },
-      },
-      book: {
-        select: {
-          editions: {
-            select: {
-              title: true,
-              reviews: {
-                where: {
-                  userId: userId,
-                },
-              },
-            },
-          },
-          userEditions: {
-            where: {
-              userId: userId,
-            },
-            select: {
-              editionId: true,
-            },
-          },
-        },
-      },
-    },
+  const editions = await prisma.edition.findMany({
+    where: { id: { in: editionIds } },
+    select: { id: true, bookId: true },
   });
 
-  const items = response.map((edition) => {
-    const book = edition.book;
-    const userRating =
-      edition.reviews.length > 0 ? edition.reviews[0].rating : null;
-    const userEditions = book.userEditions ?? [];
-    const hasAnyEdition = userEditions.length > 0;
+  if (editions.length === 0) return [];
 
-    return {
-      id: edition.id,
-      userState: {
-        hasAnyEdition,
-        representativeEditionRating: userRating,
-        userReviews: book.editions.map((e) => e.reviews).flat(),
-        userEditions: userEditions,
+  const foundEditionIds = editions.map((e) => e.id);
+  const foundBookIds = Array.from(new Set(editions.map((e) => e.bookId)));
+
+  const [userReviews, userEditions] = await Promise.all([
+    prisma.review.findMany({
+      where: {
+        editionId: { in: foundEditionIds },
+        userId,
       },
-    };
-  });
+      select: { editionId: true, rating: true },
+    }),
+    prisma.userBook.findMany({
+      where: {
+        bookId: { in: foundBookIds },
+        userId,
+      },
+      select: {
+        bookId: true,
+        editionId: true,
+      },
+    }),
+  ]);
+
+  const userReviewsMap = new Map(userReviews.map((r) => [r.editionId, r]));
+
+  const userEditionsMap = new Map<string, typeof userEditions>();
+  for (const ub of userEditions) {
+    const arr = userEditionsMap.get(ub.bookId);
+    if (arr) arr.push(ub);
+    else userEditionsMap.set(ub.bookId, [ub]);
+  }
+
+  const items: EditionUserResponseItem[] = editions.map((edition) => ({
+    id: edition.id,
+    bookId: edition.bookId,
+    userState: {
+      userRating: userReviewsMap.get(edition.id)?.rating,
+      userEditions: userEditionsMap.get(edition.bookId) ?? [],
+    },
+  }));
 
   return items;
+}
+
+export type UserBookReview = {
+  editionId: string;
+  rating: number | null;
+  body: string | null;
+};
+
+export async function getUserBookReviews(
+  userId: string,
+  bookId: string
+): Promise<UserBookReview[]> {
+  const userReviews = await prisma.review.findMany({
+    where: {
+      edition: {
+        bookId: bookId,
+      },
+      userId: userId,
+    },
+    select: {
+      editionId: true,
+      rating: true,
+      body: true,
+    },
+  });
+
+  return userReviews;
 }

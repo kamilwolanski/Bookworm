@@ -10,14 +10,12 @@ import { Plus } from 'lucide-react';
 import { EditionDto, UserEditionDto } from '@/lib/userbooks';
 import { useState } from 'react';
 import RateBookStepperForm from '@/components/book/ratebook/RateBookStepperForm';
-import { Review } from '@prisma/client';
 
 const RateBookStepperDialog = ({
   bookId,
   bookSlug,
   editions,
   dialogTitle,
-  userReviews,
   onlyContent = false,
   showSteps = true,
   userEditions = [],
@@ -27,7 +25,6 @@ const RateBookStepperDialog = ({
   bookSlug: string;
   editions: EditionDto[];
   dialogTitle: string;
-  userReviews?: Review[];
   onlyContent?: boolean;
   showSteps?: boolean;
   userEditions?: UserEditionDto[];
@@ -54,7 +51,6 @@ const RateBookStepperDialog = ({
         editions={editions}
         userEditions={userEditions}
         showSteps={showSteps}
-        userReviews={userReviews}
         afterSuccess={afterSuccess ? afterSuccess : closeDialog}
       />
     </DialogContent>

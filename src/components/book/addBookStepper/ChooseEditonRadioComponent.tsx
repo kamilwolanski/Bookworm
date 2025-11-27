@@ -20,7 +20,6 @@ const ChooseEditonRadioComponent = ({
   const form = useFormContext<{ editionId: string }>();
 
   const userEditionIds = new Set(userEditions.map((e) => e.editionId));
-
   const renderEditionRow = (
     edition: EditionDto,
     field: ControllerRenderProps<{ editionId: string }, 'editionId'>
@@ -119,12 +118,6 @@ const ChooseEditonRadioComponent = ({
                           }
                         )}
                       </b>
-                    </h4>
-                  )}
-
-                  {edition.isbn10 && (
-                    <h4 className="text-xs sm:text-sm">
-                      ISBN10: {edition.isbn10}
                     </h4>
                   )}
                 </div>
