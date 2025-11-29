@@ -29,11 +29,11 @@ import {
 } from '@/app/admin/data';
 import { updateEditionAction } from '@/app/admin/books/[slug]/actions/editionActions';
 import { MultiSelect } from '@/components/ui/multi-select';
-import { PublisherOption } from '@/lib/publishers';
 import { useDebounced } from '@/app/hooks/useDebounce';
 import { searchPublishersAction } from '@/app/admin/publishers/actions/publisherActions';
 import { EditionDto } from '@/lib/editions';
 import { Textarea } from '@/components/ui/textarea';
+import { PublisherOption } from '@/lib/admin/publishers';
 
 export default function EditEditionForm({
   bookId,

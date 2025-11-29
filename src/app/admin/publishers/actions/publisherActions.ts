@@ -11,14 +11,7 @@ import { getUserSession } from '@/lib/session';
 import { Role, Prisma } from '@prisma/client';
 import slugify from 'slugify';
 import { parseFormPublisherData } from '@/lib/parsers/publishers';
-import {
-  CreatePublisherData,
-  UpdatePublisherData,
-  createPublisher,
-  deletePublisher,
-  searchPublishers,
-  updatePublisher,
-} from '@/lib/publishers';
+import { createPublisher, CreatePublisherData, deletePublisher, searchPublishers, updatePublisher, UpdatePublisherData } from '@/lib/admin/publishers';
 
 export const createPublisherAction: Action<[unknown, FormData]> = async (
   currentState,

@@ -1,6 +1,6 @@
 import AdminPublishersTable from '@/components/admin/publisher/AdminPublishersTable';
-import { getAllPublishers } from '@/lib/publishers';
 import AddPublisherDialog from '@/components/admin/publisher/AddPublisherDialog';
+import { getAllPublishers } from '@/lib/admin/publishers';
 
 type Props = {
   searchParams?: Promise<{
