@@ -8,8 +8,8 @@ import {
   unauthorizedResponse,
 } from '@/lib/responses';
 import { deleteReview, updateBookRating } from '@/lib/reviews';
+import { upsertReviewVote } from '@/lib/reviews';
 import { getUserSession } from '@/lib/session';
-import { upsertReviewVote, VoteActionResult } from '@/lib/userbooks';
 import { ActionResult } from '@/types/actions';
 import { ReviewVoteType } from '@prisma/client';
 
@@ -22,6 +22,10 @@ type VoteActionPayload = {
   reviewId: string;
   type: ReviewVoteType;
 };
+interface VoteActionResult {
+  removed: boolean;
+  currentType?: ReviewVoteType;
+}
 
 export const addRatingAction = async ({
   bookId,

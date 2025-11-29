@@ -13,7 +13,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StarRating } from '@/components/book/StarRating';
 import { Button } from '@/components/ui/button';
 import { useOptimisticVoteReview } from '@/lib/optimistics/useOptimisticVoteReview';
-import { ReviewItem } from '@/lib/reviews';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +26,7 @@ import DeleteReviewDialog from '@/components/book/bookDetails/DeleteReviewDialog
 import { setReviewVoteAction } from '@/app/(main)/books/actions/reviewActions';
 import { useSession } from 'next-auth/react';
 import LoginDialog from '@/components/auth/LoginDialog';
+import { ReviewItem } from '@/lib/reviews';
 
 const BookReview = ({
   bookId,
