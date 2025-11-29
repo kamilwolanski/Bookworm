@@ -1,6 +1,5 @@
 import prisma from '@/lib/prisma';
 import { DeleteReviewPayload, RatePayload } from './types';
-import { ReviewVoteType } from '@prisma/client';
 
 export async function updateBookRating(
   userId: string,
