@@ -1,26 +1,28 @@
 import { HeroSection } from '@/components/homepage/HeroSection';
-import { getBestRatedBooks, getTheNewestEditions } from '@/lib/books';
+import {
+  getBestRatedBooks,
+  getTheNewestEditions,
+  getTopBooksWithTopEdition,
+} from '@/lib/books';
 import { BookSection } from '@/components/homepage/BookSection';
 import { BrowseBooksSection } from '@/components/homepage/BrowseBooksSection';
 import { BookCardDTO } from '@/lib/userbooks';
 
 export default async function MainPage() {
-  // const session = await getUserSession();
-  // const userId = session?.user?.id;
-  // const response = await getTopBooksWithTopEdition(userId);
+  const mostPopularresponse = await getTopBooksWithTopEdition();
   const topRatedResponse = await getBestRatedBooks();
   const newestBooksResponse: BookCardDTO[] = await getTheNewestEditions();
 
   return (
     <div className="min-h-screen">
       <HeroSection />
-      {/* <BookSection
+      <BookSection
         title="Popularne teraz"
         subtitle="Książki które czytają wszyscy"
-        bookItems={response}
+        bookItems={mostPopularresponse}
         variant="white"
         showViewAll={false}
-      /> */}
+      />
       <BookSection
         title="Najwyżej oceniane"
         subtitle="Perły literatury według naszych czytelników"
