@@ -1,3 +1,5 @@
+import { BookCardDTO } from '../userbooks';
+
 export type AuthorDto = {
   id: string;
   name: string;
@@ -12,4 +14,9 @@ export type AuthorDto = {
 export type AuthorForSitemap = {
   slug: string;
   updatedAt: Date;
+};
+
+export type AuthorBooksResponse = {
+  authorbooks: BookCardDTO[];
+  totalCount: number;
 };

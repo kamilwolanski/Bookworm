@@ -1,6 +1,5 @@
 import { BookList } from '@/components/book/BookList';
-import { getUserSession } from '@/lib/session';
-import { getBooksAll } from '@/lib/userbooks';
+import { getAuthorsBooks } from '@/lib/author';
 
 type AuthorBooksProps = {
   searchParams?: Promise<{
@@ -12,25 +11,15 @@ type AuthorBooksProps = {
 const ITEMS_PER_PAGE = 8;
 
 const AuthorBooks = async ({ searchParams, authorSlug }: AuthorBooksProps) => {
-  const session = await getUserSession();
-  const userId = session?.user?.id;
   const { page } = searchParams ? await searchParams : {};
   const currentPage = parseInt(page || '1', 10);
-  const { items, totalCount } = await getBooksAll({
-    currentPage,
-    booksPerPage: ITEMS_PER_PAGE,
-    genres: [],
-    myShelf: false,
-    userRatings: [],
-    statuses: [],
-    userId,
-    authorSlug,
-  });
+  const { authorbooks, totalCount } = await getAuthorsBooks(authorSlug);
+
   return (
     <div className="bg-sidebar shadow-lg rounded-xl p-4 sm:p-8">
       <h3 className="font-semibold mb-6">Książki autora</h3>
       <BookList
-        bookItems={items}
+        bookItems={authorbooks}
         page={currentPage}
         pageSize={ITEMS_PER_PAGE}
         totalCount={totalCount}

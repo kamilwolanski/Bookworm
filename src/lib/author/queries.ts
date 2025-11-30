@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
-import { AuthorDto, AuthorForSitemap } from './types';
+import { AuthorBooksResponse, AuthorDto, AuthorForSitemap } from './types';
+import { BookCardDTO, EditionDto } from '../userbooks';
 
 export async function getAuthor(authorSlug: string): Promise<AuthorDto> {
   const authorRaw = await prisma.person.findFirstOrThrow({
@@ -28,6 +29,98 @@ export async function getAuthor(authorSlug: string): Promise<AuthorDto> {
   };
 
   return author;
+}
+
+export async function getAuthorsBooks(
+  authorSlug: string
+): Promise<AuthorBooksResponse> {
+  const where = {
+    authors: {
+      some: {
+        person: {
+          slug: authorSlug,
+        },
+      },
+    },
+  };
+  const [authorbooks, totalCount] = await Promise.all([
+    prisma.book.findMany({
+      orderBy: {
+        firstPublicationDate: 'desc',
+      },
+      where: where,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        firstPublicationDate: true,
+        averageRating: true,
+        ratingCount: true,
+        authors: {
+          select: {
+            personId: true,
+            order: true,
+            person: { select: { id: true, name: true } },
+          },
+        },
+        editions: {
+          select: {
+            id: true,
+            language: true,
+            publicationDate: true,
+            title: true,
+            subtitle: true,
+            coverUrl: true,
+            publishers: {
+              include: {
+                publisher: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.book.count({ where }),
+  ]);
+
+  function pickBestEdition(editions: EditionDto[]) {
+    return editions.reduce((best, edition) => {
+      // Todo: zmienic w bazie publicationDate wymagane
+      if (best.publicationDate && edition.publicationDate) {
+        return edition.publicationDate > best.publicationDate ? edition : best;
+      }
+
+      return edition;
+    });
+  }
+
+  const items: BookCardDTO[] = authorbooks.map((book) => {
+    const representativeEdition = pickBestEdition(book.editions);
+
+    return {
+      book: {
+        id: book.id,
+        title: book.title,
+        slug: book.slug ?? '',
+        authors: book.authors
+          .sort((a, c) => (a.order ?? 0) - (c.order ?? 0))
+          .map((a) => ({ id: a.person.id, name: a.person.name })),
+        editions: book.editions,
+      },
+      representativeEdition: {
+        id: representativeEdition.id,
+        title: representativeEdition.title,
+        subtitle: representativeEdition.subtitle,
+        coverUrl: representativeEdition.coverUrl,
+      },
+      ratings: {
+        bookAverage: book.averageRating ?? null,
+        bookRatingCount: book.ratingCount ?? null,
+      },
+    };
+  });
+
+  return { authorbooks: items, totalCount };
 }
 
 export async function getAllAuthorSlugs(): Promise<string[]> {
