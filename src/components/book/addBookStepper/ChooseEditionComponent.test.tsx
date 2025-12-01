@@ -2,12 +2,13 @@ import { render, screen, within } from '@testing-library/react';
 import ChooseEditonComponent from './ChooseEditionComponent';
 import { ReactNode } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { EditionDto, UserEditionDto } from '@/lib/userbooks';
 import { useActionForm } from '@/app/hooks/useActionForm';
 import {
   AddBookToShelfInput,
   chooseEditionSchema,
 } from '@/lib/validations/addBookToShelfValidation';
+import { EditionDto } from '@/lib/books';
+import { UserEditionDto } from '@/lib/user';
 
 const editions: EditionDto[] = [
   {

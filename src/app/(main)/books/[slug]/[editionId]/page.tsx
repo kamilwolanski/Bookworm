@@ -1,6 +1,10 @@
 import BookDetails from '@/components/book/bookDetails/BookDetails';
-import { getBook } from '@/lib/userbooks';
-import { getBookEditionMetaData, getOtherEditions } from '@/lib/books';
+import {
+  getAllBookStaticParams,
+  getBook,
+  getBookEditionMetaData,
+  getOtherEditions,
+} from '@/lib/books';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OtherBooks from '@/components/book/bookDetails/OtherBooks';
 import { Suspense } from 'react';
@@ -28,17 +32,22 @@ export async function generateMetadata(
   };
 }
 
+export async function generateStaticParams() {
+  return getAllBookStaticParams();
+}
+
 export default async function BookEdition({
   params,
-  searchParams,
+  // searchParams,
 }: BookPageProps) {
   const { editionId, slug } = await params;
-  const { page } = searchParams ? await searchParams : {};
-  const currentPage = parseInt(page || '1', 10);
 
-  const [book, otherEditions] = await Promise.all([
+  // const { page } = searchParams ? await searchParams : {};
+  // const currentPage = parseInt(page || '1', 10);
+
+  const [book] = await Promise.all([
     getBook(editionId),
-    getOtherEditions(slug, editionId),
+    // getOtherEditions(slug, editionId),
   ]);
 
   return (
@@ -72,12 +81,12 @@ export default async function BookEdition({
                 </div>
               )}
             </TabsContent>
-            <TabsContent value="otherEditions">
+            {/* <TabsContent value="otherEditions">
               <OtherBooks bookSlug={slug} otherEditions={otherEditions} />
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
 
-          <Suspense
+          {/* <Suspense
             key={`reviews-${slug}-${currentPage}`}
             fallback={
               <div className="flex items-center justify-center min-h-screen">
@@ -94,7 +103,7 @@ export default async function BookEdition({
               editionTitle={book.edition.title}
               currentPage={currentPage}
             />
-          </Suspense>
+          </Suspense> */}
         </div>
       </div>
     </>

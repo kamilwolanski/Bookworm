@@ -9,8 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 import { XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { GenreDTO } from '@/lib/userbooks';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { GenreDTO } from '@/lib/books';
 
 const GenreFilter = ({
   bookGenres,

@@ -6,7 +6,7 @@ import { useActionForm } from '@/app/hooks/useActionForm';
 import { Separator } from '@/components/ui/separator';
 import ChooseEditonRadioComponent from '@/components/book/addBookStepper/ChooseEditonRadioComponent';
 import ReviewEditionComponent from '@/components/book/ratebook/ReviewEditionComponent';
-import { EditionDto, UserBookReview, UserEditionDto } from '@/lib/userbooks';
+import { UserBookReview } from '@/lib/userbooks';
 import { FormProvider } from 'react-hook-form';
 import {
   chooseEditionSchema,
@@ -17,6 +17,8 @@ import { useRouter } from 'next/navigation';
 import { rateBookAction } from '@/app/(main)/books/actions/reviewActions';
 import useSWR from 'swr';
 import { fetcher } from '@/app/services/fetcher';
+import { EditionDto } from '@/lib/books';
+import { UserEditionDto } from '@/lib/user';
 
 const { useStepper, steps, utils } = defineStepper(
   { id: 'edition', label: 'Wydanie', schema: chooseEditionSchema },

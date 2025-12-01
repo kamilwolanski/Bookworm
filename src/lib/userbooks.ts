@@ -5,19 +5,12 @@ import {
   Publisher,
   ReadingStatus,
   Review,
-  ReviewVoteType,
   UserBook,
 } from '@prisma/client';
 import prisma from '@/lib/prisma';
-import { getUserSession } from '@/lib/session';
 import { normalizeForSearch } from '@/lib/utils';
-
-export type GenreDTO = {
-  id: string;
-  slug: string;
-  language: string;
-  name: string;
-};
+import { BookCardDTO, GenreDTO } from '@/lib/books';
+import { UserEditionDto } from './user/books/types';
 
 export type UserBookDTO = Book &
   UserBook & {
@@ -55,17 +48,6 @@ export interface BookAuthorForList {
   person: { name: string }; // bo selectujesz tylko name
 }
 
-export type EditionUserResponseItem = {
-  id: string;
-  bookId: string;
-  userState: EditionUserState;
-};
-
-export type EditionUserState = {
-  userRating: number | null | undefined;
-  userEditions: UserEditionDto[];
-};
-
 export interface RatingFilter {
   editions?:
     | {
@@ -99,7 +81,6 @@ export type AddBookToShelfPayload = {
   body?: string;
 };
 
-export type RemoveBookFromShelfPayload = { bookId: string; editionId: string };
 export type EditionDtoDeprecated = {
   id: string;
   language: string | null;
@@ -117,25 +98,6 @@ export type EditionDtoDeprecated = {
     publisherId: string;
   }[];
   reviews: Review[];
-};
-
-export type EditionDto = {
-  id: string;
-  language: string | null;
-  publicationDate: Date | null;
-  title: string | null;
-  subtitle: string | null;
-  coverUrl: string | null;
-  publishers: {
-    editionId: string;
-    order: number | null;
-    publisher: Publisher;
-    publisherId: string;
-  }[];
-};
-
-export type UserEditionDto = {
-  editionId: string;
 };
 
 export type BookCardDTODeprecated = {
@@ -177,70 +139,9 @@ export type BookCardDTODeprecated = {
   };
 };
 
-export type BookCardDTO = {
-  book: {
-    id: string;
-    title: string;
-    slug: string;
-    authors: { id: string; name: string }[];
-    editions: EditionDto[];
-  };
-  representativeEdition: {
-    id: string;
-    title: string | null;
-    subtitle: string | null;
-    coverUrl: string | null;
-  };
-  ratings: {
-    bookAverage: number | null;
-    bookRatingCount: number | null;
-  };
-};
-
 export type GetBooksAllResponse = {
   items: BookCardDTO[];
   totalCount: number;
-};
-
-export type BookDetailsDto = {
-  edition: {
-    id: string;
-    title: string; // edition.title || book.title
-    subtitle?: string | null;
-    description?: string | null;
-    isbn13?: string | null;
-    isbn10?: string | null;
-    language?: string | null;
-    publicationDate?: string | null; // ISO
-    pageCount?: number | null;
-    format?: MediaFormat | null;
-    coverUrl?: string | null;
-    coverPublicId?: string | null;
-  };
-  book: {
-    id: string;
-    slug: string;
-    title: string;
-    authors: { name: string; slug: string; order: number | null }[];
-    genres: (Omit<GenreTranslation, 'name_search'> & { slug: string })[];
-    ratingCount: number | null;
-    averageRating: number | null;
-  };
-  publishers: {
-    id: string;
-    name: string;
-    slug: string;
-    order: number | null;
-  }[];
-  userBook: {
-    isOnShelf: boolean;
-    readingstatus?: ReadingStatus;
-    userReview?: {
-      editionId: string;
-      rating: number | null;
-      body: string | null;
-    };
-  } | null;
 };
 
 export function statusPriority(s: ReadingStatus): number {
@@ -558,228 +459,6 @@ export async function getBooksAll({
   return { items, totalCount };
 }
 
-export async function getBook(editionId: string): Promise<BookDetailsDto> {
-  const session = await getUserSession();
-  const currentUserId: string | null = session?.user?.id ?? null;
-  const edition = await prisma.edition.findUniqueOrThrow({
-    where: { id: editionId },
-    select: {
-      id: true,
-      isbn13: true,
-      isbn10: true,
-      language: true,
-      publicationDate: true,
-      pageCount: true,
-      format: true,
-      coverUrl: true,
-      coverPublicId: true,
-      title: true,
-      subtitle: true,
-      description: true,
-      userBooks: currentUserId
-        ? {
-            where: { userId: currentUserId },
-          }
-        : false, // <-- Prisma pominie całkowicie pole, jeśli damy false
-      reviews: currentUserId
-        ? {
-            where: { userId: currentUserId },
-            select: {
-              rating: true,
-              body: true,
-              editionId: true,
-            },
-            take: 1,
-          }
-        : false,
-      book: {
-        select: {
-          genres: {
-            select: {
-              genre: {
-                select: {
-                  slug: true,
-                  translations: {
-                    // jeśli chcesz konkretny język:
-                    // where: { language: lang },
-                    select: {
-                      id: true,
-                      genreId: true,
-                      language: true,
-                      name: true,
-                    },
-                    orderBy: { language: 'asc' }, // opcjonalnie
-                    take: 1, // bierzemy jedno tłumaczenie (np. pierwsze/pasujące)
-                  },
-                },
-              },
-            },
-          },
-          id: true,
-          slug: true,
-          title: true,
-          authors: {
-            select: {
-              order: true,
-              person: { select: { name: true, slug: true } },
-            },
-            orderBy: { order: 'asc' },
-          },
-          ratingCount: true,
-          averageRating: true,
-        },
-      },
-      publishers: {
-        select: {
-          order: true,
-          publisher: { select: { id: true, name: true, slug: true } },
-        },
-        orderBy: { order: 'asc' },
-      },
-    },
-  });
-
-  const isOnShelf = edition.userBooks?.length > 0 ? true : false;
-  const userBook = edition.userBooks?.length > 0 && edition.userBooks[0];
-
-  const dto: BookDetailsDto = {
-    edition: {
-      id: edition.id,
-      title: edition.title ?? edition.book.title,
-      subtitle: edition.subtitle ?? null,
-      description: edition.description ?? null,
-      isbn13: edition.isbn13 ?? null,
-      isbn10: edition.isbn10 ?? null,
-      language: edition.language ?? null,
-      publicationDate: edition.publicationDate
-        ? edition.publicationDate.toISOString()
-        : null,
-      pageCount: edition.pageCount ?? null,
-      format: edition.format ?? null,
-      coverUrl: edition.coverUrl ?? null,
-      coverPublicId: edition.coverPublicId ?? null,
-    },
-    book: {
-      id: edition.book.id,
-      slug: edition.book.slug ?? null,
-      title: edition.book.title,
-      ratingCount: edition.book.ratingCount,
-      averageRating: edition.book.averageRating,
-      authors: edition.book.authors.map((a) => ({
-        name: a.person.name,
-        slug: a.person.slug,
-        order: a.order ?? null,
-      })),
-      genres: edition.book.genres.flatMap((g) => {
-        const tr = g.genre.translations[0];
-        return tr
-          ? [
-              {
-                id: tr.id,
-                genreId: tr.genreId,
-                language: tr.language,
-                name: tr.name,
-                slug: g.genre.slug,
-              },
-            ]
-          : [];
-      }),
-    },
-    publishers: edition.publishers.map((p) => ({
-      id: p.publisher.id,
-      name: p.publisher.name,
-      slug: p.publisher.slug,
-      order: p.order ?? null,
-    })),
-    userBook: currentUserId
-      ? {
-          isOnShelf: isOnShelf,
-          ...(isOnShelf && {
-            readingstatus: userBook ? userBook.readingStatus : undefined,
-          }),
-          userReview: edition.reviews?.[0] ?? null,
-        }
-      : null,
-  };
-  return dto;
-}
-
-export async function removeBookFromShelf(
-  userId: string,
-  { bookId, editionId }: RemoveBookFromShelfPayload
-): Promise<void> {
-  await prisma.userBook.delete({
-    where: {
-      bookId_userId_editionId: {
-        userId,
-        bookId,
-        editionId,
-      },
-    },
-  });
-}
-
-export async function getBookGenres(
-  language: 'pl' | 'en'
-): Promise<GenreDTO[]> {
-  const genres = await prisma.genre.findMany({
-    include: {
-      translations: {
-        where: {
-          language: language,
-        },
-        take: 1,
-      },
-    },
-  });
-
-  return genres.map((genre) => {
-    const translation = genre.translations[0];
-
-    return {
-      id: genre.id,
-      slug: genre.slug,
-      language: translation.language,
-      name: translation.name,
-    };
-  });
-}
-
-export async function addBookToShelf(
-  userId: string,
-  { bookId, editionId }: { bookId: string; editionId: string }
-): Promise<UserBook> {
-  return await prisma.userBook.create({
-    data: {
-      bookId,
-      editionId,
-      userId,
-    },
-  });
-}
-
-export async function changeBookStatus(
-  userId: string,
-  {
-    bookId,
-    editionId,
-    readingStatus,
-  }: { bookId: string; editionId: string; readingStatus: ReadingStatus }
-): Promise<UserBook> {
-  return await prisma.userBook.update({
-    where: {
-      bookId_userId_editionId: {
-        bookId,
-        userId,
-        editionId,
-      },
-    },
-    data: {
-      readingStatus,
-    },
-  });
-}
-
 export async function addBookToShelfWithReview(
   userId: string,
   { bookId, editionId, readingStatus, rating, body }: AddBookToShelfPayload
@@ -827,61 +506,6 @@ export async function addBookToShelfWithReview(
 
     return ub;
   });
-}
-
-export async function getTheUserInformationForEditions(
-  userId: string,
-  editionIds: string[]
-): Promise<EditionUserResponseItem[]> {
-  const editions = await prisma.edition.findMany({
-    where: { id: { in: editionIds } },
-    select: { id: true, bookId: true },
-  });
-
-  if (editions.length === 0) return [];
-
-  const foundEditionIds = editions.map((e) => e.id);
-  const foundBookIds = Array.from(new Set(editions.map((e) => e.bookId)));
-
-  const [userReviews, userEditions] = await Promise.all([
-    prisma.review.findMany({
-      where: {
-        editionId: { in: foundEditionIds },
-        userId,
-      },
-      select: { editionId: true, rating: true },
-    }),
-    prisma.userBook.findMany({
-      where: {
-        bookId: { in: foundBookIds },
-        userId,
-      },
-      select: {
-        bookId: true,
-        editionId: true,
-      },
-    }),
-  ]);
-
-  const userReviewsMap = new Map(userReviews.map((r) => [r.editionId, r]));
-
-  const userEditionsMap = new Map<string, typeof userEditions>();
-  for (const ub of userEditions) {
-    const arr = userEditionsMap.get(ub.bookId);
-    if (arr) arr.push(ub);
-    else userEditionsMap.set(ub.bookId, [ub]);
-  }
-
-  const items: EditionUserResponseItem[] = editions.map((edition) => ({
-    id: edition.id,
-    bookId: edition.bookId,
-    userState: {
-      userRating: userReviewsMap.get(edition.id)?.rating,
-      userEditions: userEditionsMap.get(edition.bookId) ?? [],
-    },
-  }));
-
-  return items;
 }
 
 export type UserBookReview = {

@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import { Book } from '@prisma/client';
-import { GenreDTO } from './userbooks';
+import { GenreDTO } from './books';
 
 export type CreateBookInput = {
   slug: string;

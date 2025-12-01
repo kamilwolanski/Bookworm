@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma';
 import { AuthorBooksResponse, AuthorDto, AuthorForSitemap } from './types';
-import { BookCardDTO, EditionDto } from '../userbooks';
+import { BookCardDTO, EditionDto } from '../books';
 
 export async function getAuthor(authorSlug: string): Promise<AuthorDto> {
   const authorRaw = await prisma.person.findFirstOrThrow({

@@ -15,7 +15,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useEffect, useMemo, useState } from 'react';
 import { MultiSelect } from '@/components/ui/multi-select';
-import { GenreDTO } from '@/lib/userbooks';
 import { UseFormReturn } from 'react-hook-form';
 import { updateBookAction } from '@/app/admin/books/actions/bookActions';
 import { PersonOption } from '@/lib/persons';
@@ -24,6 +23,7 @@ import { dedupeByValue } from '@/lib/utils';
 import { useDebounced } from '@/app/hooks/useDebounce';
 import { format } from 'date-fns';
 import { BookBasicDTO } from '@/lib/adminBooks';
+import { GenreDTO } from '@/lib/books';
 
 const EditBookForm = ({
   bookGenres,

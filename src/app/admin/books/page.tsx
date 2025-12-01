@@ -1,8 +1,7 @@
-import { getBookGenres } from '@/lib/userbooks';
-
 import AdminBooksTable from '@/components/admin/book/AdminBooksTable';
 import AddBookDialog from '@/components/admin/book/AddBookDialog';
 import { getAllBooksBasic } from '@/lib/adminBooks';
+import { getBookGenres } from '@/lib/books';
 
 type Props = {
   searchParams?: Promise<{

@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AddBookStepperDialog from './AddBookStepperDialog';
-import { EditionDto, UserEditionDto } from '@/lib/userbooks';
 import { Review } from '@prisma/client';
+import { UserEditionDto } from '@/lib/user';
+import { EditionDto } from '@/lib/books';
 
 const baseProps = {
   bookId: 'b1',

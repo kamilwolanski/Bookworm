@@ -1,6 +1,6 @@
-import { getTheUserInformationForEditions } from '@/lib/userbooks';
 import { NextResponse } from 'next/server';
 import { getUserSession } from '@/lib/session';
+import { getTheUserInformationForEditions } from '@/lib/user';
 export async function POST(req: Request) {
   try {
     const session = await getUserSession();

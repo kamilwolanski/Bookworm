@@ -1,6 +1,5 @@
 'use client';
 
-import { EditionDto, UserEditionDto } from '@/lib/userbooks';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { LANGUAGES } from '@/app/admin/data';
@@ -10,6 +9,8 @@ import { FormField, FormItem } from '@/components/ui/form';
 import { useFormContext } from 'react-hook-form';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
+import { EditionDto } from '@/lib/books';
+import { UserEditionDto } from '@/lib/user';
 
 const ChooseEditonComponent = ({
   editions,

@@ -1,16 +1,16 @@
 'use server';
 
-import {
-  removeBookFromShelf,
-  addBookToShelfWithReview,
-  addBookToShelf,
-  changeBookStatus,
-} from '@/lib/userbooks';
+import { addBookToShelfWithReview } from '@/lib/userbooks';
 import { serverErrorResponse, unauthorizedResponse } from '@/lib/responses';
 import { getUserSession } from '@/lib/session';
 import type { ActionResult } from '@/types/actions';
 import { parseFormAddBookToShelfData } from '@/lib/parsers/books';
 import { ReadingStatus, UserBook } from '@prisma/client';
+import {
+  addBookToShelf,
+  changeBookStatus,
+  removeBookFromShelf,
+} from '@/lib/user';
 
 export const addBookToShelfAction = async (
   bookId: string,

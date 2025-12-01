@@ -5,7 +5,6 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Star, MoreVertical, BookPlus, Plus } from 'lucide-react';
-import { BookCardDTO, EditionUserState } from '@/lib/userbooks';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +22,8 @@ import LoginDialog from '@/components/auth/LoginDialog';
 import Link from 'next/link';
 import { preload } from 'swr';
 import { fetcher } from '@/app/services/fetcher';
+import { BookCardDTO } from '@/lib/books';
+import { EditionUserState } from '@/lib/user';
 
 export function BookCard({
   bookItem,

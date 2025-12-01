@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation';
-import { getBookGenres } from '@/lib/userbooks';
 import { getUserSession } from '@/lib/session';
 import BookFilters from '@/components/book/BookFilters';
 import { ReadingStatus } from '@prisma/client';
@@ -20,6 +19,7 @@ import { Suspense } from 'react';
 import BooksTableServer from './BooksTableServer';
 import CountResults from './CountResults';
 import type { Metadata } from 'next';
+import { getBookGenres } from '@/lib/books';
 
 type BooksProps = {
   searchParams?: Promise<{

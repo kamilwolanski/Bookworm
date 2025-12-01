@@ -1,12 +1,12 @@
 import { HeroSection } from '@/components/homepage/HeroSection';
 import {
+  BookCardDTO,
   getBestRatedBooks,
   getTheNewestEditions,
   getTopBooksWithTopEdition,
 } from '@/lib/books';
 import { BookSection } from '@/components/homepage/BookSection';
 import { BrowseBooksSection } from '@/components/homepage/BrowseBooksSection';
-import { BookCardDTO } from '@/lib/userbooks';
 
 export default async function MainPage() {
   const mostPopularresponse = await getTopBooksWithTopEdition();

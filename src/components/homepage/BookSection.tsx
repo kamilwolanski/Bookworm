@@ -3,11 +3,12 @@
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BookCard } from '@/components/book/BookCard';
-import { BookCardDTO, EditionUserResponseItem } from '@/lib/userbooks';
 import { useSession } from 'next-auth/react';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 import { fetcher } from '@/app/services/fetcher';
+import { BookCardDTO } from '@/lib/books';
+import { EditionUserResponseItem } from '@/lib/user';
 
 interface BookSectionProps {
   title: string;

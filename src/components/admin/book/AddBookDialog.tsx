@@ -11,8 +11,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import AddBookForm from '@/components/admin/book/AddBookForm';
-import { GenreDTO } from '@/lib/userbooks';
 import { SearchBar } from '@/components/shared/SearchBar';
+import { GenreDTO } from '@/lib/books';
 
 const AddBookDialog = ({ bookGenres }: { bookGenres: GenreDTO[] }) => {
   const [open, setOpen] = useState(false);

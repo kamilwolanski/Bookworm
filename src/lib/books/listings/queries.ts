@@ -1,50 +1,6 @@
-import { BookCardDTO, GenreDTO, statusPriority } from './userbooks';
 import prisma from '@/lib/prisma';
-import { Book, ReadingStatus } from '@prisma/client';
+import { BookCardDTO } from './types';
 import { subDays } from 'date-fns';
-
-export type BookDTO = Book & {
-  genres?: GenreDTO[];
-};
-
-export type CreateBookData = Omit<
-  Book,
-  'id' | 'addedAt' | 'averageRating' | 'ratingCount'
->;
-
-export type RateData = {
-  averageRating: number;
-  ratingCount: number;
-  userRating: number;
-};
-
-export type OtherEditionDto = {
-  id: string;
-  coverUrl: string | null;
-  title: string | null;
-};
-
-type BookEditionMetaData = {
-  title: string | null;
-  description: string | null;
-};
-
-type BookEditionForSitemap = {
-  id: string;
-  updatedAt: Date;
-  book: {
-    slug: string;
-  };
-};
-
-export async function findUniqueBook(bookId: string) {
-  const book = await prisma.book.findUnique({
-    where: { id: bookId },
-    select: { id: true },
-  });
-
-  return book;
-}
 
 export async function getTheNewestEditions(take: number = 5) {
   const newestEditions = await prisma.edition.findMany({
@@ -298,61 +254,4 @@ export async function getBestRatedBooks(take: number = 5) {
   });
 
   return items;
-}
-
-export async function getOtherEditions(
-  bookSlug: string,
-  editionId: string
-): Promise<OtherEditionDto[]> {
-  const otherEditions = await prisma.book.findUnique({
-    where: {
-      slug: bookSlug,
-    },
-    include: {
-      editions: {
-        where: {
-          NOT: {
-            id: editionId,
-          },
-        },
-        select: {
-          id: true,
-          title: true,
-          coverUrl: true,
-        },
-      },
-    },
-  });
-
-  return otherEditions?.editions ?? [];
-}
-
-export async function getBookEditionMetaData(
-  editionId: string
-): Promise<BookEditionMetaData> {
-  return await prisma.edition.findUniqueOrThrow({
-    where: {
-      id: editionId,
-    },
-    select: {
-      title: true,
-      description: true,
-    },
-  });
-}
-
-export async function getAllBooksEditionForSitemap(): Promise<
-  BookEditionForSitemap[]
-> {
-  return await prisma.edition.findMany({
-    select: {
-      id: true,
-      updatedAt: true,
-      book: {
-        select: {
-          slug: true,
-        },
-      },
-    },
-  });
 }

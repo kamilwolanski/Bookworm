@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import ChooseEditonRadioComponent from '@/components/book/addBookStepper/ChooseEditonRadioComponent';
 import ChooseEditonComponent from '@/components/book/addBookStepper/ChooseEditionComponent';
 import ReviewEditionComponent from '@/components/book/ratebook/ReviewEditionComponent';
-import { EditionDto, UserBookReview, UserEditionDto } from '@/lib/userbooks';
+import { UserBookReview } from '@/lib/userbooks';
 import { addBookToShelfAction } from '@/app/(main)/books/actions/bookActions';
 import {
   AddBookToShelfInput,
@@ -20,6 +20,8 @@ import { FormProvider } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import { fetcher } from '@/app/services/fetcher';
+import { UserEditionDto } from '@/lib/user';
+import { EditionDto } from '@/lib/books';
 
 const { useStepper, steps, utils } = defineStepper(
   { id: 'edition', label: 'Wydanie', schema: chooseEditionSchema },

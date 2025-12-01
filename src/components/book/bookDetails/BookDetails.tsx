@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import { genreColorMap } from '@/lib/genreColorMap';
 import { Button } from '@/components/ui/button';
-import { BookDetailsDto } from '@/lib/userbooks';
 import { StarRating } from '@/components/book/StarRating';
 import { Separator } from '@/components/ui/separator';
 import Emoji from '@/components/shared/Emoji';
@@ -39,6 +38,9 @@ import { useOptimisticShelf } from '@/lib/optimistics/useOptimisticShelf';
 import { useOptimisticReadingStatus } from '@/lib/optimistics/useOptimisticReadingStatus';
 import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
 import LoginDialog from '@/components/auth/LoginDialog';
+import useSWR from 'swr';
+import { BookDetailsDto } from '@/lib/books';
+import { UserEditionData } from '@/lib/user';
 
 const MediaFormatLabels: Record<MediaFormat, string> = {
   [MediaFormat.HARDCOVER]: 'Twarda oprawa',
@@ -78,21 +80,22 @@ const statusConfig: Record<
 };
 
 const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
-  const { book, edition, publishers, userBook } = bookData;
-  const onShelf = userBook?.isOnShelf;
-  const readingStatus = userBook?.readingstatus;
-  const userRating = bookData.userBook?.userReview?.rating;
-
+  const { book, edition, publishers } = bookData;
   const { status } = useSession();
+  const shouldFetch = status === 'authenticated';
+  const swrKey = shouldFetch ? `/api/user/editions/${edition.id}` : null;
 
+  const { data: userData, isLoading: userStateIsLoading } =
+    useSWR<UserEditionData>(swrKey);
+  const onShelf = Boolean(userData);
+  const readingStatus = userData?.readingStatus;
+  const userRating = userData?.userRating;
   const {
     statusOpt,
     isPending: isChangingOpt,
     change,
   } = useOptimisticReadingStatus(readingStatus);
-  const { onShelfOptimistic, isPending, toggle } = useOptimisticShelf(
-    onShelf ?? false
-  );
+  const { onShelfOptimistic, isPending, toggle } = useOptimisticShelf(onShelf);
 
   const handleToggle = () => {
     if (onShelfOptimistic) {
@@ -287,14 +290,14 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                   bookId={book.id}
                   editionId={edition.id}
                   dialogTitle={`Napisz opinie o : ${edition.title}`}
-                  userReview={userBook?.userReview}
+                  userReview={undefined}
                 >
                   <Button
                     variant="outline"
                     className="bg-sidebar cursor-pointer"
                   >
                     <Star className="w-4 h-4 mr-1" />
-                    {userBook?.userReview ? 'Edytuj ocenę' : 'Oceń'}
+                    {/* {userBook?.userReview ? 'Edytuj ocenę' : 'Oceń'} */}
                   </Button>
                 </RateBookDialog>
               ) : (

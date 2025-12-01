@@ -1,4 +1,4 @@
-import { BookCardDTO } from '../userbooks';
+import { BookCardDTO } from '../books';
 
 export type AuthorDto = {
   id: string;

@@ -7,9 +7,10 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
-import { EditionDto, UserEditionDto } from '@/lib/userbooks';
 import AddBookForm from '@/components/book/addBookStepper/AddBookForm';
 import { useState } from 'react';
+import { UserEditionDto } from '@/lib/user';
+import { EditionDto } from '@/lib/books';
 
 const AddBookStepperDialog = ({
   bookId,

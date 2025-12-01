@@ -15,13 +15,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { MultiSelect } from '@/components/ui/multi-select';
-import { GenreDTO } from '@/lib/userbooks';
 import { UseFormReturn } from 'react-hook-form';
 import { createBookAction } from '@/app/admin/books/actions/bookActions';
 import { PersonOption } from '@/lib/persons';
 import { searchPersonsAction } from '@/app/admin/persons/actions/personActions';
 import { useDebounced } from '@/app/hooks/useDebounce';
 import { format } from 'date-fns';
+import { GenreDTO } from '@/lib/books';
 
 export default function BookForm({
   bookGenres,

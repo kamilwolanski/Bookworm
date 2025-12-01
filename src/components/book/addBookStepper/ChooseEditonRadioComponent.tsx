@@ -1,6 +1,5 @@
 'use client';
 
-import { EditionDto, UserEditionDto } from '@/lib/userbooks';
 import Image from 'next/image';
 import { LANGUAGES } from '@/app/admin/data';
 import Emoji from '@/components/shared/Emoji';
@@ -9,6 +8,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { FormField, FormItem } from '@/components/ui/form';
 import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 import { Check } from 'lucide-react';
+import { UserEditionDto } from '@/lib/user';
+import { EditionDto } from '@/lib/books';
 
 const ChooseEditonRadioComponent = ({
   editions,

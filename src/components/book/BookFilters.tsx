@@ -1,10 +1,10 @@
 'use server';
-import { GenreDTO } from '@/lib/userbooks';
 import GenreFilter from './GenreFilter';
 import UserRatingFilter from './UserRatingFilter';
 import RatingFilter from '@/components/book/RatingFilter';
 import StatusFilter from './StatusFilter';
 import { getUserSession } from '@/lib/session';
+import { GenreDTO } from '@/lib/books';
 
 const BookFilters = async ({
   bookGenres,
