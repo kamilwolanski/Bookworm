@@ -36,7 +36,7 @@ export function BookSection({
   const shouldFetch = status === 'authenticated' && editionIds.length > 0;
   const swrKey = shouldFetch ? ['/api/editions', editionIds] : null;
 
-  const { data, error, isLoading } = useSWR<EditionUserResponseItem[]>(
+  const { data, isLoading } = useSWR<EditionUserResponseItem[]>(
     swrKey,
     ([url, editions]: [string, string[]]) =>
       fetcher<EditionUserResponseItem[]>(url, {

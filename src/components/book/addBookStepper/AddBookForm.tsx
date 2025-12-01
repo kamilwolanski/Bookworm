@@ -45,15 +45,13 @@ const AddBookForm = ({
   otherEditionsMode: boolean;
   afterSuccess: () => void;
 }) => {
-  const { data: userReviews, isLoading } = useSWR<UserBookReview[]>(
+  const { data: userReviews } = useSWR<UserBookReview[]>(
     `/api/reviews/${bookId}`,
     fetcher,
     {
       revalidateIfStale: false,
     }
   );
-  console.log('isLoading', isLoading);
-  console.log('userReviews', userReviews);
 
   const boundAction = addBookToShelfAction.bind(null, bookId);
   const router = useRouter();

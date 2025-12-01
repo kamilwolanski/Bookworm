@@ -1,7 +1,13 @@
+'use client';
+
+import useSWR from 'swr';
 import { BookCard } from './BookCard';
-import { BookCardDTO } from '@/lib/userbooks';
+import { BookCardDTO, EditionUserResponseItem } from '@/lib/userbooks';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import NoResults from '@/components/states/NoResults';
+import { fetcher } from '@/app/services/fetcher';
+import { useSession } from 'next-auth/react';
+import { useMemo } from 'react';
 
 type BookListProps = {
   bookItems: BookCardDTO[];
@@ -11,8 +17,29 @@ type BookListProps = {
   gridColsClassNames?: string;
 };
 
-export async function BookList(props: BookListProps) {
+export function BookList(props: BookListProps) {
   const { bookItems, page, pageSize, totalCount, gridColsClassNames } = props;
+  const { status } = useSession();
+  const editionIds = useMemo(
+    () =>
+      Array.from(
+        new Set(bookItems.map((item) => item.representativeEdition.id))
+      ),
+    [bookItems]
+  );
+  const shouldFetch = status === 'authenticated' && editionIds.length > 0;
+  const swrKey = shouldFetch ? ['/api/editions', editionIds] : null;
+  const { data, isLoading } = useSWR<EditionUserResponseItem[]>(
+    swrKey,
+    ([url, editions]: [string, string[]]) =>
+      fetcher<EditionUserResponseItem[]>(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          editionIds: editions,
+        }),
+      })
+  );
 
   return (
     <>
@@ -21,14 +48,19 @@ export async function BookList(props: BookListProps) {
           <div
             className={`grid ${gridColsClassNames ? gridColsClassNames : 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 gap-2 3xl:gap-10'} `}
           >
-            {bookItems.map((item) => (
-              <BookCard
-                key={item.book.id}
-                bookItem={item}
-                userState={undefined}
-                userStateIsLoading={false}
-              />
-            ))}
+            {bookItems.map((item) => {
+              const userState = data?.find(
+                (el) => el.id === item.representativeEdition.id
+              )?.userState;
+              return (
+                <BookCard
+                  key={item.book.id}
+                  bookItem={item}
+                  userState={userState}
+                  userStateIsLoading={isLoading}
+                />
+              );
+            })}
           </div>
         </div>
       ) : (
