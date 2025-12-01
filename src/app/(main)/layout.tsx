@@ -8,6 +8,7 @@ import '../globals.css';
 import SessionProvider from '@/components/auth/SessionProvider';
 import Topbar from '@/components/layout/TopBar';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
+import SWRConfigProvider from '@/app/services/SWRConfigProvider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -69,13 +70,15 @@ export default async function RootLayout({
           themes={['light', 'dark']}
         >
           <SessionProvider>
-            <div className="flex-1 flex flex-col">
-              <Topbar />
-              <main className="flex-1">
-                {children}
-                <Analytics />
-              </main>
-            </div>
+            <SWRConfigProvider>
+              <div className="flex-1 flex flex-col">
+                <Topbar />
+                <main className="flex-1">
+                  {children}
+                  <Analytics />
+                </main>
+              </div>
+            </SWRConfigProvider>
           </SessionProvider>
         </ThemeProvider>
         <Analytics />
