@@ -45,9 +45,9 @@ export default async function BookEdition({
   // const { page } = searchParams ? await searchParams : {};
   // const currentPage = parseInt(page || '1', 10);
 
-  const [book] = await Promise.all([
+  const [book, otherEditions] = await Promise.all([
     getBook(editionId),
-    // getOtherEditions(slug, editionId),
+    getOtherEditions(slug, editionId),
   ]);
 
   return (
@@ -81,9 +81,9 @@ export default async function BookEdition({
                 </div>
               )}
             </TabsContent>
-            {/* <TabsContent value="otherEditions">
+            <TabsContent value="otherEditions">
               <OtherBooks bookSlug={slug} otherEditions={otherEditions} />
-            </TabsContent> */}
+            </TabsContent>
           </Tabs>
 
           {/* <Suspense
