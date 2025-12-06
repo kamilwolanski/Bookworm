@@ -8,7 +8,6 @@ import { Separator } from '@/components/ui/separator';
 import ChooseEditonRadioComponent from '@/components/book/addBookStepper/ChooseEditonRadioComponent';
 import ChooseEditonComponent from '@/components/book/addBookStepper/ChooseEditionComponent';
 import ReviewEditionComponent from '@/components/book/ratebook/ReviewEditionComponent';
-import { UserBookReview } from '@/lib/userbooks';
 import { addBookToShelfAction } from '@/app/(main)/books/actions/bookActions';
 import {
   AddBookToShelfInput,
@@ -20,7 +19,7 @@ import { FormProvider } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import { fetcher } from '@/app/services/fetcher';
-import { UserEditionDto } from '@/lib/user';
+import { UserBookReview, UserEditionDto } from '@/lib/user';
 import { EditionDto } from '@/lib/books';
 
 const { useStepper, steps, utils } = defineStepper(
@@ -48,7 +47,7 @@ const AddBookForm = ({
   afterSuccess: () => void;
 }) => {
   const { data: userReviews } = useSWR<UserBookReview[]>(
-    `/api/reviews/${bookId}`,
+    `/api/user/reviews/${bookId}`,
     fetcher,
     {
       revalidateIfStale: false,

@@ -19,7 +19,7 @@ const RateBookDialog = ({
   children,
 }: {
   bookId: string;
-  editionId: string;
+  editionId?: string;
   dialogTitle: string;
   onlyContent?: boolean;
   userReview?: {
@@ -32,6 +32,7 @@ const RateBookDialog = ({
 }) => {
   const [open, setOpen] = useState(false);
   const closeDialog = () => setOpen(false);
+
   const Content = (
     <DialogContent
       className="sm:max-w-[625px] p-6 rounded-2xl
@@ -45,13 +46,14 @@ const RateBookDialog = ({
           {dialogTitle}
         </DialogTitle>
       </DialogHeader>
-
-      <RateBookForm
-        bookId={bookId}
-        editionId={editionId}
-        userReview={userReview}
-        afterSuccess={afterSuccess ? afterSuccess : closeDialog}
-      />
+      {editionId && (
+        <RateBookForm
+          bookId={bookId}
+          editionId={editionId}
+          userReview={userReview}
+          afterSuccess={afterSuccess ? afterSuccess : closeDialog}
+        />
+      )}
     </DialogContent>
   );
 

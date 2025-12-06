@@ -1,5 +1,5 @@
 import { getUserSession } from '@/lib/session';
-import { getUserBookReviews } from '@/lib/userbooks';
+import { getUserBookReviews } from '@/lib/user';
 import { NextResponse } from 'next/server';
 
 type Params = {

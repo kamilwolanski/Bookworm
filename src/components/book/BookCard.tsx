@@ -57,7 +57,7 @@ export function BookCard({
       key={book.id}
       className="relative cursor-pointer border-none h-full shadow-md hover:shadow-xl p-1 rounded-xl"
       onMouseEnter={() =>
-        !onShelf && preload(`/api/reviews/${bookItem.book.id}`, fetcher)
+        !onShelf && preload(`/api/user/reviews/${bookItem.book.id}`, fetcher)
       }
     >
       <div className="relative aspect-[3/4] w-full">

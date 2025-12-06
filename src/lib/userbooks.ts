@@ -507,30 +507,3 @@ export async function addBookToShelfWithReview(
     return ub;
   });
 }
-
-export type UserBookReview = {
-  editionId: string;
-  rating: number | null;
-  body: string | null;
-};
-
-export async function getUserBookReviews(
-  userId: string,
-  bookId: string
-): Promise<UserBookReview[]> {
-  const userReviews = await prisma.review.findMany({
-    where: {
-      edition: {
-        bookId: bookId,
-      },
-      userId: userId,
-    },
-    select: {
-      editionId: true,
-      rating: true,
-      body: true,
-    },
-  });
-
-  return userReviews;
-}

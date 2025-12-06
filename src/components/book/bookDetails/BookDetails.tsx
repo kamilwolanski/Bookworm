@@ -41,6 +41,7 @@ import LoginDialog from '@/components/auth/LoginDialog';
 import useSWR from 'swr';
 import { BookDetailsDto } from '@/lib/books';
 import { UserEditionData } from '@/lib/user';
+import { fetcher } from '@/app/services/fetcher';
 
 const MediaFormatLabels: Record<MediaFormat, string> = {
   [MediaFormat.HARDCOVER]: 'Twarda oprawa',
@@ -373,13 +374,13 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Wydawca:</span>
                 {publishers.map((p) => (
-                  <Link
-                    key={p.slug}
-                    href={`/publisher/${p.slug}`}
-                    className="underline underline-offset-2 text-link hover:text-link-hover"
-                  >
-                    {p.name}
-                  </Link>
+                  // <Link
+                  //   key={p.slug}
+                  //   href={`/publisher/${p.slug}`}
+                  //   className="underline underline-offset-2 text-link hover:text-link-hover"
+                  // >
+                  <span key={p.slug}>{p.name}</span>
+                  // </Link>
                 ))}
               </div>
             </div>

@@ -6,7 +6,7 @@ import {
   ReviewItem,
 } from './types';
 
-export async function getBookReviews(
+export async function getBookReviewsDeprecated(
   bookSlug: string,
   {
     page = 1,
@@ -114,6 +114,79 @@ export async function getBookReviews(
   }));
 
   const items: ReviewItem[] = [...ownerPageItems, ...otherItems];
+
+  return { items, total, page, pageSize };
+}
+
+export async function getBookReviews(
+  bookSlug: string,
+  {
+    page = 1,
+    pageSize = 20,
+    onlyWithContent = false,
+  }: GetBookReviewsOptions = {}
+): Promise<GetBookReviewsResult> {
+  const contentWhere = onlyWithContent
+    ? { AND: [{ body: { not: null } }, { body: { not: '' } }] }
+    : {};
+
+  const baseWhere = {
+    edition: { book: { slug: bookSlug } },
+    ...contentWhere,
+  } as const;
+
+  // total wszystkich recenzji (owner + others)
+  const total = await prisma.review.count({ where: baseWhere });
+
+  const skip = (page - 1) * pageSize;
+
+  const bookReviews = await prisma.review.findMany({
+    where: baseWhere,
+    skip: skip,
+    take: pageSize,
+    select: {
+      id: true,
+      editionId: true,
+      body: true,
+      rating: true,
+      createdAt: true,
+      votes: {
+        select: {
+          userId: true,
+          type: true,
+        },
+      },
+      user: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+    },
+  });
+
+  const items: ReviewItem[] = bookReviews.map((review) => {
+    const user = review.user;
+    return {
+      id: review.id,
+      editionId: review.editionId,
+      rating: review.rating,
+      body: review.body,
+      createdAt: review.createdAt,
+      user: user,
+      votes: {
+        likes: review.votes.reduce(
+          (acc, vote) => acc + (vote.type === 'LIKE' ? 1 : 0),
+          0
+        ),
+        dislikes: review.votes.reduce(
+          (acc, vote) => acc + (vote.type === 'DISLIKE' ? 1 : 0),
+          0
+        ),
+      },
+    };
+  });
 
   return { items, total, page, pageSize };
 }

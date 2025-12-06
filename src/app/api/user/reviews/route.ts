@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUserSession } from '@/lib/session';
-import { getTheUserInformationForEditions } from '@/lib/user';
+import { getTheUserInformationForReviews } from '@/lib/user';
 
 export async function POST(req: Request) {
   try {
@@ -10,20 +10,20 @@ export async function POST(req: Request) {
     }
 
     const userId = session.user.id;
-    const { editionIds }: { editionIds: string[] } = await req.json();
+    const { reviewIds }: { reviewIds: string[] } = await req.json();
 
-    if (!Array.isArray(editionIds) || editionIds.length === 0) {
+    if (!Array.isArray(reviewIds) || reviewIds.length === 0) {
       return NextResponse.json(
-        { error: 'Missing userId or editionIds' },
+        { error: 'Missing userId or reviewIds' },
         { status: 400 }
       );
     }
 
-    const response = await getTheUserInformationForEditions(userId, editionIds);
+    const response = await getTheUserInformationForReviews(userId, reviewIds);
 
     return NextResponse.json(response);
   } catch (err) {
-    console.error('API /api/editions error', err);
+    console.error('API /api/user/reviews error', err);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

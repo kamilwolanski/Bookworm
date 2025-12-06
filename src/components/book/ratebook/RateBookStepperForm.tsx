@@ -6,19 +6,18 @@ import { useActionForm } from '@/app/hooks/useActionForm';
 import { Separator } from '@/components/ui/separator';
 import ChooseEditonRadioComponent from '@/components/book/addBookStepper/ChooseEditonRadioComponent';
 import ReviewEditionComponent from '@/components/book/ratebook/ReviewEditionComponent';
-import { UserBookReview } from '@/lib/userbooks';
 import { FormProvider } from 'react-hook-form';
 import {
   chooseEditionSchema,
   AddEditionReviewInput,
   addEditionReviewSchema,
 } from '@/lib/validations/addBookToShelfValidation';
-import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { rateBookAction } from '@/app/(main)/books/actions/reviewActions';
 import useSWR from 'swr';
 import { fetcher } from '@/app/services/fetcher';
 import { EditionDto } from '@/lib/books';
-import { UserEditionDto } from '@/lib/user';
+import { UserBookReview, UserEditionDto } from '@/lib/user';
 
 const { useStepper, steps, utils } = defineStepper(
   { id: 'edition', label: 'Wydanie', schema: chooseEditionSchema },
@@ -43,15 +42,16 @@ const RateBookStepperForm = ({
   showSteps: boolean;
   afterSuccess: () => void;
 }) => {
+  const pathname = usePathname();
+
   const { data: userReviews } = useSWR<UserBookReview[]>(
-    `/api/reviews/${bookId}`,
+    `/api/user/reviews/${bookId}`,
     fetcher,
     {
       revalidateIfStale: false,
     }
   );
-  const router = useRouter();
-  const boundAction = rateBookAction.bind(null, bookId);
+  const boundAction = rateBookAction.bind(null, bookId, pathname);
   const stepper = useStepper();
   const { form, isPending, handleSubmit } =
     useActionForm<AddEditionReviewInput>({
@@ -62,7 +62,6 @@ const RateBookStepperForm = ({
         rating: undefined,
       },
       onSuccess: () => {
-        router.refresh();
         afterSuccess();
       },
     });

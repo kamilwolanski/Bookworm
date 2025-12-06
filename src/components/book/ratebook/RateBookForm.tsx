@@ -8,7 +8,8 @@ import {
   AddEditionReviewInput,
   addEditionReviewSchema,
 } from '@/lib/validations/addBookToShelfValidation';
-import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import { mutate } from 'swr';
 import { rateBookAction } from '@/app/(main)/books/actions/reviewActions';
 
 const RateBookForm = ({
@@ -26,9 +27,9 @@ const RateBookForm = ({
   };
   afterSuccess: () => void;
 }) => {
-  const router = useRouter();
+  const pathname = usePathname();
 
-  const boundAction = rateBookAction.bind(null, bookId);
+  const boundAction = rateBookAction.bind(null, bookId, pathname);
   const { form, isPending, handleSubmit } =
     useActionForm<AddEditionReviewInput>({
       action: boundAction,
@@ -39,7 +40,7 @@ const RateBookForm = ({
         body: userReview?.body ?? undefined,
       },
       onSuccess: () => {
-        router.refresh();
+        mutate(`/api/user/editions/${editionId}`);
         afterSuccess();
       },
     });

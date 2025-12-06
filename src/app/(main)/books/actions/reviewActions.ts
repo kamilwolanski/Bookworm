@@ -12,10 +12,12 @@ import { upsertReviewVote } from '@/lib/reviews';
 import { getUserSession } from '@/lib/session';
 import { ActionResult } from '@/types/actions';
 import { ReviewVoteType } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
 
-type DeleteReviewPayload = {
+export type DeleteReviewActionPayload = {
   reviewId: string;
   bookId: string;
+  pathname: string;
 };
 
 type VoteActionPayload = {
@@ -60,6 +62,7 @@ export const addRatingAction = async ({
 
 export const rateBookAction = async (
   bookId: string,
+  pathname: string,
   _currentState: unknown,
   formData: FormData
 ): Promise<ActionResult> => {
@@ -83,6 +86,7 @@ export const rateBookAction = async (
       rating,
       body,
     });
+    revalidatePath(pathname);
 
     return {
       isError: false,
@@ -98,7 +102,7 @@ export const rateBookAction = async (
 
 export const deleteReviewAction = async (
   _state: ActionResult,
-  { reviewId, bookId }: DeleteReviewPayload
+  { reviewId, bookId, pathname }: DeleteReviewActionPayload
 ): Promise<ActionResult<void>> => {
   const session = await getUserSession();
   if (!session?.user?.id) return unauthorizedResponse();
@@ -108,6 +112,8 @@ export const deleteReviewAction = async (
       reviewId,
       bookId,
     });
+
+    revalidatePath(pathname);
 
     return {
       isError: false,

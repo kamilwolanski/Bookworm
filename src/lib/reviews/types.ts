@@ -1,13 +1,13 @@
 // lib/reviews/types.ts
 import { MediaFormat, Review, ReviewVoteType } from '@prisma/client';
 
-export type VoteState = {
+export type VoteStateDeprecated = {
   myVote?: ReviewVoteType | null;
   likes: number;
   dislikes: number;
 };
 
-export type ReviewItem = Review & {
+export type ReviewItemDeprecated = Review & {
   user: { id: string; name: string | null; image: string | null };
   edition: {
     id: string;
@@ -15,6 +15,21 @@ export type ReviewItem = Review & {
     format: MediaFormat | null;
   };
   isOwner: boolean;
+  votes: VoteState;
+};
+
+export type VoteState = {
+  likes: number;
+  dislikes: number;
+};
+
+export type ReviewItem = {
+  id: string;
+  editionId: string;
+  rating: number | null;
+  body: string | null;
+  createdAt: Date;
+  user: { id: string; name: string | null; image: string | null };
   votes: VoteState;
 };
 

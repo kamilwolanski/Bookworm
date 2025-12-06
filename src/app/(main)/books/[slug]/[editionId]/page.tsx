@@ -7,9 +7,9 @@ import {
 } from '@/lib/books';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OtherBooks from '@/components/book/bookDetails/OtherBooks';
-import { Suspense } from 'react';
-import ReviewsServer from './Reviews';
 import { Metadata, ResolvingMetadata } from 'next';
+import { getBookReviews } from '@/lib/reviews';
+import BookReviews from '@/components/book/bookDetails/BookReviews';
 
 interface BookPageProps {
   params: Promise<{ editionId: string; slug: string }>;
@@ -36,18 +36,25 @@ export async function generateStaticParams() {
   return getAllBookStaticParams();
 }
 
+// export const revalidate = 60;
+
 export default async function BookEdition({
   params,
-  // searchParams,
+  searchParams,
 }: BookPageProps) {
   const { editionId, slug } = await params;
 
-  // const { page } = searchParams ? await searchParams : {};
-  // const currentPage = parseInt(page || '1', 10);
+  const { page } = searchParams ? await searchParams : {};
+  const currentPage = parseInt(page || '1', 10);
 
-  const [book, otherEditions] = await Promise.all([
+  const [book, otherEditions, reviewsResponse] = await Promise.all([
     getBook(editionId),
     getOtherEditions(slug, editionId),
+    getBookReviews(slug, {
+      page: 1,
+      pageSize: 3,
+      onlyWithContent: true,
+    }),
   ]);
 
   return (
@@ -86,24 +93,18 @@ export default async function BookEdition({
             </TabsContent>
           </Tabs>
 
-          {/* <Suspense
-            key={`reviews-${slug}-${currentPage}`}
-            fallback={
-              <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-foreground" />
-              </div>
-            }
-          >
-            <ReviewsServer
-              slug={slug}
-              page={currentPage}
-              bookId={book.book.id}
-              editionId={editionId}
-              userReview={book.userBook?.userReview}
-              editionTitle={book.edition.title}
-              currentPage={currentPage}
-            />
-          </Suspense> */}
+          <BookReviews
+            bookId={book.book.id}
+            bookSlug={slug}
+            editionId={editionId}
+            editionTitle={book.edition.title}
+            reviews={reviewsResponse.items}
+            paginationData={{
+              page: currentPage,
+              pageSize: reviewsResponse.pageSize,
+              total: reviewsResponse.total,
+            }}
+          />
         </div>
       </div>
     </>

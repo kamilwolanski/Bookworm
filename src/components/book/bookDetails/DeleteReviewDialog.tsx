@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import {
   Dialog,
   DialogClose,
@@ -13,42 +12,22 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ReactNode, useActionState, startTransition } from 'react';
-import { ActionResult } from '@/types/actions';
-import { deleteReviewAction } from '@/app/(main)/books/actions/reviewActions';
+import { ReactNode } from 'react';
 
 const DeleteReviewDialog = ({
-  reviewId,
-  bookId,
   dialogTitle,
   onlyContent = false,
   children,
-  afterSuccess,
+  isPending,
+  handleDelete,
 }: {
-  reviewId: string;
-  bookId: string;
   dialogTitle: string | ReactNode;
   onlyContent?: boolean;
   children?: ReactNode;
-  afterSuccess?: () => void;
+  isPending: boolean;
+  handleDelete: () => void;
 }) => {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
-
-  const [state, doAction, isPending] = useActionState<
-    ActionResult,
-    {
-      reviewId: string;
-      bookId: string;
-    }
-  >(deleteReviewAction, { isError: false });
-
-  useEffect(() => {
-    if (state.status === 'success') {
-      if (afterSuccess) afterSuccess();
-      router.refresh();
-    }
-  }, [afterSuccess, router, state.status]);
 
   const Content = (
     <DialogContent
@@ -78,14 +57,7 @@ const DeleteReviewDialog = ({
           type="button"
           disabled={isPending}
           className="cursor-pointer"
-          onClick={() => {
-            startTransition(() => {
-              doAction({
-                reviewId: reviewId,
-                bookId: bookId,
-              });
-            });
-          }}
+          onClick={handleDelete}
         >
           {isPending ? 'Usuwanie...' : 'Usuń'}
         </Button>

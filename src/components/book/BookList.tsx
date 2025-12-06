@@ -1,7 +1,6 @@
 'use client';
 
 import useSWR from 'swr';
-import { BookCard } from './BookCard';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import NoResults from '@/components/states/NoResults';
 import { fetcher } from '@/app/services/fetcher';
@@ -9,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import { useMemo } from 'react';
 import { BookCardDTO } from '@/lib/books';
 import { EditionUserResponseItem } from '@/lib/user';
+import { BookCard } from '@/components/book/BookCard';
 
 type BookListProps = {
   bookItems: BookCardDTO[];
@@ -55,7 +55,7 @@ export function BookList(props: BookListProps) {
               )?.userState;
               return (
                 <BookCard
-                  key={item.book.id}
+                  key={item.representativeEdition.id}
                   bookItem={item}
                   userState={userState}
                   userStateIsLoading={isLoading}
