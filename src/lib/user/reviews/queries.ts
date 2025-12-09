@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { UserBookReview, UserReviewData } from './types';
+import { UserBookReview, UserBookReviewVote, UserReviewData } from './types';
 
 export async function getTheUserInformationForReviews(
   userId: string,
@@ -44,4 +44,31 @@ export async function getUserBookReviews(
   });
 
   return userReviews;
+}
+
+export async function getUserBookReviewsVotes(
+  userId: string,
+  reviewIds: string[]
+): Promise<UserBookReviewVote[]> {
+  const userVotes = await prisma.reviewVote.findMany({
+    where: {
+      reviewId: {
+        in: reviewIds,
+      },
+      userId: userId,
+    },
+    select: {
+      reviewId: true,
+      type: true,
+    },
+  });
+
+  const userVotesMap = new Map(userVotes.map((vote) => [vote.reviewId, vote]));
+
+  return reviewIds.map((id) => {
+    return {
+      reviewId: id,
+      type: userVotesMap.get(id)?.type ?? null,
+    };
+  });
 }

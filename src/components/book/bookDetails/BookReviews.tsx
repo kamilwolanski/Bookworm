@@ -6,8 +6,7 @@ import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import BookReview from '@/components/book/bookDetails/BookReview';
 import LoginDialog from '@/components/auth/LoginDialog';
 import { ReviewItem } from '@/lib/reviews';
-import { Suspense, useMemo, useState } from 'react';
-import useSWR from 'swr';
+import { Suspense, useState } from 'react';
 import DeleteReviewDialog from '@/components/book/bookDetails/DeleteReviewDialog';
 import { Dialog } from '@/components/ui/dialog';
 import {
@@ -16,6 +15,7 @@ import {
 } from '@/app/(main)/books/actions/reviewActions';
 import { usePathname } from 'next/navigation';
 import { useDeleteDialog } from '@/app/hooks/useDeleteDialog';
+import { useBookReviews } from '@/app/hooks/books/useBookReviews';
 
 const BookReviews = ({
   bookId,
@@ -37,29 +37,24 @@ const BookReviews = ({
   };
 }) => {
   const { status, data: session } = useSession();
+  const userId = session?.user?.id;
+
+  const {
+    reviews: reviewsFromSWR,
+    userReview,
+    otherReviews,
+    votesMap,
+    userVotesMap,
+    swrVotesKey,
+    swrUserVotesKey,
+  } = useBookReviews({
+    bookSlug: bookSlug,
+    sessionUserId: userId,
+    initialReviews: reviews,
+  });
   const [openReviewDialog, setOpenReviewDialog] = useState(false);
   const pathname = usePathname();
-  const userId = session?.user?.id;
   const swrKey = `/api/user/editions/${editionId}`;
-
-  const { data: reviewsFromSWR, isLoading: loading } = useSWR<ReviewItem[]>(
-    `/api/reviews/${bookSlug}`,
-    null,
-    {
-      fallbackData: reviews,
-      revalidateOnMount: false,
-    }
-  );
-
-  const userReview = useMemo(() => {
-    if (!userId || !reviewsFromSWR) return undefined;
-    return reviewsFromSWR.find((r) => String(r.user?.id) === String(userId));
-  }, [userId, reviewsFromSWR]);
-
-  const reviewsToMap = useMemo(() => {
-    if (!reviewsFromSWR) return [];
-    return reviewsFromSWR.filter((r) => r.id !== userReview?.id);
-  }, [reviewsFromSWR, userReview?.id]);
 
   const [isPending, handleDelete, openDeleteDialog, setOpenDeleteDialog] =
     useDeleteDialog<DeleteReviewActionPayload>(
@@ -130,18 +125,24 @@ const BookReviews = ({
             isOwner={true}
             setOpenDeleteDialog={setOpenDeleteDialog}
             setOpenReviewDialog={setOpenReviewDialog}
+            votes={votesMap.get(userReview.id)}
+            // loadingVotes={loadingVotes}
           />
         </>
       )}
 
-      {reviewsToMap && reviewsToMap.length > 0 && (
+      {otherReviews && otherReviews.length > 0 && (
         <>
-          {reviewsToMap.map((review) => (
+          {otherReviews.map((review) => (
             <BookReview
               key={review.id}
               review={review}
               bookId={bookId}
               editionTitle={editionTitle}
+              votes={votesMap.get(review.id)}
+              userVoteType={userVotesMap.get(review.id)?.type}
+              swrVotesKey={swrVotesKey}
+              swrUserVotesKey={swrUserVotesKey}
             />
           ))}
         </>

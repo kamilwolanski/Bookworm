@@ -41,7 +41,6 @@ import LoginDialog from '@/components/auth/LoginDialog';
 import useSWR from 'swr';
 import { BookDetailsDto } from '@/lib/books';
 import { UserEditionData } from '@/lib/user';
-import { fetcher } from '@/app/services/fetcher';
 
 const MediaFormatLabels: Record<MediaFormat, string> = {
   [MediaFormat.HARDCOVER]: 'Twarda oprawa',

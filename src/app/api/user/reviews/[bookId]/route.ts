@@ -26,7 +26,7 @@ export async function GET(req: Request, { params }: Params) {
 
     return NextResponse.json(response);
   } catch (err) {
-    console.error('API /api/editions error', err);
+    console.error('API /api/user/reviews/[bookId] error', err);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

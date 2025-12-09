@@ -1,5 +1,6 @@
 import { ReviewVoteType } from '@prisma/client';
 import prisma from '../prisma';
+import { ReviewVotesCount } from './types';
 
 export async function upsertReviewVote(
   userId: string,
@@ -42,4 +43,30 @@ export async function upsertReviewVote(
   });
 
   return { removed: false, currentType: created.type };
+}
+
+export async function getReviewsVotes(
+  reviewIds: string[]
+): Promise<ReviewVotesCount[]> {
+  const grouped = await prisma.reviewVote.groupBy({
+    by: ['reviewId', 'type'],
+    where: {
+      reviewId: { in: reviewIds },
+    },
+    _count: {
+      type: true,
+    },
+  });
+
+  const result = reviewIds.map((id) => ({
+    reviewId: id,
+    likes:
+      grouped.find((g) => g.reviewId === id && g.type === 'LIKE')?._count
+        .type ?? 0,
+    dislikes:
+      grouped.find((g) => g.reviewId === id && g.type === 'DISLIKE')?._count
+        .type ?? 0,
+  }));
+
+  return result;
 }

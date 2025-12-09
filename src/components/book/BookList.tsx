@@ -5,7 +5,7 @@ import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import NoResults from '@/components/states/NoResults';
 import { fetcher } from '@/app/services/fetcher';
 import { useSession } from 'next-auth/react';
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 import { BookCardDTO } from '@/lib/books';
 import { EditionUserResponseItem } from '@/lib/user';
 import { BookCard } from '@/components/book/BookCard';
@@ -70,13 +70,15 @@ export function BookList(props: BookListProps) {
         </div>
       )}
 
-      {totalCount > pageSize && (
-        <PaginationWithLinks
-          page={page}
-          pageSize={pageSize}
-          totalCount={totalCount}
-        />
-      )}
+      <Suspense>
+        {totalCount > pageSize && (
+          <PaginationWithLinks
+            page={page}
+            pageSize={pageSize}
+            totalCount={totalCount}
+          />
+        )}
+      </Suspense>
     </>
   );
 }

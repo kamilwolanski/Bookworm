@@ -10,6 +10,7 @@ import OtherBooks from '@/components/book/bookDetails/OtherBooks';
 import { Metadata, ResolvingMetadata } from 'next';
 import { getBookReviews } from '@/lib/reviews';
 import BookReviews from '@/components/book/bookDetails/BookReviews';
+import BookReviewsServer from './BookReviewsServer';
 
 interface BookPageProps {
   params: Promise<{ editionId: string; slug: string }>;
@@ -44,17 +45,17 @@ export default async function BookEdition({
 }: BookPageProps) {
   const { editionId, slug } = await params;
 
-  const { page } = searchParams ? await searchParams : {};
-  const currentPage = parseInt(page || '1', 10);
+  // const { page } = searchParams ? await searchParams : {};
+  // const currentPage = parseInt(page || '1', 10);
 
-  const [book, otherEditions, reviewsResponse] = await Promise.all([
+  const [book, otherEditions] = await Promise.all([
     getBook(editionId),
     getOtherEditions(slug, editionId),
-    getBookReviews(slug, {
-      page: 1,
-      pageSize: 3,
-      onlyWithContent: true,
-    }),
+    // getBookReviews(slug, {
+    //   page: 1,
+    //   pageSize: 3,
+    //   onlyWithContent: true,
+    // }),
   ]);
 
   return (
@@ -93,7 +94,14 @@ export default async function BookEdition({
             </TabsContent>
           </Tabs>
 
-          <BookReviews
+          <BookReviewsServer
+            slug={slug}
+            editionId={editionId}
+            bookId={book.book.id}
+            editionTitle={book.edition.title}
+          />
+
+          {/* <BookReviews
             bookId={book.book.id}
             bookSlug={slug}
             editionId={editionId}
@@ -104,7 +112,7 @@ export default async function BookEdition({
               pageSize: reviewsResponse.pageSize,
               total: reviewsResponse.total,
             }}
-          />
+          /> */}
         </div>
       </div>
     </>

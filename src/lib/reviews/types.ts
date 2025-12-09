@@ -54,3 +54,9 @@ export type RatePayload = {
 };
 
 export type DeleteReviewPayload = { reviewId: string; bookId: string };
+
+export type ReviewVotesCount = {
+  reviewId: string;
+  likes: number;
+  dislikes: number;
+};

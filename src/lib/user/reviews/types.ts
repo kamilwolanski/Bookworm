@@ -13,3 +13,8 @@ export type UserBookReview = {
   rating: number | null;
   body: string | null;
 };
+
+export type UserBookReviewVote = {
+  reviewId: string;
+  type: ReviewVoteType | null;
+};

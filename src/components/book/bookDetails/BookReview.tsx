@@ -3,7 +3,10 @@
 import {
   Dispatch,
   SetStateAction,
+  startTransition,
+  useActionState,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -28,18 +31,28 @@ import {
 } from '@/components/ui/dropdown-menu';
 import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
 import DeleteReviewDialog from '@/components/book/bookDetails/DeleteReviewDialog';
-import { setReviewVoteAction } from '@/app/(main)/books/actions/reviewActions';
+import {
+  setReviewVoteAction,
+  VoteActionPayload,
+  VoteActionResult,
+} from '@/app/(main)/books/actions/reviewActions';
 import { useSession } from 'next-auth/react';
 import LoginDialog from '@/components/auth/LoginDialog';
-import { ReviewItem } from '@/lib/reviews';
+import { ReviewItem, ReviewVotesCount } from '@/lib/reviews';
+import { UserBookReviewVote } from '@/lib/user';
+import { ReviewVoteType } from '@prisma/client';
+import { ActionResult } from '@/types/actions';
+import { mutate as swrMutate } from 'swr';
 
 const BookReview = ({
-  bookId,
-  editionTitle,
   review,
   isOwner = false,
   setOpenDeleteDialog,
   setOpenReviewDialog,
+  userVoteType,
+  votes,
+  swrVotesKey,
+  swrUserVotesKey,
 }: {
   bookId: string;
   editionTitle: string;
@@ -47,17 +60,18 @@ const BookReview = ({
   isOwner?: boolean;
   setOpenDeleteDialog?: Dispatch<SetStateAction<boolean>>;
   setOpenReviewDialog?: Dispatch<SetStateAction<boolean>>;
+  userVoteType?: ReviewVoteType | null;
+  votes?: ReviewVotesCount;
+  swrVotesKey?: (string | string[])[];
+  swrUserVotesKey?: (string | string[])[] | null;
 }) => {
-  // const {
-  //   myVoteOptimistic,
-  //   likesOptimistic,
-  //   dislikesOptimistic,
-  //   vote,
-  //   isPending,
-  // } = useOptimisticVoteReview(review.votes);
   const { status } = useSession();
-
-  // const [dialogType, setDialogType] = useState<null | 'delete' | 'edit'>(null);
+  const [state, doAction, isPending] = useActionState<
+    ActionResult<VoteActionResult>,
+    VoteActionPayload
+  >(setReviewVoteAction, {
+    isError: false,
+  });
   const createdAtIso = useMemo(
     () =>
       typeof review.createdAt === 'string'
@@ -65,30 +79,41 @@ const BookReview = ({
         : new Date(review.createdAt).toISOString(),
     [review.createdAt]
   );
+  console.log('review', review);
+  console.log('userVote for comment', userVoteType);
 
-  const likeActive = false;
-  const dislikeActive = false;
+  const likeActive = userVoteType === 'LIKE';
+  const dislikeActive = userVoteType === 'DISLIKE';
   const disabled = isOwner;
 
-  // const handleLike = useCallback(() => {
-  //   if (disabled) return;
-  //   return vote('LIKE', () =>
-  //     setReviewVoteAction({
-  //       reviewId: review.id,
-  //       type: 'LIKE',
-  //     })
-  //   );
-  // }, [disabled, review.id, vote]);
+  const handleLike = useCallback(() => {
+    if (disabled) return;
 
-  // const handleDislike = useCallback(() => {
-  //   if (disabled) return;
-  //   return vote('DISLIKE', () =>
-  //     setReviewVoteAction({
-  //       reviewId: review.id,
-  //       type: 'DISLIKE',
-  //     })
-  //   );
-  // }, [disabled, review.id, vote]);
+    startTransition(() => {
+      doAction({
+        reviewId: review.id,
+        type: 'LIKE',
+      });
+    });
+  }, [disabled, doAction, review.id]);
+
+  const handleDislike = useCallback(() => {
+    if (disabled) return;
+
+    startTransition(() => {
+      doAction({
+        reviewId: review.id,
+        type: 'DISLIKE',
+      });
+    });
+  }, [disabled, doAction, review.id]);
+
+  useEffect(() => {
+    if (!isPending && state.status === 'success') {
+      swrMutate(swrVotesKey);
+      swrMutate(swrUserVotesKey);
+    }
+  }, [isPending, state, swrUserVotesKey, swrVotesKey]);
 
   return (
     <div
@@ -201,10 +226,10 @@ const BookReview = ({
               className={`flex items-center gap-1 ${
                 likeActive ? 'bg-accent-2 text-accent-foreground-2' : ''
               }`}
-              // onClick={handleLike}
+              onClick={handleLike}
             >
               <ThumbsUp className="w-4 h-4" aria-hidden="true" />
-              <span className="w-1 text-center">0</span>{' '}
+              <span className="w-1 text-center">{votes?.likes}</span>{' '}
             </Button>
           ) : (
             <LoginDialog
@@ -236,10 +261,10 @@ const BookReview = ({
               className={`flex items-center gap-1 ${
                 dislikeActive ? 'bg-destructive text-accent-foreground-2' : ''
               }`}
-              // onClick={handleDislike}
+              onClick={handleDislike}
             >
               <ThumbsDown className="w-4 h-4" aria-hidden="true" />
-              <span className="w-1 text-center">0</span>
+              <span className="w-1 text-center">{votes?.dislikes}</span>
             </Button>
           ) : (
             <LoginDialog

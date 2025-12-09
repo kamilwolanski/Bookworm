@@ -20,11 +20,11 @@ export type DeleteReviewActionPayload = {
   pathname: string;
 };
 
-type VoteActionPayload = {
+export type VoteActionPayload = {
   reviewId: string;
   type: ReviewVoteType;
 };
-interface VoteActionResult {
+export interface VoteActionResult {
   removed: boolean;
   currentType?: ReviewVoteType;
 }
@@ -127,10 +127,10 @@ export const deleteReviewAction = async (
   }
 };
 
-export const setReviewVoteAction = async ({
-  reviewId,
-  type,
-}: VoteActionPayload): Promise<ActionResult<VoteActionResult>> => {
+export const setReviewVoteAction = async (
+  _state: ActionResult<VoteActionResult>,
+  { reviewId, type }: VoteActionPayload
+): Promise<ActionResult<VoteActionResult>> => {
   const session = await getUserSession();
   if (!session?.user?.id) return unauthorizedResponse();
 
@@ -145,7 +145,6 @@ export const setReviewVoteAction = async ({
     };
   } catch (err) {
     console.error(err);
-
     return serverErrorResponse();
   }
 };
