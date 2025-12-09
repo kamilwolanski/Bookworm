@@ -8,7 +8,6 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useState,
 } from 'react';
 import {
   MoreVertical,
@@ -21,7 +20,6 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StarRating } from '@/components/book/StarRating';
 import { Button } from '@/components/ui/button';
-// import { useOptimisticVoteReview } from '@/lib/optimistics/useOptimisticVoteReview';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,8 +27,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
-import DeleteReviewDialog from '@/components/book/bookDetails/DeleteReviewDialog';
 import {
   setReviewVoteAction,
   VoteActionPayload,
@@ -79,37 +75,122 @@ const BookReview = ({
         : new Date(review.createdAt).toISOString(),
     [review.createdAt]
   );
-  console.log('review', review);
-  console.log('userVote for comment', userVoteType);
 
   const likeActive = userVoteType === 'LIKE';
   const dislikeActive = userVoteType === 'DISLIKE';
   const disabled = isOwner;
 
-  const handleLike = useCallback(() => {
-    if (disabled) return;
+  const handleLike = useCallback(async () => {
+    if (disabled || isPending) return;
+    swrMutate(
+      swrVotesKey,
+      (current?: ReviewVotesCount[]) => {
+        return current?.map((votes) => {
+          if (votes.reviewId === review.id) {
+            return {
+              ...votes,
+              likes:
+                userVoteType !== 'LIKE' ? votes.likes + 1 : votes.likes - 1,
+              dislikes:
+                userVoteType === 'DISLIKE'
+                  ? votes.dislikes - 1
+                  : votes.dislikes,
+            };
+          }
 
+          return votes;
+        });
+      },
+      false
+    );
+
+    swrMutate(
+      swrUserVotesKey,
+      (current?: UserBookReviewVote[]) => {
+        return current?.map((userVotes) => {
+          if (userVotes.reviewId === review.id) {
+            return {
+              ...userVotes,
+              type: userVoteType !== 'LIKE' ? ReviewVoteType.LIKE : null,
+            };
+          }
+          return userVotes;
+        });
+      },
+      false
+    );
     startTransition(() => {
       doAction({
         reviewId: review.id,
         type: 'LIKE',
       });
     });
-  }, [disabled, doAction, review.id]);
+  }, [
+    disabled,
+    doAction,
+    isPending,
+    review.id,
+    swrUserVotesKey,
+    swrVotesKey,
+    userVoteType,
+  ]);
 
   const handleDislike = useCallback(() => {
-    if (disabled) return;
+    if (disabled || isPending) return;
+    swrMutate(
+      swrVotesKey,
+      (current?: ReviewVotesCount[]) => {
+        return current?.map((votes) => {
+          if (votes.reviewId === review.id) {
+            return {
+              ...votes,
+              dislikes:
+                userVoteType !== 'DISLIKE'
+                  ? votes.dislikes + 1
+                  : votes.dislikes - 1,
+              likes: userVoteType === 'LIKE' ? votes.likes - 1 : votes.likes,
+            };
+          }
 
+          return votes;
+        });
+      },
+      false
+    );
+
+    swrMutate(
+      swrUserVotesKey,
+      (current?: UserBookReviewVote[]) => {
+        return current?.map((userVotes) => {
+          if (userVotes.reviewId === review.id) {
+            return {
+              ...userVotes,
+              type: userVoteType !== 'DISLIKE' ? ReviewVoteType.DISLIKE : null,
+            };
+          }
+          return userVotes;
+        });
+      },
+      false
+    );
     startTransition(() => {
       doAction({
         reviewId: review.id,
         type: 'DISLIKE',
       });
     });
-  }, [disabled, doAction, review.id]);
+  }, [
+    disabled,
+    doAction,
+    isPending,
+    review.id,
+    swrUserVotesKey,
+    swrVotesKey,
+    userVoteType,
+  ]);
 
   useEffect(() => {
-    if (!isPending && state.status === 'success') {
+    if (!isPending && state) {
       swrMutate(swrVotesKey);
       swrMutate(swrUserVotesKey);
     }
@@ -218,7 +299,7 @@ const BookReview = ({
             <Button
               type="button"
               variant="noStyle"
-              disabled={disabled}
+              disabled={disabled || isPending}
               size="sm"
               aria-pressed={likeActive}
               aria-label={likeActive ? 'Cofnij lajka' : 'Daj lajka'}
@@ -253,7 +334,7 @@ const BookReview = ({
             <Button
               type="button"
               variant="noStyle"
-              disabled={disabled}
+              disabled={disabled || isPending}
               size="sm"
               aria-pressed={dislikeActive}
               aria-label={dislikeActive ? 'Cofnij dislajka' : 'Daj dislajka'}

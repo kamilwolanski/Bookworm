@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(response);
   } catch (err) {
-    console.error('API /api/user/reviews/votes', err);
+    console.error('API /api/user/reviews/user-votes', err);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
