@@ -14,14 +14,14 @@ import {
 } from 'lucide-react';
 import { genreColorMap } from '@/lib/genreColorMap';
 import { Button } from '@/components/ui/button';
-import { StarRating } from '@/components/book/StarRating';
+import { StarRating } from '@/components/book/starRating/StarRating';
 import { Separator } from '@/components/ui/separator';
 import Emoji from '@/components/shared/Emoji';
 import { LANGUAGES } from '@/app/admin/data';
 import { MediaFormat, ReadingStatus } from '@prisma/client';
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
-import React from 'react';
+import React, { useTransition } from 'react';
 import {
   addBookToShelfBasicAction,
   changeBookStatusAction,
@@ -34,13 +34,13 @@ import {
   SelectItem,
   SelectContent,
 } from '@/components/ui/select';
-import { useOptimisticShelf } from '@/lib/optimistics/useOptimisticShelf';
-import { useOptimisticReadingStatus } from '@/lib/optimistics/useOptimisticReadingStatus';
 import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
 import LoginDialog from '@/components/auth/LoginDialog';
 import useSWR from 'swr';
 import { BookDetailsDto } from '@/lib/books';
 import { UserEditionData } from '@/lib/user';
+import { Skeleton } from '@/components/ui/skeleton';
+import StarRatingPlaceholder from '../starRating/StarRatingPlaceholder';
 
 const MediaFormatLabels: Record<MediaFormat, string> = {
   [MediaFormat.HARDCOVER]: 'Twarda oprawa',
@@ -83,35 +83,94 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
   const { book, edition, publishers } = bookData;
   const { status } = useSession();
   const shouldFetch = status === 'authenticated';
+  const sessionIsLoading = status === 'loading';
   const swrKey = shouldFetch ? `/api/user/editions/${edition.id}` : null;
-
-  const { data: userData, isLoading: userStateIsLoading } =
-    useSWR<UserEditionData>(swrKey);
-  const onShelf = Boolean(userData);
+  const {
+    data: userData,
+    isLoading: userStateIsLoading,
+    mutate,
+  } = useSWR<UserEditionData>(swrKey);
+  console.log('userData', userData);
+  const onShelf = userData?.isOnShelf;
   const readingStatus = userData?.readingStatus;
   const userRating = userData?.userRating;
-  const {
-    statusOpt,
-    isPending: isChangingOpt,
-    change,
-  } = useOptimisticReadingStatus(readingStatus);
-  const { onShelfOptimistic, isPending, toggle } = useOptimisticShelf(onShelf);
+  const [isPending, startTransition] = useTransition();
+  console.log('bookData', bookData);
+  const handleToggle = async () => {
+    if (onShelf) {
+      const prev = structuredClone(userData);
 
-  const handleToggle = () => {
-    if (onShelfOptimistic) {
-      toggle('remove', () =>
-        removeBookFromShelfAction({
-          bookId: book.id,
-          editionId: edition.id,
-        })
-      );
+      mutate((current) => {
+        if (current) {
+          return { ...current, isOnShelf: false, readingStatus: null };
+        }
+
+        return current;
+      }, false);
+
+      startTransition(async () => {
+        try {
+          const res = await removeBookFromShelfAction({
+            bookId: book.id,
+            editionId: edition.id,
+          });
+
+          if (res.isError) {
+            mutate(() => prev, false);
+          }
+        } catch {
+          mutate(() => prev, false);
+        }
+      });
     } else {
-      toggle('add', () =>
-        addBookToShelfBasicAction({
-          bookId: book.id,
-          editionId: edition.id,
-        })
-      );
+      const prev = structuredClone(userData);
+
+      mutate((current) => {
+        if (current) {
+          return { ...current, isOnShelf: true, readingStatus: 'WANT_TO_READ' };
+        }
+
+        return current;
+      }, false);
+
+      startTransition(async () => {
+        try {
+          const res = await addBookToShelfBasicAction({
+            bookId: book.id,
+            editionId: edition.id,
+          });
+          if (res.isError) {
+            mutate(() => prev, false);
+          }
+        } catch {
+          mutate(() => prev, false);
+        }
+      });
+    }
+  };
+
+  const changeStatus = async (status: ReadingStatus) => {
+    const prev = structuredClone(userData);
+    mutate((current) => {
+      if (current) {
+        return { ...current, readingStatus: status };
+      }
+
+      return current;
+    }, false);
+
+    try {
+      const res = await changeBookStatusAction({
+        bookId: book.id,
+        editionId: edition.id,
+        readingStatus: status,
+      });
+
+      if (res.isError) {
+        mutate(() => prev, false);
+      }
+    } catch {
+      mutate(() => prev, false);
     }
   };
 
@@ -139,24 +198,24 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
             <div className="flex items-start gap-2 sm:gap-3 mb-2">
               <h2 className="text-lg font-semibold flex-1">{edition.title}</h2>
               <Badge
-                variant={onShelfOptimistic ? 'default' : 'secondary'}
+                variant={onShelf ? 'default' : 'secondary'}
                 className={`${
-                  onShelfOptimistic
+                  onShelf
                     ? 'border border-badge-owned-border bg-badge-owned text-primary'
                     : 'bg-badge-not-on-shelf text-badge-not-on-shelf-foreground border-badge-not-on-shelf-border'
                 } font-medium`}
               >
-                {onShelfOptimistic ? 'Na półce' : 'Poza półką'}
+                {onShelf ? 'Na półce' : 'Poza półką'}
               </Badge>
-              {onShelfOptimistic && statusOpt && (
+              {onShelf && readingStatus && (
                 <Badge
                   variant="secondary"
-                  className={`${statusConfig[statusOpt].color} font-medium flex items-center gap-1`}
+                  className={`${statusConfig[readingStatus].color} font-medium flex items-center gap-1`}
                 >
-                  {React.createElement(statusConfig[statusOpt].icon, {
+                  {React.createElement(statusConfig[readingStatus].icon, {
                     className: 'w-3 h-3',
                   })}
-                  {statusConfig[statusOpt].label}
+                  {statusConfig[readingStatus].label}
                 </Badge>
               )}
             </div>
@@ -194,27 +253,34 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
               <p>
                 <b>Twoja ocena: </b>
               </p>
-              {status === 'authenticated' ? (
-                <StarRating
-                  rating={userRating ?? 0}
-                  interactive
-                  bookId={book.id}
-                  editionId={edition.id}
-                  bookSlug={book.slug}
-                />
-              ) : (
-                <LoginDialog
-                  dialogTriggerBtn={
-                    <button type="button" className="relative flex">
-                      {Array.from({ length: 5 }, (_, index) => (
-                        <Star
-                          key={index}
-                          className="w-6 h-6 text-gray-300 cursor-pointer"
-                        />
-                      ))}
-                    </button>
-                  }
-                />
+              {(sessionIsLoading || userStateIsLoading) && (
+                <StarRatingPlaceholder />
+              )}
+              {!sessionIsLoading && !userStateIsLoading && (
+                <>
+                  {status === 'authenticated' ? (
+                    <StarRating
+                      rating={userRating ?? 0}
+                      interactive
+                      bookId={book.id}
+                      editionId={edition.id}
+                      bookSlug={book.slug}
+                    />
+                  ) : (
+                    <LoginDialog
+                      dialogTriggerBtn={
+                        <button type="button" className="relative flex">
+                          {Array.from({ length: 5 }, (_, index) => (
+                            <Star
+                              key={index}
+                              className="w-6 h-6 text-gray-300 cursor-pointer"
+                            />
+                          ))}
+                        </button>
+                      }
+                    />
+                  )}
+                </>
               )}
             </div>
             <div className="flex items-center gap-2 mt-4">
@@ -224,22 +290,16 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                 ({book.ratingCount ?? 0} ocen)
               </span>
             </div>
-            {onShelfOptimistic && (
+            {onShelf && (
               <div className="mt-3">
                 <label className="block text-sm font-medium text-muted-foreground mb-2">
                   Status Czytania
                 </label>
                 <Select
-                  value={statusOpt ?? undefined}
-                  disabled={isChangingOpt || isPending}
+                  value={readingStatus ?? undefined}
+                  disabled={isPending}
                   onValueChange={(value) =>
-                    change(value as ReadingStatus, () =>
-                      changeBookStatusAction({
-                        bookId: book.id,
-                        editionId: edition.id,
-                        readingStatus: value as ReadingStatus,
-                      })
-                    )
+                    changeStatus(value as ReadingStatus)
                   }
                 >
                   <SelectTrigger className="w-52">
@@ -261,9 +321,9 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                 <Button
                   className="cursor-pointer bg-badge-new text-secondary-foreground hover:bg-badge-new-hover"
                   onClick={handleToggle}
-                  disabled={isPending || isChangingOpt}
+                  disabled={isPending}
                 >
-                  {onShelfOptimistic ? (
+                  {onShelf ? (
                     <>
                       <Minus className="w-4 h-4 mr-1" />
                       Usuń z półki

@@ -12,27 +12,23 @@ export async function getUserEditionData(
     },
     select: {
       readingStatus: true,
-      edition: {
-        select: {
-          reviews: {
-            where: {
-              userId: userId,
-            },
-            take: 1,
-            select: {
-              rating: true,
-            },
-          },
-        },
-      },
     },
   });
 
-  if (!userEdition) return null;
+  const userEditionRating = await prisma.review.findFirst({
+    where: {
+      editionId: editionId,
+      userId: userId,
+    },
+    select: {
+      rating: true,
+    },
+  });
 
   return {
-    readingStatus: userEdition.readingStatus,
-    userRating: userEdition.edition.reviews[0]?.rating ?? null,
+    isOnShelf: Boolean(userEdition),
+    readingStatus: userEdition?.readingStatus ?? null,
+    userRating: userEditionRating?.rating ?? null,
   };
 }
 

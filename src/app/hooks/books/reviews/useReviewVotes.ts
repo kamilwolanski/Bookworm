@@ -5,7 +5,11 @@ import { fetcher } from '@/app/services/fetcher';
 import { ReviewVotesCount } from '@/lib/reviews';
 
 export const useReviewVotes = (reviewIds: string[] = []) => {
-  const key = useMemo(() => ['/api/reviews/votes', reviewIds], [reviewIds]);
+  const key = useMemo(
+    () =>
+      reviewIds.length > 0 ? ['/api/reviews/votes', reviewIds] : undefined,
+    [reviewIds]
+  );
 
   const { data, isLoading } = useSWR<ReviewVotesCount[]>(
     key,

@@ -8,8 +8,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OtherBooks from '@/components/book/bookDetails/OtherBooks';
 import { Metadata, ResolvingMetadata } from 'next';
-import { getBookReviews } from '@/lib/reviews';
-import BookReviews from '@/components/book/bookDetails/BookReviews';
 import BookReviewsServer from './BookReviewsServer';
 
 interface BookPageProps {
@@ -37,25 +35,12 @@ export async function generateStaticParams() {
   return getAllBookStaticParams();
 }
 
-// export const revalidate = 60;
-
-export default async function BookEdition({
-  params,
-  searchParams,
-}: BookPageProps) {
+export default async function BookEdition({ params }: BookPageProps) {
   const { editionId, slug } = await params;
-
-  // const { page } = searchParams ? await searchParams : {};
-  // const currentPage = parseInt(page || '1', 10);
 
   const [book, otherEditions] = await Promise.all([
     getBook(editionId),
     getOtherEditions(slug, editionId),
-    // getBookReviews(slug, {
-    //   page: 1,
-    //   pageSize: 3,
-    //   onlyWithContent: true,
-    // }),
   ]);
 
   return (
@@ -100,19 +85,6 @@ export default async function BookEdition({
             bookId={book.book.id}
             editionTitle={book.edition.title}
           />
-
-          {/* <BookReviews
-            bookId={book.book.id}
-            bookSlug={slug}
-            editionId={editionId}
-            editionTitle={book.edition.title}
-            reviews={reviewsResponse.items}
-            paginationData={{
-              page: currentPage,
-              pageSize: reviewsResponse.pageSize,
-              total: reviewsResponse.total,
-            }}
-          /> */}
         </div>
       </div>
     </>
