@@ -187,7 +187,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
               className="rounded-md object-cover mx-auto"
             />
           ) : (
-            <div className="w-[266px] h-[400px] rounded-md flex items-center justify-center text-sm text-muted-foreground">
+            <div className="w-[320px] h-[420px] rounded-md flex items-center justify-center text-sm text-muted-foreground">
               Brak okładki
             </div>
           )}
@@ -197,26 +197,37 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
           <div>
             <div className="flex items-start gap-2 sm:gap-3 mb-2">
               <h2 className="text-lg font-semibold flex-1">{edition.title}</h2>
-              <Badge
-                variant={onShelf ? 'default' : 'secondary'}
-                className={`${
-                  onShelf
-                    ? 'border border-badge-owned-border bg-badge-owned text-primary'
-                    : 'bg-badge-not-on-shelf text-badge-not-on-shelf-foreground border-badge-not-on-shelf-border'
-                } font-medium`}
-              >
-                {onShelf ? 'Na półce' : 'Poza półką'}
-              </Badge>
-              {onShelf && readingStatus && (
-                <Badge
-                  variant="secondary"
-                  className={`${statusConfig[readingStatus].color} font-medium flex items-center gap-1`}
-                >
-                  {React.createElement(statusConfig[readingStatus].icon, {
-                    className: 'w-3 h-3',
-                  })}
-                  {statusConfig[readingStatus].label}
-                </Badge>
+              {(sessionIsLoading || userStateIsLoading) && (
+                <div className="flex gap-2">
+                  <Skeleton className="border w-[67px] h-[22px]" />
+                  <Skeleton className="border w-[120px] h-[22px]" />
+                </div>
+              )}
+
+              {!sessionIsLoading && !userStateIsLoading && (
+                <>
+                  <Badge
+                    variant={onShelf ? 'default' : 'secondary'}
+                    className={`${
+                      onShelf
+                        ? 'border border-badge-owned-border bg-badge-owned text-primary'
+                        : 'bg-badge-not-on-shelf text-badge-not-on-shelf-foreground border-badge-not-on-shelf-border'
+                    } font-medium`}
+                  >
+                    {onShelf ? 'Na półce' : 'Poza półką'}
+                  </Badge>
+                  {onShelf && readingStatus && (
+                    <Badge
+                      variant="secondary"
+                      className={`${statusConfig[readingStatus].color} font-medium flex items-center gap-1`}
+                    >
+                      {React.createElement(statusConfig[readingStatus].icon, {
+                        className: 'w-3 h-3',
+                      })}
+                      {statusConfig[readingStatus].label}
+                    </Badge>
+                  )}
+                </>
               )}
             </div>
             {edition.subtitle && <h3>{edition.subtitle}</h3>}
@@ -290,6 +301,12 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                 ({book.ratingCount ?? 0} ocen)
               </span>
             </div>
+            {(sessionIsLoading || userStateIsLoading) && (
+              <div className="mt-3">
+                <Skeleton className="h-5 mb-2 w-[100px]" />
+                <Skeleton className="h-9 w-52" />
+              </div>
+            )}
             {onShelf && (
               <div className="mt-3">
                 <label className="block text-sm font-medium text-muted-foreground mb-2">
@@ -316,64 +333,70 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                 </Select>
               </div>
             )}
-            <div className="flex gap-3 mt-5">
-              {status === 'authenticated' ? (
-                <Button
-                  className="cursor-pointer bg-badge-new text-secondary-foreground hover:bg-badge-new-hover"
-                  onClick={handleToggle}
-                  disabled={isPending}
-                >
-                  {onShelf ? (
-                    <>
-                      <Minus className="w-4 h-4 mr-1" />
-                      Usuń z półki
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4 mr-1" />
-                      Dodaj na półkę
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <LoginDialog
-                  dialogTriggerBtn={
-                    <Button className="cursor-pointer bg-badge-new text-secondary-foreground hover:bg-badge-new-hover">
-                      <Plus className="w-4 h-4 mr-1" />
-                      Dodaj na półkę
-                    </Button>
-                  }
-                />
-              )}
-              {status === 'authenticated' ? (
-                <RateBookDialog
-                  bookId={book.id}
-                  editionId={edition.id}
-                  dialogTitle={`Napisz opinie o : ${edition.title}`}
-                  userReview={undefined}
-                >
-                  <Button
-                    variant="outline"
-                    className="bg-sidebar cursor-pointer"
-                  >
-                    <Star className="w-4 h-4 mr-1" />
-                    {/* {userBook?.userReview ? 'Edytuj ocenę' : 'Oceń'} */}
-                  </Button>
-                </RateBookDialog>
-              ) : (
-                <LoginDialog
-                  dialogTriggerBtn={
+            {(sessionIsLoading || userStateIsLoading) && (
+              <div className="mt-5 flex gap-3">
+                <Skeleton className="h-9 w-[130px] bg-badge-new" />
+                <Skeleton className="h-9 w-[135px] border bg-white shadow-xs hover:bg-gray-100 text-accent-2 dark:bg-input/30 dark:border-input dark:hover:bg-input/50" />
+              </div>
+            )}
+            {!sessionIsLoading && !userStateIsLoading && (
+              <div className="">
+                {status === 'authenticated' ? (
+                  <div className="flex mt-5 gap-3">
                     <Button
-                      variant="outline"
-                      className="bg-sidebar cursor-pointer"
+                      className="cursor-pointer bg-badge-new text-secondary-foreground hover:bg-badge-new-hover"
+                      onClick={handleToggle}
+                      disabled={isPending}
                     >
-                      <Star className="w-4 h-4 mr-1" />
-                      oceń
+                      {onShelf ? (
+                        <>
+                          <Minus className="w-4 h-4 mr-1" />
+                          Usuń z półki
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4 mr-1" />
+                          Dodaj na półkę
+                        </>
+                      )}
                     </Button>
-                  }
-                />
-              )}
-            </div>
+                    <RateBookDialog
+                      bookId={book.id}
+                      editionId={edition.id}
+                      dialogTitle={`Napisz opinie o : ${edition.title}`}
+                      userReview={undefined}
+                    >
+                      <Button variant="outline" className="cursor-pointer">
+                        <Star className="w-4 h-4 mr-1" />
+                        {userRating ? 'Edytuj ocenę' : 'Oceń'}
+                      </Button>
+                    </RateBookDialog>
+                  </div>
+                ) : (
+                  <div className="flex mt-5 gap-3">
+                    <LoginDialog
+                      dialogTriggerBtn={
+                        <Button className="cursor-pointer bg-badge-new text-secondary-foreground hover:bg-badge-new-hover">
+                          <Plus className="w-4 h-4 mr-1" />
+                          Dodaj na półkę
+                        </Button>
+                      }
+                    />
+                    <LoginDialog
+                      dialogTriggerBtn={
+                        <Button
+                          variant="outline"
+                          className="bg-sidebar cursor-pointer"
+                        >
+                          <Star className="w-4 h-4 mr-1" />
+                          oceń
+                        </Button>
+                      }
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <Separator className="mt-5" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
