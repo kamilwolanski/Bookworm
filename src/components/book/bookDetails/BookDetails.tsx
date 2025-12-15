@@ -276,6 +276,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                       bookId={book.id}
                       editionId={edition.id}
                       bookSlug={book.slug}
+                      mutate={mutate}
                     />
                   ) : (
                     <LoginDialog

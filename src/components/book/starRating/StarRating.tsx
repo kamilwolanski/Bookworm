@@ -1,6 +1,8 @@
 import { Star } from 'lucide-react';
-import { useOptimisticRating } from '@/lib/optimistics/useOptimisticRating';
 import { addRatingAction } from '@/app/(main)/books/actions/reviewActions';
+import { UserEditionData } from '@/lib/user';
+import { KeyedMutator } from 'swr';
+import { useTransition } from 'react';
 
 interface StarRatingProps {
   rating: number;
@@ -10,6 +12,7 @@ interface StarRatingProps {
   maxRating?: number;
   size?: 'sm' | 'md' | 'lg';
   interactive?: boolean;
+  mutate?: KeyedMutator<UserEditionData>;
 }
 
 export function StarRating({
@@ -19,6 +22,7 @@ export function StarRating({
   maxRating = 5,
   size = 'md',
   interactive = false,
+  mutate,
 }: StarRatingProps) {
   const sizeClasses = {
     sm: 'w-4 h-4',
@@ -26,26 +30,31 @@ export function StarRating({
     lg: 'w-6 h-6',
   } as const;
 
-  const {
-    ratingOpt,
-    isPending: isRatingOpt,
-    rate,
-  } = useOptimisticRating(rating);
+  const [israting, startTransition] = useTransition();
 
-  // (opcjonalnie) obsługa klawiatury: strzałki lewo/prawo zmieniają wybór
-  const onKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
-    if (!interactive || isRatingOpt) return;
+  const handleOnClick = async (starNumber: number) => {
+    if (!mutate) return;
     if (!bookId || !editionId) return;
+    mutate((current) => {
+      if (!current) return current;
+      return { ...current, userRating: starNumber };
+    }, false);
 
-    if (e.key === 'ArrowRight') {
-      const next = Math.min(maxRating, (ratingOpt || 0) + 1);
-      rate?.(next, () => addRatingAction({ bookId, editionId, rating: next }));
-      e.preventDefault();
-    } else if (e.key === 'ArrowLeft') {
-      const next = Math.max(1, (ratingOpt || 1) - 1);
-      rate?.(next, () => addRatingAction({ bookId, editionId, rating: next }));
-      e.preventDefault();
-    }
+    startTransition(async () => {
+      try {
+        const res = await addRatingAction({
+          bookId,
+          editionId,
+          rating: starNumber,
+        });
+
+        if (res.isError) {
+          mutate();
+        }
+      } catch {
+        mutate();
+      }
+    });
   };
 
   return (
@@ -58,21 +67,20 @@ export function StarRating({
             ? 'Oceń książkę'
             : `Ocena: ${rating.toFixed(1)} na ${maxRating}`
         }
-        onKeyDown={onKeyDown}
       >
         {Array.from({ length: maxRating }, (_, index) => {
           const starNumber = index + 1;
 
           // wizualne wypełnienie — wspiera ułamki (np. 3.7)
-          const filled = ratingOpt >= starNumber;
+          const filled = rating >= starNumber;
           const fraction =
-            !filled && ratingOpt > index && ratingOpt < starNumber
-              ? ratingOpt - index
+            !filled && rating > index && rating < starNumber
+              ? rating - index
               : 0;
 
           const widthPct = fraction > 0 ? fraction * 100 : filled ? 100 : 0;
 
-          const isChecked = Math.round(ratingOpt || 0) === starNumber;
+          const isChecked = Math.round(rating || 0) === starNumber;
 
           return (
             <button
@@ -82,26 +90,20 @@ export function StarRating({
               aria-checked={interactive ? isChecked : undefined}
               aria-label={`Oceń na ${starNumber} z ${maxRating}`}
               title={interactive ? `Oceń na ${starNumber}` : undefined}
-              disabled={!interactive || isRatingOpt}
+              disabled={!interactive || israting}
               className={[
                 'relative',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-yellow-400 rounded',
                 interactive ? 'cursor-pointer' : '',
-                !interactive || isRatingOpt
+                !interactive || israting
                   ? 'pointer-events-none cursor-not-allowed'
                   : '',
-                isRatingOpt ? 'opacity-50' : '',
+                israting ? 'opacity-50' : '',
               ].join(' ')}
               onClick={() => {
-                if (!interactive || !rate) return;
+                if (!mutate) return;
                 if (!bookId || !editionId) return;
-                rate(starNumber, () =>
-                  addRatingAction({
-                    bookId,
-                    editionId,
-                    rating: starNumber,
-                  })
-                );
+                handleOnClick(starNumber);
               }}
             >
               {/* pusta gwiazdka */}
@@ -124,9 +126,9 @@ export function StarRating({
 
       {/* Live region do komunikatów dla czytników ekranu */}
       <span className="sr-only" aria-live="polite">
-        {isRatingOpt
+        {israting
           ? 'Zapisywanie oceny…'
-          : `Obecna ocena: ${ratingOpt} na ${maxRating}`}
+          : `Obecna ocena: ${rating} na ${maxRating}`}
       </span>
     </div>
   );
