@@ -51,7 +51,6 @@ export function BookCard({
     userState?.userEditions.findIndex(
       (edition) => edition.editionId === representativeEdition.id
     ) === -1;
-
   return (
     <Card
       key={book.id}
@@ -81,26 +80,24 @@ export function BookCard({
               <div className="h-8 w-24 rounded-2xl bg-gray-300 opacity-30 animate-pulse" />
             </div>
           ) : (
-            <>
+            <div className="flex items-center gap-2">
               {onShelf ? (
                 hasOtherEdition ? (
                   <div className="bg-badge-other-edition text-primary-foreground px-3 py-1 rounded-2xl">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs sm:text-sm font-medium">
-                        Masz inne wydanie
-                      </span>
-                    </div>
+                    <span className="text-xs sm:text-sm font-medium">
+                      Masz inne wydanie
+                    </span>
                   </div>
                 ) : (
                   <div className="px-3 py-1 rounded-2xl bg-badge-owned text-primary border border-badge-owned-border">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs sm:text-sm font-medium">
-                        Na półce
-                      </span>
-                    </div>
+                    <span className="text-xs sm:text-sm font-medium">
+                      Na półce
+                    </span>
                   </div>
                 )
-              ) : status === 'authenticated' ? (
+              ) : null}
+
+              {status === 'authenticated' && (
                 <AddBookStepperDialog
                   bookId={book.id}
                   bookSlug={book.slug}
@@ -109,8 +106,11 @@ export function BookCard({
                     .map((a) => a.name)
                     .join(', ')}`}
                   userEditions={userState?.userEditions}
+                  isOwned={onShelf}
                 />
-              ) : (
+              )}
+
+              {status !== 'authenticated' && !onShelf && (
                 <LoginDialog
                   dialogTriggerBtn={
                     <button
@@ -127,7 +127,7 @@ export function BookCard({
                   }
                 />
               )}
-            </>
+            </div>
           )}
 
           <Dialog
@@ -197,6 +197,7 @@ export function BookCard({
             {dialogType === 'showOtherEditions' && (
               <AddBookStepperDialog
                 bookId={book.id}
+                isOwned={onShelf}
                 bookSlug={book.slug}
                 editions={book.editions}
                 dialogTitle={`${representativeEdition.title} - ${book.authors

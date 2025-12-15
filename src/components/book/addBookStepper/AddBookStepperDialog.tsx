@@ -14,6 +14,7 @@ import { EditionDto } from '@/lib/books';
 
 const AddBookStepperDialog = ({
   bookId,
+  isOwned,
   bookSlug,
   editions,
   dialogTitle,
@@ -23,6 +24,7 @@ const AddBookStepperDialog = ({
   afterSuccess,
 }: {
   bookId: string;
+  isOwned: boolean;
   bookSlug: string;
   editions: EditionDto[];
   dialogTitle: string;
@@ -58,20 +60,20 @@ const AddBookStepperDialog = ({
     </DialogContent>
   );
 
-  if (onlyContent) {
-    return Content;
-  }
+  if (onlyContent) return Content;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer ">
-          <div className="flex items-center gap-2">
-            <span className="text-xs sm:text-sm font-medium">Dodaj</span>{' '}
-            <Plus size={14} />
-          </div>
-        </button>
-      </DialogTrigger>
+      {!isOwned && (
+        <DialogTrigger asChild>
+          <button className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer">
+            <div className="flex items-center gap-2">
+              <span className="text-xs sm:text-sm font-medium">Dodaj</span>
+              <Plus size={14} />
+            </div>
+          </button>
+        </DialogTrigger>
+      )}
       {Content}
     </Dialog>
   );

@@ -90,12 +90,12 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
     isLoading: userStateIsLoading,
     mutate,
   } = useSWR<UserEditionData>(swrKey);
-  console.log('userData', userData);
+
   const onShelf = userData?.isOnShelf;
   const readingStatus = userData?.readingStatus;
   const userRating = userData?.userRating;
   const [isPending, startTransition] = useTransition();
-  console.log('bookData', bookData);
+
   const handleToggle = async () => {
     if (onShelf) {
       const prev = structuredClone(userData);

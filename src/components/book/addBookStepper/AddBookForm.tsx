@@ -16,11 +16,15 @@ import {
 } from '@/lib/validations/addBookToShelfValidation';
 import ReadingStatusComponent from './ReadingStatusComponent';
 import { FormProvider } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
-import useSWR from 'swr';
+import useSWR, { KeyedMutator } from 'swr';
 import { fetcher } from '@/app/services/fetcher';
-import { UserBookReview, UserEditionDto } from '@/lib/user';
+import {
+  EditionUserResponseItem,
+  UserBookReview,
+  UserEditionDto,
+} from '@/lib/user';
 import { EditionDto } from '@/lib/books';
+import { useSWRConfig } from 'swr';
 
 const { useStepper, steps, utils } = defineStepper(
   { id: 'edition', label: 'Wydanie', schema: chooseEditionSchema },
@@ -46,6 +50,7 @@ const AddBookForm = ({
   otherEditionsMode: boolean;
   afterSuccess: () => void;
 }) => {
+  const { mutate: globalMutate } = useSWRConfig();
   const { data: userReviews } = useSWR<UserBookReview[]>(
     `/api/user/reviews/${bookId}`,
     fetcher,
@@ -55,7 +60,6 @@ const AddBookForm = ({
   );
 
   const boundAction = addBookToShelfAction.bind(null, bookId);
-  const router = useRouter();
   const stepper = useStepper();
   const { status } = useSession();
   const { form, isPending, handleSubmit } = useActionForm<AddBookToShelfInput>({
@@ -67,7 +71,16 @@ const AddBookForm = ({
       rating: undefined,
     },
     onSuccess: () => {
-      router.refresh();
+      globalMutate(
+        (key: KeyedMutator<EditionUserResponseItem[]>) =>
+          Array.isArray(key) &&
+          key[0] === '/api/editions' &&
+          key[1]?.includes(form.getValues('editionId')),
+        (current: EditionUserResponseItem[] | undefined) => {
+          return current;
+        },
+        { revalidate: true }
+      );
       afterSuccess();
     },
   });

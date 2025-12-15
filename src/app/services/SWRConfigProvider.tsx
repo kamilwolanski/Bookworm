@@ -9,8 +9,8 @@ const SWRConfigProvider = ({ children }: { children: ReactNode }) => {
     <SWRConfig
       value={{
         fetcher: fetcher,
+        revalidateIfStale: true,
         revalidateOnFocus: false,
-        revalidateIfStale: false,
       }}
     >
       {children}
