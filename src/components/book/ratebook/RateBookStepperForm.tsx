@@ -14,10 +14,14 @@ import {
 } from '@/lib/validations/addBookToShelfValidation';
 import { usePathname } from 'next/navigation';
 import { rateBookAction } from '@/app/(main)/books/actions/reviewActions';
-import useSWR from 'swr';
+import useSWR, { KeyedMutator, useSWRConfig } from 'swr';
 import { fetcher } from '@/app/services/fetcher';
 import { EditionDto } from '@/lib/books';
-import { UserBookReview, UserEditionDto } from '@/lib/user';
+import {
+  EditionUserResponseItem,
+  UserBookReview,
+  UserEditionDto,
+} from '@/lib/user';
 
 const { useStepper, steps, utils } = defineStepper(
   { id: 'edition', label: 'Wydanie', schema: chooseEditionSchema },
@@ -44,13 +48,15 @@ const RateBookStepperForm = ({
 }) => {
   const pathname = usePathname();
 
-  const { data: userReviews } = useSWR<UserBookReview[]>(
+  const { data: userReviews, mutate } = useSWR<UserBookReview[]>(
     `/api/user/reviews/${bookId}`,
     fetcher,
     {
       revalidateIfStale: false,
     }
   );
+  const { mutate: globalMutate } = useSWRConfig();
+
   const boundAction = rateBookAction.bind(null, bookId, pathname);
   const stepper = useStepper();
   const { form, isPending, handleSubmit } =
@@ -62,6 +68,36 @@ const RateBookStepperForm = ({
         rating: undefined,
       },
       onSuccess: () => {
+        const editionId = form.getValues('editionId');
+        const rating = form.getValues('rating');
+
+        mutate();
+
+        globalMutate(
+          (key: KeyedMutator<EditionUserResponseItem[]>) =>
+            Array.isArray(key) &&
+            key[0] === '/api/editions' &&
+            key[1]?.includes(form.getValues('editionId')),
+          (current: EditionUserResponseItem[] | undefined) => {
+            if (current) {
+              return current.map((edition) => {
+                if (edition.id === editionId) {
+                  return {
+                    ...edition,
+                    userState: {
+                      ...edition.userState,
+                      userRating: rating,
+                    },
+                  };
+                }
+                return edition;
+              });
+            }
+
+            return current;
+          },
+          { revalidate: true }
+        );
         afterSuccess();
       },
     });

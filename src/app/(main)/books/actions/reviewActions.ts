@@ -86,7 +86,6 @@ export const rateBookAction = async (
       rating,
       body,
     });
-    revalidatePath(pathname);
 
     return {
       isError: false,
