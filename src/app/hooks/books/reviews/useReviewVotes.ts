@@ -20,7 +20,7 @@ export const useReviewVotes = (reviewIds: string[] = []) => {
         body: JSON.stringify({
           reviewIds: ids,
         }),
-      })
+      }),
   );
 
   const votesMap = useMemo(

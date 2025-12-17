@@ -188,10 +188,6 @@ export default function AdminPersonsTable({
       },
     },
   });
-  // const selectedIds = table
-  //   .getSelectedRowModel()
-  //   .rows.map((row) => row.original.id);
-  // console.log('selectedIds', selectedIds);
 
   return (
     <div className="w-full">

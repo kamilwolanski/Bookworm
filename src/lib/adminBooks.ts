@@ -207,7 +207,6 @@ export async function getAllBooksBasic(
       genres: genresDto,
     };
   });
-  console.log('booksDto', booksDto);
 
   return { books: booksDto, totalCount };
 }

@@ -38,13 +38,13 @@ import { ReviewItem, ReviewVotesCount } from '@/lib/reviews';
 import { UserBookReviewVote } from '@/lib/user';
 import { ReviewVoteType } from '@prisma/client';
 import { ActionResult } from '@/types/actions';
-import { mutate as swrMutate } from 'swr';
+import { useSWRConfig } from 'swr';
 
 const BookReview = ({
   review,
   isOwner = false,
-  setOpenDeleteDialog,
-  setOpenReviewDialog,
+  setDeleteReviewId,
+  setEditReviewId,
   userVoteType,
   votes,
   swrVotesKey,
@@ -54,14 +54,16 @@ const BookReview = ({
   editionTitle: string;
   review: ReviewItem;
   isOwner?: boolean;
-  setOpenDeleteDialog?: Dispatch<SetStateAction<boolean>>;
-  setOpenReviewDialog?: Dispatch<SetStateAction<boolean>>;
+  setDeleteReviewId?: Dispatch<SetStateAction<string | null>>;
+  setEditReviewId?: Dispatch<SetStateAction<string | null>>;
   userVoteType?: ReviewVoteType | null;
   votes?: ReviewVotesCount;
   swrVotesKey?: (string | string[])[];
   swrUserVotesKey?: (string | string[])[] | null;
 }) => {
   const { status } = useSession();
+  const { mutate: globalMutate } = useSWRConfig();
+
   const [state, doAction, isPending] = useActionState<
     ActionResult<VoteActionResult>,
     VoteActionPayload
@@ -82,7 +84,7 @@ const BookReview = ({
 
   const handleLike = useCallback(async () => {
     if (disabled || isPending) return;
-    swrMutate(
+    globalMutate(
       swrVotesKey,
       (current?: ReviewVotesCount[]) => {
         return current?.map((votes) => {
@@ -104,7 +106,7 @@ const BookReview = ({
       false
     );
 
-    swrMutate(
+    globalMutate(
       swrUserVotesKey,
       (current?: UserBookReviewVote[]) => {
         return current?.map((userVotes) => {
@@ -128,6 +130,7 @@ const BookReview = ({
   }, [
     disabled,
     doAction,
+    globalMutate,
     isPending,
     review.id,
     swrUserVotesKey,
@@ -137,7 +140,7 @@ const BookReview = ({
 
   const handleDislike = useCallback(() => {
     if (disabled || isPending) return;
-    swrMutate(
+    globalMutate(
       swrVotesKey,
       (current?: ReviewVotesCount[]) => {
         return current?.map((votes) => {
@@ -158,7 +161,7 @@ const BookReview = ({
       false
     );
 
-    swrMutate(
+    globalMutate(
       swrUserVotesKey,
       (current?: UserBookReviewVote[]) => {
         return current?.map((userVotes) => {
@@ -191,8 +194,8 @@ const BookReview = ({
 
   useEffect(() => {
     if (!isPending && state) {
-      swrMutate(swrVotesKey);
-      swrMutate(swrUserVotesKey);
+      globalMutate(swrVotesKey);
+      globalMutate(swrUserVotesKey);
     }
   }, [isPending, state, swrUserVotesKey, swrVotesKey]);
 
@@ -257,8 +260,8 @@ const BookReview = ({
                 <DropdownMenuContent align="end" className="w-40">
                   <DropdownMenuItem
                     onClick={() => {
-                      if (setOpenReviewDialog) {
-                        setOpenReviewDialog(true);
+                      if (setEditReviewId) {
+                        setEditReviewId(review.id);
                       }
                     }}
                     className="cursor-pointer"
@@ -270,8 +273,8 @@ const BookReview = ({
                   <DropdownMenuItem
                     className="text-destructive focus:text-destructive cursor-pointer"
                     onClick={() => {
-                      if (setOpenDeleteDialog) {
-                        setOpenDeleteDialog(true);
+                      if (setDeleteReviewId) {
+                        setDeleteReviewId(review.id);
                       }
                     }}
                   >

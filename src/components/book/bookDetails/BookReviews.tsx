@@ -5,68 +5,61 @@ import RateBookDialog from '@/components/book/ratebook/RateBookDialog';
 import { PaginationWithLinks } from '@/components/shared/PaginationWithLinks';
 import BookReview from '@/components/book/bookDetails/BookReview';
 import LoginDialog from '@/components/auth/LoginDialog';
-import { ReviewItem } from '@/lib/reviews';
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 import DeleteReviewDialog from '@/components/book/bookDetails/DeleteReviewDialog';
 import { Dialog } from '@/components/ui/dialog';
-import {
-  deleteReviewAction,
-  DeleteReviewActionPayload,
-} from '@/app/(main)/books/actions/reviewActions';
 import { usePathname } from 'next/navigation';
-import { useDeleteDialog } from '@/app/hooks/useDeleteDialog';
+import { useDeleteReviewDialog } from '@/app/hooks/useDeleteReviewDialog';
 import { useBookReviews } from '@/app/hooks/books/useBookReviews';
+import { useSearchParams } from 'next/navigation';
+import BookReviewsSkeleton from './placeholders/BookReviewsSkeleton';
 
 const BookReviews = ({
   bookId,
   bookSlug,
   editionId,
   editionTitle,
-  reviews,
-  paginationData,
 }: {
   bookId: string;
   bookSlug: string;
   editionId: string;
   editionTitle: string;
-  reviews: Array<ReviewItem>;
-  paginationData: {
-    page: number;
-    pageSize: number;
-    total: number;
-  };
 }) => {
   const { status, data: session } = useSession();
   const userId = session?.user?.id;
+  const searchParams = useSearchParams();
+  const page = searchParams.get('page');
 
   const {
-    reviews: reviewsFromSWR,
-    userReview,
+    reviews,
+    paginationData,
+    userReviews,
     otherReviews,
     votesMap,
     userVotesMap,
     swrVotesKey,
     swrUserVotesKey,
+    isLoading,
   } = useBookReviews({
     bookSlug: bookSlug,
     sessionUserId: userId,
-    initialReviews: reviews,
+    page: page,
   });
-  const [openReviewDialog, setOpenReviewDialog] = useState(false);
-  const pathname = usePathname();
-  const swrKey = `/api/user/editions/${editionId}`;
+  const [editReviewId, setEditReviewId] = useState<string | null>(null);
 
-  const [isPending, handleDelete, openDeleteDialog, setOpenDeleteDialog] =
-    useDeleteDialog<DeleteReviewActionPayload>(
-      deleteReviewAction,
+  const pathname = usePathname();
+
+  const [isPending, handleDelete, deleteReviewId, setDeleteReviewId] =
+    useDeleteReviewDialog(
       {
-        reviewId: userReview?.id,
         bookId: bookId,
         pathname: pathname,
       },
-      swrKey
+      editionId,
+      bookSlug
     );
 
+  if (isLoading || status === 'loading') return <BookReviewsSkeleton />;
   return (
     <div className="bg-sidebar shadow-lg rounded-xl p-4 sm:p-8">
       <div className="flex items-center justify-between mb-6">
@@ -74,12 +67,15 @@ const BookReviews = ({
         {status === 'authenticated' ? (
           <RateBookDialog
             bookId={bookId}
+            bookSlug={bookSlug}
             editionId={editionId}
             dialogTitle={`Napisz opinie o : ${editionTitle}`}
-            userReview={userReview}
+            userReview={userReviews?.find(
+              (review) => review.editionId === editionId
+            )}
           >
             <Button variant="outline" className="bg-sidebar cursor-pointer">
-              {userReview && userReview?.body
+              {userReviews?.findIndex((r) => r.editionId === editionId) !== -1
                 ? 'Edytuj swoją opinię'
                 : 'Napisz opinię'}
             </Button>
@@ -95,7 +91,12 @@ const BookReviews = ({
         )}
       </div>
 
-      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+      <Dialog
+        open={!!deleteReviewId}
+        onOpenChange={(open) => {
+          if (!open) setDeleteReviewId(null);
+        }}
+      >
         <DeleteReviewDialog
           onlyContent={true}
           dialogTitle={<>Czy na pewno chcesz usunąć tę opinię?</>}
@@ -104,30 +105,38 @@ const BookReviews = ({
         />
       </Dialog>
 
-      <Dialog open={openReviewDialog} onOpenChange={setOpenReviewDialog}>
+      <Dialog
+        open={!!editReviewId}
+        onOpenChange={(open) => {
+          if (!open) setEditReviewId(null);
+        }}
+      >
         <RateBookDialog
           bookId={bookId}
+          bookSlug={bookSlug}
           editionId={editionId}
           dialogTitle={`Edytuj opinie o : ${editionTitle}`}
-          userReview={userReview}
+          userReview={userReviews?.find((review) => review.id === editReviewId)}
           onlyContent={true}
-          afterSuccess={() => setOpenReviewDialog(false)}
+          afterSuccess={() => setEditReviewId(null)}
         />
       </Dialog>
 
-      {userReview && (
+      {userReviews && userReviews.length > 0 && (
         <>
-          <BookReview
-            key={userReview.id}
-            review={userReview}
-            bookId={bookId}
-            editionTitle={editionTitle}
-            isOwner={true}
-            setOpenDeleteDialog={setOpenDeleteDialog}
-            setOpenReviewDialog={setOpenReviewDialog}
-            votes={votesMap.get(userReview.id)}
-            // loadingVotes={loadingVotes}
-          />
+          {userReviews.map((userReview) => (
+            <BookReview
+              key={userReview.id}
+              review={userReview}
+              bookId={bookId}
+              editionTitle={editionTitle}
+              isOwner={true}
+              setDeleteReviewId={setDeleteReviewId}
+              setEditReviewId={setEditReviewId}
+              votes={votesMap.get(userReview.id)}
+              // loadingVotes={loadingVotes}
+            />
+          ))}
         </>
       )}
 
@@ -148,20 +157,18 @@ const BookReviews = ({
         </>
       )}
 
-      {reviewsFromSWR && (
+      {reviews && (
         <>
-          {reviewsFromSWR.length > 0 && (
-            <Suspense>
-              <PaginationWithLinks
-                page={paginationData.page}
-                pageSize={paginationData.pageSize}
-                totalCount={paginationData.total}
-                scrollOnPageChange={false}
-              />
-            </Suspense>
+          {reviews.length > 0 && (
+            <PaginationWithLinks
+              page={paginationData.page ?? 0}
+              pageSize={paginationData.pageSize ?? 0}
+              totalCount={paginationData.total ?? 0}
+              scrollOnPageChange={false}
+            />
           )}
 
-          {reviewsFromSWR.length === 0 && (
+          {reviews.length === 0 && (
             <p className="text-center py-8 text-muted-foreground">
               Brak opinii. Bądź pierwszy i napisz swoją opinię!
             </p>

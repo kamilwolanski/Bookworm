@@ -8,7 +8,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import OtherBooks from '@/components/book/bookDetails/OtherBooks';
 import { Metadata, ResolvingMetadata } from 'next';
-import BookReviewsServer from './BookReviewsServer';
+import BookReviews from '@/components/book/bookDetails/BookReviews';
+import { Suspense } from 'react';
+import BookReviewsSkeleton from '@/components/book/bookDetails/placeholders/BookReviewsSkeleton';
 
 interface BookPageProps {
   params: Promise<{ editionId: string; slug: string }>;
@@ -79,12 +81,14 @@ export default async function BookEdition({ params }: BookPageProps) {
             </TabsContent>
           </Tabs>
 
-          <BookReviewsServer
-            slug={slug}
-            editionId={editionId}
-            bookId={book.book.id}
-            editionTitle={book.edition.title}
-          />
+          <Suspense fallback={<BookReviewsSkeleton />}>
+            <BookReviews
+              bookId={book.book.id}
+              bookSlug={slug}
+              editionId={editionId}
+              editionTitle={book.edition.title}
+            />
+          </Suspense>
         </div>
       </div>
     </>

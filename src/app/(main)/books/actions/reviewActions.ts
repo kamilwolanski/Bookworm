@@ -112,8 +112,6 @@ export const deleteReviewAction = async (
       bookId,
     });
 
-    revalidatePath(pathname);
-
     return {
       isError: false,
       status: 'success',

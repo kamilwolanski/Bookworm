@@ -1,8 +1,10 @@
 import { Star } from 'lucide-react';
 import { addRatingAction } from '@/app/(main)/books/actions/reviewActions';
 import { UserEditionData } from '@/lib/user';
-import { KeyedMutator } from 'swr';
+import { KeyedMutator, useSWRConfig } from 'swr';
 import { useTransition } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { getReviewsKey } from '@/app/hooks/books/reviews/useReviews';
 
 interface StarRatingProps {
   rating: number;
@@ -18,6 +20,7 @@ interface StarRatingProps {
 export function StarRating({
   rating,
   bookId,
+  bookSlug,
   editionId,
   maxRating = 5,
   size = 'md',
@@ -31,6 +34,9 @@ export function StarRating({
   } as const;
 
   const [israting, startTransition] = useTransition();
+  const { mutate: globalMutate } = useSWRConfig();
+  const searchParams = useSearchParams();
+  const page = searchParams.get('page');
 
   const handleOnClick = async (starNumber: number) => {
     if (!mutate) return;
@@ -50,6 +56,12 @@ export function StarRating({
 
         if (res.isError) {
           mutate();
+        }
+
+        if (res.status === 'success') {
+          if (bookSlug) {
+            globalMutate(getReviewsKey(bookSlug, page));
+          }
         }
       } catch {
         mutate();

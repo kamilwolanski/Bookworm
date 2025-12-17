@@ -21,7 +21,7 @@ import { LANGUAGES } from '@/app/admin/data';
 import { MediaFormat, ReadingStatus } from '@prisma/client';
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
-import React, { useTransition } from 'react';
+import React, { Suspense, useTransition } from 'react';
 import {
   addBookToShelfBasicAction,
   changeBookStatusAction,
@@ -270,14 +270,16 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
               {!sessionIsLoading && !userStateIsLoading && (
                 <>
                   {status === 'authenticated' ? (
-                    <StarRating
-                      rating={userRating ?? 0}
-                      interactive
-                      bookId={book.id}
-                      editionId={edition.id}
-                      bookSlug={book.slug}
-                      mutate={mutate}
-                    />
+                    <Suspense fallback={<StarRatingPlaceholder />}>
+                      <StarRating
+                        rating={userRating ?? 0}
+                        interactive
+                        bookId={book.id}
+                        editionId={edition.id}
+                        bookSlug={book.slug}
+                        mutate={mutate}
+                      />
+                    </Suspense>
                   ) : (
                     <LoginDialog
                       dialogTriggerBtn={
@@ -296,7 +298,9 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
               )}
             </div>
             <div className="flex items-center gap-2 mt-4">
-              <StarRating rating={book.averageRating ?? 0} />
+              <Suspense>
+                <StarRating rating={book.averageRating ?? 0} />
+              </Suspense>
               <span className="font-medium">{book.averageRating}</span>
               <span className="text-muted-foreground">
                 ({book.ratingCount ?? 0} ocen)
@@ -363,6 +367,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                     </Button>
                     <RateBookDialog
                       bookId={book.id}
+                      bookSlug={book.slug}
                       editionId={edition.id}
                       dialogTitle={`Napisz opinie o : ${edition.title}`}
                       userReview={undefined}
