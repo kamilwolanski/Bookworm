@@ -1,6 +1,6 @@
 import { Star } from 'lucide-react';
 import { addRatingAction } from '@/app/(main)/books/actions/reviewActions';
-import { UserEditionData } from '@/lib/user';
+import { UserBookReview } from '@/lib/user';
 import { KeyedMutator, useSWRConfig } from 'swr';
 import { useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -14,7 +14,7 @@ interface StarRatingProps {
   maxRating?: number;
   size?: 'sm' | 'md' | 'lg';
   interactive?: boolean;
-  mutate?: KeyedMutator<UserEditionData>;
+  userReviewMutate?: KeyedMutator<UserBookReview>;
 }
 
 export function StarRating({
@@ -25,7 +25,7 @@ export function StarRating({
   maxRating = 5,
   size = 'md',
   interactive = false,
-  mutate,
+  userReviewMutate,
 }: StarRatingProps) {
   const sizeClasses = {
     sm: 'w-4 h-4',
@@ -39,11 +39,11 @@ export function StarRating({
   const page = searchParams.get('page');
 
   const handleOnClick = async (starNumber: number) => {
-    if (!mutate) return;
+    if (!userReviewMutate) return;
     if (!bookId || !editionId) return;
-    mutate((current) => {
+    userReviewMutate((current) => {
       if (!current) return current;
-      return { ...current, userRating: starNumber };
+      return { ...current, rating: starNumber };
     }, false);
 
     startTransition(async () => {
@@ -55,16 +55,17 @@ export function StarRating({
         });
 
         if (res.isError) {
-          mutate();
+          userReviewMutate();
         }
 
         if (res.status === 'success') {
+          userReviewMutate();
           if (bookSlug) {
             globalMutate(getReviewsKey(bookSlug, page));
           }
         }
       } catch {
-        mutate();
+        userReviewMutate();
       }
     });
   };
@@ -113,7 +114,7 @@ export function StarRating({
                 israting ? 'opacity-50' : '',
               ].join(' ')}
               onClick={() => {
-                if (!mutate) return;
+                if (!userReviewMutate) return;
                 if (!bookId || !editionId) return;
                 handleOnClick(starNumber);
               }}

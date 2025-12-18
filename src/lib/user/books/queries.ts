@@ -15,20 +15,24 @@ export async function getUserEditionData(
     },
   });
 
-  const userEditionRating = await prisma.review.findFirst({
+  const userEditionReview = await prisma.review.findFirst({
     where: {
       editionId: editionId,
       userId: userId,
     },
     select: {
+      id: true,
+      editionId: true,
       rating: true,
+      body: true,
     },
   });
 
   return {
+    editionId: editionId,
     isOnShelf: Boolean(userEdition),
     readingStatus: userEdition?.readingStatus ?? null,
-    userRating: userEditionRating?.rating ?? null,
+    userReview: userEditionReview,
   };
 }
 

@@ -3,15 +3,23 @@ import { useMemo } from 'react';
 import { useReviews } from './reviews/useReviews';
 import { useReviewVotes } from './reviews/useReviewVotes';
 import { useUserVotes } from '../user/reviews/useUserVotes';
+import { useUserReview } from '../user/reviews/useUserReview';
 
 export const useBookReviews = (args: {
+  bookId: string;
+  editionId: string;
   bookSlug: string;
   sessionUserId?: string | null;
   page: string | null;
 }) => {
-  const { bookSlug, sessionUserId, page } = args;
+  const { bookSlug, bookId, editionId, sessionUserId, page } = args;
 
   const { reviews, paginationData, loading } = useReviews(bookSlug, page);
+
+  const { userEditionReview, loading: userReviewLoading } = useUserReview(
+    bookId,
+    editionId
+  );
 
   const reviewIds = useMemo(
     () => (reviews ? reviews.map((r) => r.id) : []),
@@ -50,7 +58,8 @@ export const useBookReviews = (args: {
     loading: loadingUserVotes,
   } = useUserVotes(sessionUserId, otherIds);
 
-  const isLoading = loading || loadingVotes || loadingUserVotes;
+  const isLoading =
+    loading || loadingVotes || loadingUserVotes || userReviewLoading;
 
   return {
     reviews,
@@ -61,6 +70,7 @@ export const useBookReviews = (args: {
     userVotesMap,
     swrVotesKey,
     swrUserVotesKey,
+    userEditionReview,
     isLoading,
   };
 };

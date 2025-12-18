@@ -37,6 +37,7 @@ export async function getUserBookReviews(
       userId: userId,
     },
     select: {
+      id: true,
       editionId: true,
       rating: true,
       body: true,
@@ -50,8 +51,8 @@ export async function getUserBookReview(
   userId: string,
   bookId: string,
   editionId: string
-): Promise<UserBookReview> {
-  const userReview = await prisma.review.findFirstOrThrow({
+): Promise<UserBookReview | null> {
+  const userReview = await prisma.review.findFirst({
     where: {
       editionId: editionId,
       edition: {
@@ -60,6 +61,7 @@ export async function getUserBookReview(
       userId: userId,
     },
     select: {
+      id: true,
       editionId: true,
       rating: true,
       body: true,

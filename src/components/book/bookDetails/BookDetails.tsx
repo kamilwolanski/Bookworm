@@ -41,6 +41,7 @@ import { BookDetailsDto } from '@/lib/books';
 import { UserEditionData } from '@/lib/user';
 import { Skeleton } from '@/components/ui/skeleton';
 import StarRatingPlaceholder from '../starRating/StarRatingPlaceholder';
+import { useUserReview } from '@/app/hooks/user/reviews/useUserReview';
 
 const MediaFormatLabels: Record<MediaFormat, string> = {
   [MediaFormat.HARDCOVER]: 'Twarda oprawa',
@@ -90,10 +91,14 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
     isLoading: userStateIsLoading,
     mutate,
   } = useSWR<UserEditionData>(swrKey);
-
+  const {
+    userEditionReview,
+    loading: userReviewLoading,
+    userReviewMutate,
+  } = useUserReview(book.id, edition.id);
   const onShelf = userData?.isOnShelf;
   const readingStatus = userData?.readingStatus;
-  const userRating = userData?.userRating;
+  const userRating = userEditionReview?.rating;
   const [isPending, startTransition] = useTransition();
 
   const handleToggle = async () => {
@@ -264,10 +269,10 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
               <p>
                 <b>Twoja ocena: </b>
               </p>
-              {(sessionIsLoading || userStateIsLoading) && (
+              {(sessionIsLoading || userReviewLoading) && (
                 <StarRatingPlaceholder />
               )}
-              {!sessionIsLoading && !userStateIsLoading && (
+              {!sessionIsLoading && !userReviewLoading && (
                 <>
                   {status === 'authenticated' ? (
                     <Suspense fallback={<StarRatingPlaceholder />}>
@@ -277,7 +282,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                         bookId={book.id}
                         editionId={edition.id}
                         bookSlug={book.slug}
-                        mutate={mutate}
+                        userReviewMutate={userReviewMutate}
                       />
                     </Suspense>
                   ) : (
@@ -370,7 +375,7 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
                       bookSlug={book.slug}
                       editionId={edition.id}
                       dialogTitle={`Napisz opinie o : ${edition.title}`}
-                      userReview={undefined}
+                      userReview={userEditionReview}
                     >
                       <Button variant="outline" className="cursor-pointer">
                         <Star className="w-4 h-4 mr-1" />

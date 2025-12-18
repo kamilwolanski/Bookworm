@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { ReactNode, useState } from 'react';
 import RateBookForm from './RateBookForm';
+import { UserBookReview } from '@/lib/user';
 
 const RateBookDialog = ({
   bookId,
@@ -24,11 +25,7 @@ const RateBookDialog = ({
   editionId?: string;
   dialogTitle: string;
   onlyContent?: boolean;
-  userReview?: {
-    editionId: string;
-    rating: number | null;
-    body: string | null;
-  };
+  userReview?: UserBookReview;
   afterSuccess?: () => void;
   children?: ReactNode;
 }) => {

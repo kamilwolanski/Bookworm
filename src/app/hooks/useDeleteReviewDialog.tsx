@@ -1,4 +1,3 @@
-import { UserEditionData } from '@/lib/user';
 import { ActionResult } from '@/types/actions';
 import {
   Dispatch,
@@ -33,7 +32,6 @@ export function useDeleteReviewDialog(
   const { mutate: globalMutate } = useSWRConfig();
 
   const [deleteReviewId, setDeleteReviewId] = useState<string | null>(null);
-  const swrKey = `/api/user/editions/${editionId}`;
   const searchParams = useSearchParams();
   const page = searchParams.get('page');
 
@@ -59,13 +57,27 @@ export function useDeleteReviewDialog(
   }
 
   useEffect(() => {
-    if (!swrKey) return;
     if (!isPending && state && state.status === 'success') {
       setDeleteReviewId(null);
       globalMutate(getReviewsKey(bookSlug, page));
-      globalMutate<UserEditionData | null>(swrKey);
+      globalMutate(
+        `/api/user/reviews/${actionParameters.bookId}/${editionId}`,
+        () => {
+          return null;
+        },
+        { revalidate: false }
+      );
     }
-  }, [state.status, state, isPending, swrKey, bookSlug, globalMutate, page]);
+  }, [
+    state.status,
+    state,
+    isPending,
+    bookSlug,
+    globalMutate,
+    page,
+    editionId,
+    actionParameters.bookId,
+  ]);
 
   return [isPending, handleDelete, deleteReviewId, setDeleteReviewId];
 }

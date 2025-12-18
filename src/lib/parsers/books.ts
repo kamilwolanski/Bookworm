@@ -21,7 +21,7 @@ export function parseFormEditionBookRateData(formData: FormData):
     } {
   const result = addEditionReviewSchema.safeParse({
     editionId: formData.get('editionId'),
-    rating: Number(formData.get('rating')),
+    rating: formData.get('rating') ? Number(formData.get('rating')) : undefined,
     body: formData.get('body') ?? undefined,
   });
 

@@ -1,9 +1,11 @@
 import { ReadingStatus } from '@prisma/client';
+import { UserBookReview } from '../reviews';
 
 export type UserEditionData = {
+  editionId: string;
   isOnShelf: boolean;
   readingStatus: ReadingStatus | null;
-  userRating: number | null;
+  userReview: UserBookReview | null;
 };
 
 export type RemoveBookFromShelfPayload = { bookId: string; editionId: string };

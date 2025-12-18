@@ -1,18 +1,15 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import { useActionForm } from '@/app/hooks/useActionForm';
 import ReviewEditionComponent from '@/components/book/ratebook/ReviewEditionComponent';
 import { FormProvider } from 'react-hook-form';
-import {
-  AddEditionReviewInput,
-  addEditionReviewSchema,
-} from '@/lib/validations/addBookToShelfValidation';
+import { addEditionReviewSchema } from '@/lib/validations/addBookToShelfValidation';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useSWRConfig } from 'swr';
 import { rateBookAction } from '@/app/(main)/books/actions/reviewActions';
 import { getReviewsKey } from '@/app/hooks/books/reviews/useReviews';
-import { useAsyncActionForm } from '@/app/hooks/useActionFormSimple';
+import { useAsyncActionForm } from '@/app/hooks/useAsyncActionForm';
+import { UserBookReview } from '@/lib/user';
 
 const RateBookForm = ({
   bookId,
@@ -36,23 +33,6 @@ const RateBookForm = ({
   const searchParams = useSearchParams();
   const page = searchParams.get('page');
 
-  const boundAction = rateBookAction.bind(null, bookId, pathname);
-  // const { form, isPending, handleSubmit } =
-  //   useActionForm<AddEditionReviewInput>({
-  //     action: boundAction,
-  //     schema: addEditionReviewSchema,
-  //     defaultValues: {
-  //       editionId: editionId,
-  //       rating: userReview?.rating ?? undefined,
-  //       body: userReview?.body ?? undefined,
-  //     },
-  //     onSuccess: () => {
-  //       afterSuccess();
-  //       globalMutate(getReviewsKey(bookSlug, page));
-  //       globalMutate(`/api/user/editions/${editionId}`);
-  //     },
-  //   });
-
   const { form, submit, isPending } = useAsyncActionForm({
     action: (formData) => rateBookAction(bookId, pathname, undefined, formData),
     schema: addEditionReviewSchema,
@@ -72,7 +52,17 @@ const RateBookForm = ({
     if (result.status === 'success') {
       afterSuccess();
       globalMutate(getReviewsKey(bookSlug, page));
-      globalMutate(`/api/user/editions/${editionId}`);
+      globalMutate(
+        `/api/user/reviews/${bookId}/${editionId}`,
+        (current: UserBookReview | undefined) => {
+          if (!current) return current;
+          return {
+            ...current,
+            rating: data.rating ?? null,
+            body: data.body ?? null,
+          };
+        }
+      );
     }
   };
 

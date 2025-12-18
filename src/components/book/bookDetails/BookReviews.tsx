@@ -39,9 +39,12 @@ const BookReviews = ({
     userVotesMap,
     swrVotesKey,
     swrUserVotesKey,
+    userEditionReview,
     isLoading,
   } = useBookReviews({
     bookSlug: bookSlug,
+    bookId: bookId,
+    editionId: editionId,
     sessionUserId: userId,
     page: page,
   });
@@ -70,9 +73,7 @@ const BookReviews = ({
             bookSlug={bookSlug}
             editionId={editionId}
             dialogTitle={`Napisz opinie o : ${editionTitle}`}
-            userReview={userReviews?.find(
-              (review) => review.editionId === editionId
-            )}
+            userReview={userEditionReview}
           >
             <Button variant="outline" className="bg-sidebar cursor-pointer">
               {userReviews?.findIndex((r) => r.editionId === editionId) !== -1

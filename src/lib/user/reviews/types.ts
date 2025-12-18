@@ -9,6 +9,7 @@ export type UserReviewData = {
 };
 
 export type UserBookReview = {
+  id: string;
   editionId: string;
   rating: number | null;
   body: string | null;
