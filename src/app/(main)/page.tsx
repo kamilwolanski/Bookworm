@@ -8,6 +8,8 @@ import {
 import { BookSection } from '@/components/homepage/BookSection';
 import { BrowseBooksSection } from '@/components/homepage/BrowseBooksSection';
 
+export const revalidate = 3600; // 1 hour
+
 export default async function MainPage() {
   const mostPopularresponse = await getTopBooksWithTopEdition();
   const topRatedResponse = await getBestRatedBooks();
