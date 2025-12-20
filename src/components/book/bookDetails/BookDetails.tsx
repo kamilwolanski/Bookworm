@@ -42,6 +42,7 @@ import { UserEditionData } from '@/lib/user';
 import { Skeleton } from '@/components/ui/skeleton';
 import StarRatingPlaceholder from '../starRating/StarRatingPlaceholder';
 import { useUserReview } from '@/app/hooks/user/reviews/useUserReview';
+import { BookRatingResponse } from '@/lib/books/rating';
 
 const MediaFormatLabels: Record<MediaFormat, string> = {
   [MediaFormat.HARDCOVER]: 'Twarda oprawa',
@@ -96,6 +97,10 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
     loading: userReviewLoading,
     userReviewMutate,
   } = useUserReview(book.id, edition.id);
+
+  const { data: bookRating, isLoading: bookRatingLoading } =
+    useSWR<BookRatingResponse>(`/api/books/${book.slug}/rating`);
+  console.log('Book rating data:', bookRating);
   const onShelf = userData?.isOnShelf;
   const readingStatus = userData?.readingStatus;
   const userRating = userEditionReview?.rating;
@@ -303,13 +308,20 @@ const BookDetails = ({ bookData }: { bookData: BookDetailsDto }) => {
               )}
             </div>
             <div className="flex items-center gap-2 mt-4">
-              <Suspense>
-                <StarRating rating={book.averageRating ?? 0} />
-              </Suspense>
-              <span className="font-medium">{book.averageRating}</span>
-              <span className="text-muted-foreground">
-                ({book.ratingCount ?? 0} ocen)
-              </span>
+              {bookRatingLoading && <StarRatingPlaceholder />}
+              {!bookRatingLoading && bookRating && (
+                <>
+                  <Suspense>
+                    <StarRating rating={bookRating.averageRating ?? 0} />
+                  </Suspense>
+                  <span className="font-medium">
+                    {bookRating.averageRating}
+                  </span>
+                  <span className="text-muted-foreground">
+                    ({bookRating.ratingCount ?? 0} ocen)
+                  </span>
+                </>
+              )}
             </div>
             {(sessionIsLoading || userStateIsLoading) && (
               <div className="mt-3">

@@ -62,6 +62,7 @@ export function StarRating({
           userReviewMutate();
           if (bookSlug) {
             globalMutate(getReviewsKey(bookSlug, page));
+            globalMutate(`/api/books/${bookSlug}/rating`);
           }
         }
       } catch {

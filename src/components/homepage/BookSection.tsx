@@ -73,11 +73,15 @@ export function BookSection({
             const userState = data?.find(
               (el) => el.id === item.representativeEdition.id
             )?.userState;
+            const rating = data?.find(
+              (el) => el.id === item.representativeEdition.id
+            )?.rating;
             return (
               <BookCard
                 bookItem={item}
                 key={item.representativeEdition.id}
                 userState={userState}
+                rating={rating}
                 userStateIsLoading={isLoading}
               />
             );

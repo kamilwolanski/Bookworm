@@ -9,6 +9,7 @@ import { Suspense, useMemo } from 'react';
 import { BookCardDTO } from '@/lib/books';
 import { EditionUserResponseItem } from '@/lib/user';
 import { BookCard } from '@/components/book/BookCard';
+import { usePathname } from 'next/navigation';
 
 type BookListProps = {
   bookItems: BookCardDTO[];
@@ -21,6 +22,8 @@ type BookListProps = {
 export function BookList(props: BookListProps) {
   const { bookItems, page, pageSize, totalCount, gridColsClassNames } = props;
   const { status } = useSession();
+  const pathname = usePathname();
+
   const editionIds = useMemo(
     () =>
       Array.from(
@@ -53,12 +56,17 @@ export function BookList(props: BookListProps) {
               const userState = data?.find(
                 (el) => el.id === item.representativeEdition.id
               )?.userState;
+              const rating = data?.find(
+                (el) => el.id === item.representativeEdition.id
+              )?.rating;
               return (
                 <BookCard
                   key={item.representativeEdition.id}
                   bookItem={item}
                   userState={userState}
+                  rating={rating}
                   userStateIsLoading={isLoading}
+                  pathname={pathname}
                 />
               );
             })}

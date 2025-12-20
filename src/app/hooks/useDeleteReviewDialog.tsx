@@ -60,6 +60,7 @@ export function useDeleteReviewDialog(
     if (!isPending && state && state.status === 'success') {
       setDeleteReviewId(null);
       globalMutate(getReviewsKey(bookSlug, page));
+      globalMutate(`/api/books/${bookSlug}/rating`);
       globalMutate(
         `/api/user/reviews/${actionParameters.bookId}/${editionId}`,
         () => {

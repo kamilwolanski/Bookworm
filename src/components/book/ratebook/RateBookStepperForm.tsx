@@ -22,6 +22,7 @@ import {
   UserBookReview,
   UserEditionDto,
 } from '@/lib/user';
+import { b } from 'vitest/dist/chunks/suite.d.FvehnV49.js';
 
 const { useStepper, steps, utils } = defineStepper(
   { id: 'edition', label: 'Wydanie', schema: chooseEditionSchema },
@@ -34,6 +35,7 @@ const { useStepper, steps, utils } = defineStepper(
 
 const RateBookStepperForm = ({
   bookId,
+  bookSlug,
   editions,
   userEditions = [],
   showSteps,
@@ -50,10 +52,7 @@ const RateBookStepperForm = ({
 
   const { data: userReviews, mutate } = useSWR<UserBookReview[]>(
     `/api/user/reviews/${bookId}`,
-    fetcher,
-    {
-      revalidateIfStale: false,
-    }
+    fetcher
   );
   const { mutate: globalMutate } = useSWRConfig();
 
@@ -72,6 +71,7 @@ const RateBookStepperForm = ({
         const rating = form.getValues('rating');
 
         mutate();
+        globalMutate(`/api/books/${bookSlug}/rating`);
 
         globalMutate(
           (key: KeyedMutator<EditionUserResponseItem[]>) =>

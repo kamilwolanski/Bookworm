@@ -28,11 +28,14 @@ import { EditionUserState } from '@/lib/user';
 export function BookCard({
   bookItem,
   userState,
+  rating,
   userStateIsLoading,
 }: {
   bookItem: BookCardDTO;
   userState: EditionUserState | undefined;
   userStateIsLoading: boolean;
+  rating?: { averageRating: number | null; ratingCount: number | null };
+  pathname?: string;
 }) {
   const { book, representativeEdition } = bookItem;
   const { status } = useSession();
@@ -227,20 +230,26 @@ export function BookCard({
               </div>
 
               <div className="flex gap-2 pt-1 border-gray-300/30 border-t">
-                <div className="flex gap-1 items-center">
-                  <div className="relative w-4 h-4 sm:w-5 sm:h-5">
-                    <Image
-                      src={multipleUsersIcon}
-                      alt="icon"
-                      fill
-                      className="object-contain"
-                    />
+                {userStateIsLoading || sessionIsLoading ? (
+                  <div className="flex gap-1 items-center">
+                    <div className="h-5 w-16 bg-gray-300 opacity-30 rounded animate-pulse" />
                   </div>
-                  <span className="flex items-center gap-1 text-xs sm:text-sm">
-                    {bookItem.ratings.bookAverage ?? 0}/5{' '}
-                    <Star className="w-3 h-3 fill-current text-yellow-400" />
-                  </span>
-                </div>
+                ) : (
+                  <div className="flex gap-1 items-center">
+                    <div className="relative w-4 h-4 sm:w-5 sm:h-5">
+                      <Image
+                        src={multipleUsersIcon}
+                        alt="icon"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <span className="flex items-center gap-1 text-xs sm:text-sm">
+                      {rating?.averageRating ?? 0}/5{' '}
+                      <Star className="w-3 h-3 fill-current text-yellow-400" />
+                    </span>
+                  </div>
+                )}
 
                 {userStateIsLoading || sessionIsLoading ? (
                   <div className="flex gap-1 items-center">

@@ -28,11 +28,31 @@ export async function getUserEditionData(
     },
   });
 
+  const bookRating = await prisma.book.findFirst({
+    where: {
+      editions: {
+        some: {
+          id: editionId,
+        },
+      },
+    },
+    select: {
+      averageRating: true,
+      ratingCount: true,
+    },
+  });
+
   return {
     editionId: editionId,
     isOnShelf: Boolean(userEdition),
     readingStatus: userEdition?.readingStatus ?? null,
     userReview: userEditionReview,
+    rating: bookRating
+      ? {
+          averageRating: bookRating.averageRating,
+          ratingCount: bookRating.ratingCount,
+        }
+      : undefined,
   };
 }
 
@@ -50,7 +70,11 @@ export async function getTheUserInformationForEditions(
   const foundEditionIds = editions.map((e) => e.id);
   const foundBookIds = Array.from(new Set(editions.map((e) => e.bookId)));
 
-  const [userReviews, userEditions] = await Promise.all([
+  const [averageRatings, userReviews, userEditions] = await Promise.all([
+    prisma.book.findMany({
+      where: { id: { in: foundBookIds } },
+      select: { id: true, averageRating: true, ratingCount: true },
+    }),
     prisma.review.findMany({
       where: {
         editionId: { in: foundEditionIds },
@@ -71,7 +95,7 @@ export async function getTheUserInformationForEditions(
   ]);
 
   const userReviewsMap = new Map(userReviews.map((r) => [r.editionId, r]));
-
+  const averageRatingsMap = new Map(averageRatings.map((ar) => [ar.id, ar]));
   const userEditionsMap = new Map<string, typeof userEditions>();
   for (const ub of userEditions) {
     const arr = userEditionsMap.get(ub.bookId);
@@ -82,6 +106,7 @@ export async function getTheUserInformationForEditions(
   const items: EditionUserResponseItem[] = editions.map((edition) => ({
     id: edition.id,
     bookId: edition.bookId,
+    rating: averageRatingsMap.get(edition.bookId),
     userState: {
       userRating: userReviewsMap.get(edition.id)?.rating,
       userEditions: userEditionsMap.get(edition.bookId) ?? [],

@@ -52,6 +52,7 @@ const RateBookForm = ({
     if (result.status === 'success') {
       afterSuccess();
       globalMutate(getReviewsKey(bookSlug, page));
+      globalMutate(`/api/books/${bookSlug}/rating`);
       globalMutate(
         `/api/user/reviews/${bookId}/${editionId}`,
         (current: UserBookReview | undefined) => {

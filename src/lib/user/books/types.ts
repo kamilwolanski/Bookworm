@@ -6,6 +6,12 @@ export type UserEditionData = {
   isOnShelf: boolean;
   readingStatus: ReadingStatus | null;
   userReview: UserBookReview | null;
+  rating:
+    | {
+        averageRating: number | null;
+        ratingCount: number | null;
+      }
+    | undefined;
 };
 
 export type RemoveBookFromShelfPayload = { bookId: string; editionId: string };
@@ -22,5 +28,9 @@ export type EditionUserState = {
 export type EditionUserResponseItem = {
   id: string;
   bookId: string;
+  rating?: {
+    averageRating: number | null;
+    ratingCount: number | null;
+  };
   userState: EditionUserState;
 };

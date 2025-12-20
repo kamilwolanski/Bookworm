@@ -97,7 +97,7 @@ export type EditionDtoDeprecated = {
     publisher: Publisher;
     publisherId: string;
   }[];
-  reviews: Review[];
+  // reviews: Review[];
 };
 
 export type BookCardDTODeprecated = {
@@ -339,19 +339,8 @@ export async function getBooksAll({
                 publisher: true,
               },
             },
-            reviews: userId
-              ? {
-                  where: { userId },
-                }
-              : false,
           },
         },
-        userEditions: userId
-          ? {
-              where: { userId },
-              select: { editionId: true, readingStatus: true, note: true },
-            }
-          : false,
       },
     }),
     prisma.book.count({ where }),
@@ -383,28 +372,6 @@ export async function getBooksAll({
   const items: BookCardDTO[] = books.map((b) => {
     // representative edition
     const best = pickBestEdition(b.editions);
-    const userRating = userId ? (best.reviews?.[0]?.rating ?? null) : null;
-
-    // user state
-    const userEditions = b.userEditions ?? [];
-    const hasAnyEdition = userEditions.length > 0;
-    const byEdition = userEditions.map((ub) => ({
-      editionId: ub.editionId as string,
-      readingStatus: ub.readingStatus as ReadingStatus,
-    }));
-    const primaryStatus =
-      byEdition.length > 0
-        ? byEdition.reduce(
-            (acc, cur) =>
-              statusPriority(cur.readingStatus) > statusPriority(acc)
-                ? cur.readingStatus
-                : acc,
-            byEdition[0].readingStatus
-          )
-        : null;
-
-    const ownedEditionIds = byEdition.map((x) => x.editionId);
-    const notePreview = userEditions.find((x) => x.note)?.note ?? null;
 
     return {
       book: {
@@ -434,24 +401,6 @@ export async function getBooksAll({
       ratings: {
         bookAverage: b.averageRating ?? null,
         bookRatingCount: b.ratingCount ?? null,
-        representativeEditionRating: userRating,
-        userReviews: userId
-          ? b.editions.map((e) => e.reviews).flat()
-          : undefined,
-      },
-      userState: userId
-        ? {
-            hasAnyEdition,
-            ownedEditionCount: ownedEditionIds.length,
-            ownedEditionIds,
-            primaryStatus,
-            byEdition,
-            notePreview,
-          }
-        : undefined,
-      badges: {
-        onShelf: hasAnyEdition,
-        hasOtherEdition: hasAnyEdition && !ownedEditionIds.includes(best.id),
       },
     };
   });

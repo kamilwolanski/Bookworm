@@ -51,13 +51,9 @@ const AddBookForm = ({
   afterSuccess: () => void;
 }) => {
   const { mutate: globalMutate } = useSWRConfig();
-  const { data: userReviews } = useSWR<UserBookReview[]>(
-    `/api/user/reviews/${bookId}`,
-    fetcher,
-    {
-      revalidateIfStale: false,
-    }
-  );
+  const { data: userReviews, mutate: mutateUserReviews } = useSWR<
+    UserBookReview[]
+  >(`/api/user/reviews/${bookId}`, fetcher);
 
   const boundAction = addBookToShelfAction.bind(null, bookId);
   const stepper = useStepper();
@@ -81,6 +77,8 @@ const AddBookForm = ({
         },
         { revalidate: true }
       );
+      mutateUserReviews();
+      globalMutate(`/api/books/${bookSlug}/rating`);
       afterSuccess();
     },
   });
