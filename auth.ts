@@ -1,14 +1,14 @@
-import NextAuth from 'next-auth';
-import { PrismaAdapter } from '@auth/prisma-adapter';
+import NextAuth from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 
-import authConfig from './auth.config';
-import { sendWelcomeEmail } from '@/lib/email';
-import prisma from '@/lib/prisma';
-import { Role } from '@prisma/client';
+import authConfig from "./auth.config";
+import { sendWelcomeEmail } from "@/lib/email";
+import prisma from "@/lib/prisma";
+import { Role } from "@prisma/client";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
-  session: { strategy: 'jwt' },
+  session: { strategy: "jwt" },
   adapter: PrismaAdapter(prisma),
 
   callbacks: {
@@ -30,7 +30,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
   events: {
     async createUser({ user }) {
-      if (user.email) await sendWelcomeEmail(user.email, user.name ?? '');
+      if (user.email) await sendWelcomeEmail(user.email, user.name ?? "");
     },
   },
 });

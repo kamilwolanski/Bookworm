@@ -1,0 +1,144 @@
+'use server';
+
+import {
+  notFoundResponse,
+  serverErrorResponse,
+  unauthorizedResponse,
+} from '@/lib/responses';
+import { Action, ActionResult } from '@/types/actions';
+import { Prisma, Role } from '@prisma/client';
+import { getUserSession } from '@/lib/session';
+import { v2 as cloudinary } from 'cloudinary';
+import slugify from 'slugify';
+import { parseFormBookData } from '@/lib/parsers/books';
+import { createBook, CreateBookInput, deleteBook, updateBook, UpdateBookData } from '@/lib/adminBooks';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
+
+export const createBookAction: Action<[unknown, FormData]> = async (
+  currentState,
+  formData
+) => {
+  const session = await getUserSession();
+
+  if (session?.user.role !== Role.ADMIN) {
+    return unauthorizedResponse();
+  }
+
+  const parsed = parseFormBookData(formData);
+  if (!parsed.success) {
+    return parsed.errorResponse;
+  }
+
+  const { title, authors, genres, firstPublicationDate } = parsed.data;
+
+  const slug = slugify(title, { lower: true, remove: /[*+~.()'"!:@,]/g });
+
+  const data: CreateBookInput = {
+    title,
+    slug,
+    authorIds: authors,
+    firstPublicationDate: firstPublicationDate ?? null,
+    genreIds: genres,
+  };
+
+  try {
+    await createBook(data);
+  } catch (error) {
+    console.error('Create book error:', error);
+    return serverErrorResponse();
+  }
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    message: 'Książka została dodana',
+  };
+};
+
+export const updateBookAction = async (
+  bookId: string,
+  _currentState: unknown,
+  formData: FormData
+): Promise<ActionResult> => {
+  const session = await getUserSession();
+
+  if (session?.user.role !== Role.ADMIN) {
+    return unauthorizedResponse();
+  }
+
+  const parsed = parseFormBookData(formData);
+  if (!parsed.success) {
+    return parsed.errorResponse;
+  }
+
+  const { title, authors, genres, firstPublicationDate } = parsed.data;
+
+  const slug = slugify(title, { lower: true, remove: /[*+~.()'"!:@,]/g });
+
+  const data: UpdateBookData = {
+    id: bookId,
+    title,
+    slug,
+    authorIds: authors,
+    firstPublicationDate: firstPublicationDate ?? null,
+    genreIds: genres,
+  };
+
+  try {
+    await updateBook(data);
+  } catch (error) {
+    console.error('Update book error:', error);
+    return serverErrorResponse();
+  }
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    message: 'Książka została zaktualizowana',
+  };
+};
+
+export const deleteBookAction: Action<[unknown, string]> = async (
+  _,
+  bookId
+) => {
+  const session = await getUserSession();
+
+  if (session?.user.role !== Role.ADMIN) {
+    return unauthorizedResponse();
+  }
+
+  try {
+    await deleteBook(bookId);
+  } catch (e) {
+    console.error('Delete error:', e);
+
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError &&
+      e.code === 'P2025'
+    ) {
+      return notFoundResponse(`Książka o id: ${bookId} już nie istnieje`);
+    }
+
+    return {
+      isError: true,
+      status: 'server_error',
+      httpStatus: 500,
+      message: 'Wystąpił błąd serwera',
+    };
+  }
+
+  return {
+    isError: false,
+    status: 'success',
+    httpStatus: 200,
+    message: 'Książka została usunięta',
+  };
+};

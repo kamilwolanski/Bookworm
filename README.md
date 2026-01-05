@@ -1,100 +1,36 @@
-# 📚 BookWorm  
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-> Pełnoprawna aplikacja do katalogowania książek z panelem administracyjnym i własną biblioteką czytelnika.  
-> 🔗 Live: [https://bookworm.today](https://bookworm.today)
+## Getting Started
 
----
+First, run the development server:
 
-## ✨ Funkcje
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-- 🧭 **Panel administratora** – dodawanie książek, wydań, autorów i wydawców  
-- 📸 **Okładki i zdjęcia autorów** – upload na **Cloudinary**  
-- 🧾 **Profile książek i wydań** – osobne strony z opisem, formatem, językiem, ISBN, itd.  
-- 🔍 **Wyszukiwanie i filtrowanie** – tytuł, ocena, status, gatunek  
-- ⭐ **Recenzje i oceny** – system ocen i komentarzy użytkowników  
-- 📚 **Moja półka** – statusy *czytam / przeczytane / chcę przeczytać / porzucone*  
-- 🌗 **Dark mode** + pełne **RWD**  
-- 🔐 **Logowanie Google (NextAuth)** + systemowe maile powitalne (Resend)  
-- ⚡ **Optimistic UI** przy interakcjach użytkownika  
-- 🧩 **Cloudinary + Prisma + Neon + Resend + Vercel**  
-- 🧠 **Bezpieczeństwo:** podpisane uploady, walidacja Zod, role admina  
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
----
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## 🛠️ Stack technologiczny
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-| Warstwa | Technologie |
-|----------|-------------|
-| 🌐 **Frontend** | Next.js 15 (App Router), React 19, TailwindCSS v4, shadcn/ui, Radix UI |
-| 💾 **Baza danych** | Postgres (Neon) + Prisma ORM |
-| 🔐 **Autoryzacja** | Next-Auth v5 (Google OAuth) + Prisma Adapter |
-| ☁️ **Media Storage** | Cloudinary (signed uploads + limit rozmiaru pliku) |
-| ✉️ **E-maile** | Resend + React Email |
-| 🧮 **Formularze** | React Hook Form + Zod |
-| 🎨 **UI** | Tailwind + shadcn + lucide-react |
-| 🚀 **Hosting** | Vercel (produkcyjny deployment) |
+## Learn More
 
----
+To learn more about Next.js, take a look at the following resources:
 
-## 🚧 Architektura
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-- **Next.js App Router** + **Server Actions** (mutacje danych)
-- **Optimistic updates** po stronie klienta  
-- **Dynamiczne strony** (aktualnie) – planowane przejście na **ISR** dla stron autora 👨‍💻  
-- **Cloudinary:** przechowywanie plików, w bazie tylko `publicId` + `secureUrl`
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
----
+## Deploy on Vercel
 
-## 🧱 Roadmap (co dalej?)
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-BookWorm to projekt aktywnie rozwijany — poniżej kilka planowanych kroków 👇
-
-- [ ] 🌍 **Strony autora z ISR** – lepsze SEO i szybsze ładowanie dzięki incremental static regeneration  
-- [ ] 📝 **Markdown (MDX)** dla opisów książek i bio autorów  
-- [ ] 🧪 **Testy jednostkowe i E2E** (Vitest + Playwright)  
-- [ ] 📊 **Lighthouse CI + testy wydajności / coverage**  
-- [ ] 🌐 **Tłumaczenie PL/EN** – pełne i18n  
-
----
-
-## 📸 Screeny
-
-**Ekran główny**
-![Home](public/docs/mainpage.png)
-
-**Ekran wyszukiwania**
-![Books](public/docs/booksearch.png)
-
-**Szczegóły książki**
-![Book details](public/docs/bookdetails.png)
-
-**Panel admina**
-![Admin panel](public/docs/admin.png)
-
-**Tryb ciemny**
-![Dark mode](public/docs/booksearch-darkmode.png)
-
-**Wersja mobile**
-![Dark mode](public/docs/booksearchmobile.png)
-
-Wszystkie zrzuty ekranu znajdziesz w katalogu `/docs/screenshots`.
-
-> 📍 Zobacz wersję live, jeśli chcesz zobaczyć więcej:  
-> 🔗 **[https://bookworm.today](https://bookworm.today)**
-
----
-
-
-## 🤝 Autor
-
-👨‍💻 **Kamil Wolański**  
-Frontend Developer – Next.js / React / TypeScript 
-📫 kwolanski3@gmail.com
-
----
-
-## 🪪 Licencja
-
-**MIT**  
-© 2025 
-
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
