@@ -2,15 +2,16 @@ import {
   Book,
   GenreTranslation,
   MediaFormat,
+  Prisma,
   Publisher,
   ReadingStatus,
   Review,
   UserBook,
-} from '@prisma/client';
-import prisma from '@/lib/prisma';
-import { normalizeForSearch } from '@/lib/utils';
-import { BookCardDTO, GenreDTO } from '@/lib/books';
-import { UserEditionDto } from './user/books/types';
+} from "@prisma/client";
+import prisma from "@/lib/prisma";
+import { normalizeForSearch } from "@/lib/utils";
+import { BookCardDTO, GenreDTO } from "@/lib/books";
+import { UserEditionDto } from "./user/books/types";
 
 export type UserBookDTO = Book &
   UserBook & {
@@ -147,13 +148,13 @@ export type GetBooksAllResponse = {
 export function statusPriority(s: ReadingStatus): number {
   // READING > WANT_TO_READ > READ > ABANDONED
   switch (s) {
-    case 'READING':
+    case "READING":
       return 4;
-    case 'WANT_TO_READ':
+    case "WANT_TO_READ":
       return 3;
-    case 'READ':
+    case "READ":
       return 2;
-    case 'ABANDONED':
+    case "ABANDONED":
       return 1;
     default:
       return 0;
@@ -185,10 +186,10 @@ export async function getBooksAll({
 }): Promise<GetBooksAllResponse> {
   const skip = (currentPage - 1) * booksPerPage;
 
-  const includeUnrated = userRatings.includes('none');
-  const numericRatings = userRatings.filter((r) => r !== 'none').map(Number);
+  const includeUnrated = userRatings.includes("none");
+  const numericRatings = userRatings.filter((r) => r !== "none").map(Number);
   const ratingFilters: RatingFilter[] = [];
-  const normalized = search?.trim() ? normalizeForSearch(search) : '';
+  const normalized = search?.trim() ? normalizeForSearch(search) : "";
 
   if (numericRatings.length > 0 && userId) {
     ratingFilters.push({
@@ -217,7 +218,7 @@ export async function getBooksAll({
           {
             editions: {
               some: {
-                language: 'pl',
+                language: "pl",
                 OR: [
                   { title_search: { contains: normalized } },
                   { subtitle_search: { contains: normalized } },
@@ -246,12 +247,22 @@ export async function getBooksAll({
             genres: {
               some: {
                 genre: {
-                  translations: {
-                    some: {
-                      language: 'pl',
-                      name_search: { contains: normalized },
+                  OR: [
+                    {
+                      slug: {
+                        contains: normalized,
+                        mode: Prisma.QueryMode.insensitive,
+                      },
                     },
-                  },
+                    {
+                      translations: {
+                        some: {
+                          language: "pl",
+                          name_search: { contains: normalized },
+                        },
+                      },
+                    },
+                  ],
                 },
               },
             },
@@ -293,7 +304,7 @@ export async function getBooksAll({
       skip,
       take: booksPerPage,
       where,
-      orderBy: { addedAt: 'desc' },
+      orderBy: { addedAt: "desc" },
       select: {
         id: true,
         title: true,
@@ -313,7 +324,7 @@ export async function getBooksAll({
             genre: {
               select: {
                 translations: {
-                  where: { language: 'pl' },
+                  where: { language: "pl" },
                   select: { name: true },
                 },
               },
@@ -322,7 +333,7 @@ export async function getBooksAll({
         },
         editions: {
           orderBy: {
-            publicationDate: 'desc',
+            publicationDate: "desc",
           },
           select: {
             id: true,
@@ -353,12 +364,12 @@ export async function getBooksAll({
   // helper: wybór najlepszej edycji
   function pickBestEdition(editions: EditionDtoDeprecated[]) {
     return editions.reduce((best, e) => {
-      const lang = e.language === 'pl' ? 1 : 0;
+      const lang = e.language === "pl" ? 1 : 0;
       const hasCover = e.coverUrl ? 1 : 0;
       const pub = e.publicationDate ? e.publicationDate.getTime() : -Infinity;
       const score = lang * 1e12 + hasCover * 1e10 + pub;
 
-      const bestLang = best.language === 'pl' ? 1 : 0;
+      const bestLang = best.language === "pl" ? 1 : 0;
       const bestHasCover = best.coverUrl ? 1 : 0;
       const bestPub = best.publicationDate
         ? best.publicationDate.getTime()
@@ -377,7 +388,7 @@ export async function getBooksAll({
       book: {
         id: b.id,
         title: b.title,
-        slug: b.slug ?? '',
+        slug: b.slug ?? "",
         authors: b.authors
           .sort((a, c) => (a.order ?? 0) - (c.order ?? 0))
           .map((a) => ({ id: a.person.id, name: a.person.name })),
@@ -413,9 +424,8 @@ export async function addBookToShelfWithReview(
   { bookId, editionId, readingStatus, rating, body }: AddBookToShelfPayload
 ): Promise<void> {
   if (rating !== undefined && (rating < 1 || rating > 5)) {
-    throw new Error('Rating must be between 1 and 5.');
+    throw new Error("Rating must be between 1 and 5.");
   }
-
 
   await prisma.$transaction(async (tx) => {
     const ub = await tx.userBook.create({

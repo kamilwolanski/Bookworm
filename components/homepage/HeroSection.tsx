@@ -1,17 +1,19 @@
-'use client';
+"use client";
 
-import { Search, Book, Users, Star } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-import Link from 'next/link';
+import { Search, Book, Users, Star } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function HeroSection() {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
+  const router = useRouter();
+
   return (
-    <section className="bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900 dark:to-blue-900 py-20 px-6">
+    <section className="bg-linear-to-br from-green-50 to-blue-50 dark:from-green-900 dark:to-blue-900 py-20 px-6">
       <div className="max-w-4xl mx-auto text-center">
-        {/* Hero Text */}
         <div className="mb-12">
           <h1 className="text-4xl md:text-6xl font-bold  mb-6">
             Odkryj świat książek z
@@ -23,55 +25,59 @@ export function HeroSection() {
           </p>
         </div>
 
-        {/* Search Section */}
         <div className="bg-card rounded-2xl shadow-lg p-8 mb-12">
           <h2 className="text-2xl font-semibold mb-6">Czego szukasz?</h2>
 
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!value) return;
+              router.push(`/books/?search=${encodeURIComponent(value)}`);
+            }}
+          >
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+              <div className="flex-1">
+                <div className="relative w-full">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
 
-                <Input
-                  placeholder="Wpisz tytuł książki, autora lub wydawnictwo..."
-                  value={value}
-                  onChange={(e) => setValue(e.target.value)}
-                  className="pl-10 pr-12 py-5 text-sm md:text-base"
-                />
+                  <Input
+                    placeholder="Wpisz tytuł książki, autora lub wydawnictwo..."
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    className="pl-10 pr-12 py-5 text-sm md:text-base"
+                  />
+                </div>
               </div>
-            </div>
-            {value ? (
-              <Link href={`/books/?search=${value}`}>
-                <Button className="px-8 py-4 text-lg cursor-pointer">
-                  Szukaj
-                </Button>
-              </Link>
-            ) : (
-              <Button className=" px-8 py-4 text-lg cursor-pointer" disabled>
+
+              <Button
+                type="submit"
+                className="px-8 py-4 text-lg"
+                disabled={!value}
+              >
                 Szukaj
               </Button>
-            )}
-          </div>
+            </div>
+          </form>
 
           <div className="flex flex-wrap justify-center items-center text-sm text-muted-foreground">
             Popularne wyszukiwania:
             <Link href="/books?genre=fantasy">
-              <Button className="ms-5 px-1" variant="link">
+              <Button className="ms-5 px-1 cursor-pointer" variant="link">
                 &quot;fantasy&quot;
               </Button>
             </Link>
             <Link href="/books?search=tolkien">
-              <Button className="px-1" variant="link">
+              <Button className="px-1 cursor-pointer" variant="link">
                 &quot;Tolkien&quot;
               </Button>
             </Link>
             <Link href="/books?genre=history">
-              <Button className="px-1" variant="link">
+              <Button className="px-1 cursor-pointer" variant="link">
                 &quot;historia&quot;
               </Button>
             </Link>
             <Link href="/books?search=chlopki">
-              <Button className="px-1" variant="link">
+              <Button className="px-1 cursor-pointer" variant="link">
                 &quot;chlopki&quot;
               </Button>
             </Link>

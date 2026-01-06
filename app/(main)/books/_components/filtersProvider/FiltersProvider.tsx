@@ -35,7 +35,8 @@ export function FiltersProvider({ children }: { children: React.ReactNode }) {
         | undefined,
       myShelf: searchParams.get("myshelf") === "true",
     });
-  }, [searchParams]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useUrlSync(state.filters);
 
