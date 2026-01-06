@@ -1,7 +1,7 @@
 # 📚 BookWorm  
 
 > Pełnoprawna aplikacja do katalogowania książek z panelem administracyjnym i prywatną biblioteką czytelnika.  
-> Projekt przebudowany na **Next.js 15** z wykorzystaniem **Partial Prerendering**, **Cache Components** oraz **SWR**.  
+> Projekt przebudowany na **Next.js 16** z wykorzystaniem **Partial Prerendering**, **Cache Components** oraz **SWR**.  
 > 🔗 Live: https://bookworm.today
 
 ---
@@ -57,7 +57,7 @@
 
 | Warstwa | Technologie |
 |------|------------|
-| 🌐 **Frontend** | Next.js 15 (App Router, Partial Prerendering), React 19 |
+| 🌐 **Frontend** | Next.js 16 (App Router, Partial Prerendering), React 19 |
 | 🎨 **UI** | TailwindCSS v4, shadcn/ui, Radix UI, lucide-react |
 | 💾 **Baza danych** | PostgreSQL (Neon) + Prisma ORM |
 | 🔐 **Autoryzacja** | NextAuth v5 (Google OAuth) + Prisma Adapter |
