@@ -21,8 +21,8 @@ export default function BookTabsClient({
   return (
     <Tabs value={value} onValueChange={setValue}>
       <TabsList>
-        <TabsTrigger value="description">Opis</TabsTrigger>
-        <TabsTrigger value="otherEditions">Inne wydania</TabsTrigger>
+        <TabsTrigger value="description" className="cursor-pointer">Opis</TabsTrigger>
+        <TabsTrigger value="otherEditions" className="cursor-pointer">Inne wydania</TabsTrigger>
       </TabsList>
 
       <TabsContent value="description">{description}</TabsContent>
