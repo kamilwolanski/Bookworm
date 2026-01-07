@@ -65,7 +65,7 @@ export default function RootLayout({
         >
           <SessionProvider>
             <SWRConfigProvider>
-              <div className="flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col overflow-hidden">
                 <TopBar />
                 <main className="flex-1">{children}</main>
               </div>
