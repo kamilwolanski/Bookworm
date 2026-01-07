@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { BookCardDTO } from "@/lib/books/listings";
@@ -6,21 +5,29 @@ import { Suspense } from "react";
 import { UserBookOverlay } from "./UserBookOverlay";
 import UserEditionRating from "@/app/(main)/_components/UserEditionRating";
 import AverageRating from "@/app/(main)/_components/averageRating/AverageRating";
+import BookCoverImage from "@/app/(main)/books/[slug]/[editionId]/_components/BookCover.client";
+
+const ASPECT_RATIO = 450 / 320;
+const height = Math.round(230 * ASPECT_RATIO);
 
 export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   const { book, representativeEdition } = bookItem;
 
   return (
     <Card className="relative cursor-pointer border-none h-full shadow-md hover:shadow-xl p-1 rounded-xl">
-      {/* cover, title, authors — BEZ zmian */}
-      <div className="relative aspect-3/4 w-full">
+      <div className="relative aspect-230/320 w-full">
         {bookItem.representativeEdition.coverUrl ? (
-          <Image
-            src={bookItem.representativeEdition.coverUrl}
-            alt={`Okładka książki ${bookItem.representativeEdition.title}`}
-            fill
-            className="object-cover rounded-lg"
-            sizes="(max-width: 768px) 100vw, 33vw"
+          <BookCoverImage
+            width={230}
+            height={height}
+            coverUrl={bookItem.representativeEdition.coverUrl}
+            sizes="
+    (max-width: 640px) 50vw,
+    (max-width: 768px) 50vw,
+    (max-width: 1024px) 33vw,
+    (max-width: 1280px) 25vw,
+    20vw
+  "
           />
         ) : (
           <div className="h-full w-full bg-gray-200 flex items-center justify-center rounded-lg">

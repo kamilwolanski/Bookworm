@@ -5,7 +5,7 @@ import { BookOpen, Calendar } from "lucide-react";
 import { COUNTRIES } from "@/app/(admin)/admin/data";
 import Emoji from "@/components/shared/Emoji";
 import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
+import AuthorAvatar from "./AuthorAvatar.client";
 
 export default async function AuthorDetails({ slug }: { slug: string }) {
   const authorData = await getAuthor(slug);
@@ -30,13 +30,7 @@ export default async function AuthorDetails({ slug }: { slug: string }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
           {authorData.imageUrl ? (
-            <Image
-              src={authorData.imageUrl}
-              alt={authorData.name}
-              width={320}
-              height={620}
-              className="rounded-md object-cover mx-auto"
-            />
+            <AuthorAvatar src={authorData.imageUrl} alt={authorData.name} />
           ) : (
             <div className="w-70 h-105 rounded-md flex items-center justify-center text-sm text-muted-foreground">
               Brak avatara
@@ -77,8 +71,8 @@ export default async function AuthorDetails({ slug }: { slug: string }) {
                   {authorData.authoredBooksCount === 1
                     ? "książka"
                     : authorData.authoredBooksCount < 5
-                    ? "książki"
-                    : "książek"}
+                      ? "książki"
+                      : "książek"}
                 </span>
               </div>
             </div>
