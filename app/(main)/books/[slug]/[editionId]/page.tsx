@@ -29,9 +29,7 @@ export default async function Page({ params, searchParams }: BookPageProps) {
         <div className="bg-sidebar shadow-lg rounded-xl p-4 sm:p-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1">
-              <div className="min-h-125">
                 <BookCover editionId={editionId} />
-              </div>
             </div>
             <div className="lg:col-span-2 space-y-6">
               <div className="relative gap-2 sm:gap-3">
