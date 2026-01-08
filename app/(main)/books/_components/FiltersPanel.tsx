@@ -13,7 +13,7 @@ export default function FiltersPanel({
   bookGenres: GenreDTO[];
   isLogIn: boolean;
 }) {
-  const { filters, setFilters } = useFilters();
+  const { uiFilters, setUiFilters } = useFilters();
 
   return (
     <>
@@ -22,29 +22,29 @@ export default function FiltersPanel({
           <div className="space-y-6">
             <GenreFilter
               bookGenres={bookGenres}
-              value={filters.genres}
-              onChange={(genres) => setFilters((f) => ({ ...f, genres }))}
+              value={uiFilters.genres}
+              onChange={(genres) => setUiFilters((f) => ({ ...f, genres }))}
             />
 
             <RatingFilter
-              value={filters.rating}
+              value={uiFilters.rating}
               onChange={(v) =>
-                setFilters((f) => ({ ...f, rating: v || undefined }))
+                setUiFilters((f) => ({ ...f, rating: v || undefined }))
               }
             />
             {isLogIn && (
               <>
                 <UserRatingFilter
-                  value={filters.userrating}
+                  value={uiFilters.userrating}
                   onChange={(userrating) =>
-                    setFilters((f) => ({ ...f, userrating }))
+                    setUiFilters((f) => ({ ...f, userrating }))
                   }
                 />
 
                 <StatusFilter
-                  value={filters.statuses}
+                  value={uiFilters.statuses}
                   onChange={(statuses) =>
-                    setFilters((f) => ({ ...f, statuses }))
+                    setUiFilters((f) => ({ ...f, statuses }))
                   }
                 />
               </>

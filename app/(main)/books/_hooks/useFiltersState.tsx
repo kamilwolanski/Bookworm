@@ -13,7 +13,13 @@ export type FiltersState = {
 };
 
 export function useFiltersState(initial: FiltersState) {
-  const [filters, setFilters] = useState<FiltersState>(initial);
+  const [uiFilters, setUiFilters] = useState<FiltersState>(initial);
+  const [queryFilters, setQueryFilters] = useState<FiltersState>(initial);
 
-  return { filters, setFilters };
+  return {
+    uiFilters,
+    setUiFilters,
+    queryFilters,
+    setQueryFilters,
+  };
 }

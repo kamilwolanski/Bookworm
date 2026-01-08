@@ -27,7 +27,7 @@ export default function SearchPanel({
   isLogIn: boolean;
   bookGenres: GenreDTO[];
 }) {
-  const { filters, setFilters } = useFilters();
+  const { uiFilters, setUiFilters } = useFilters();
 
   return (
     <div className="flex flex-col w-full">
@@ -36,21 +36,16 @@ export default function SearchPanel({
           <Sheet>
             <SearchBar
               placeholder="Szukaj książek"
-              value={filters.search ?? ""}
-              onChange={(search) =>
-                setFilters((f) => ({
-                  ...f,
-                  search: search || "",
-                }))
-              }
+              value={uiFilters.search ?? ""}
+              onChange={(search) => setUiFilters((f) => ({ ...f, search }))}
             />
 
             <div className="lg:hidden">
               <ActiveFilters
-                filters={filters}
-                onChange={(next) => setFilters(next)}
+                filters={uiFilters}
+                onChange={(next) => setUiFilters(next)}
                 onClearAll={() =>
-                  setFilters({
+                  setUiFilters({
                     search: undefined,
                     rating: undefined,
                     genres: [],
@@ -72,40 +67,35 @@ export default function SearchPanel({
                 <div className="mb-8">
                   <SearchBar
                     placeholder="Szukaj książek"
-                    value={filters.search ?? ""}
+                    value={uiFilters.search ?? ""}
                     onChange={(search) =>
-                      setFilters((f) => ({
-                        ...f,
-                        search: search || undefined,
-                      }))
+                      setUiFilters((f) => ({ ...f, search }))
                     }
                   />
                 </div>
                 <GenreFilter
                   bookGenres={bookGenres}
-                  value={filters.genres}
-                  onChange={(genres) => setFilters((f) => ({ ...f, genres }))}
+                  value={uiFilters.genres}
+                  onChange={(genres) => setUiFilters((f) => ({ ...f, genres }))}
                 />
 
                 <RatingFilter
-                  value={filters.rating}
-                  onChange={(v) =>
-                    setFilters((f) => ({ ...f, rating: v || undefined }))
-                  }
+                  value={uiFilters.rating}
+                  onChange={(rating) => setUiFilters((f) => ({ ...f, rating }))}
                 />
                 {isLogIn && (
                   <>
                     <UserRatingFilter
-                      value={filters.userrating}
+                      value={uiFilters.userrating}
                       onChange={(userrating) =>
-                        setFilters((f) => ({ ...f, userrating }))
+                        setUiFilters((f) => ({ ...f, userrating }))
                       }
                     />
 
                     <StatusFilter
-                      value={filters.statuses}
+                      value={uiFilters.statuses}
                       onChange={(statuses) =>
-                        setFilters((f) => ({ ...f, statuses }))
+                        setUiFilters((f) => ({ ...f, statuses }))
                       }
                     />
                   </>
@@ -125,8 +115,8 @@ export default function SearchPanel({
         <div className="hidden lg:block">
           {isLogIn && (
             <ShelfSwitch
-              value={filters.myShelf}
-              onChange={(myShelf) => setFilters((f) => ({ ...f, myShelf }))}
+              value={uiFilters.myShelf}
+              onChange={(myShelf) => setUiFilters((f) => ({ ...f, myShelf }))}
             />
           )}
         </div>
@@ -137,8 +127,8 @@ export default function SearchPanel({
             <b>Tylko książki z mojej półki</b>
           </span>
           <ShelfSwitch
-            value={filters.myShelf}
-            onChange={(myShelf) => setFilters((f) => ({ ...f, myShelf }))}
+            value={uiFilters.myShelf}
+            onChange={(myShelf) => setUiFilters((f) => ({ ...f, myShelf }))}
             showLabel={false}
           />
         </div>
