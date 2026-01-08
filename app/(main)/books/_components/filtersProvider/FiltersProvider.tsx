@@ -16,12 +16,14 @@ export function FiltersProvider({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
 
   const state = useFiltersState({
-    search: "",
-    rating: undefined,
-    genres: [],
-    userrating: [],
-    statuses: [],
-    myShelf: false,
+      search: searchParams.get("search") ?? "",
+      rating: searchParams.get("rating") ?? undefined,
+      genres: searchParams.get("genre")?.split(",") ?? [],
+      userrating: searchParams.get("userrating")?.split(",") ?? [],
+      statuses: searchParams.get("status")?.toUpperCase().split(",") as
+        | ReadingStatus[]
+        | undefined,
+      myShelf: searchParams.get("myshelf") === "true",
   });
 
   useEffect(() => {

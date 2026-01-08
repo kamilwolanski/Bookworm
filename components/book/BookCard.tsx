@@ -7,8 +7,6 @@ import UserEditionRating from "@/app/(main)/_components/UserEditionRating";
 import AverageRating from "@/app/(main)/_components/averageRating/AverageRating";
 import BookCoverImage from "@/app/(main)/books/[slug]/[editionId]/_components/BookCover.client";
 
-const ASPECT_RATIO = 450 / 320;
-const height = Math.round(230 * ASPECT_RATIO);
 
 export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   const { book, representativeEdition } = bookItem;
@@ -18,8 +16,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
       <div className="relative aspect-230/320 w-full">
         {bookItem.representativeEdition.coverUrl ? (
           <BookCoverImage
-            width={230}
-            height={height}
+            fill
             coverUrl={bookItem.representativeEdition.coverUrl}
             sizes="
     (max-width: 640px) 50vw,

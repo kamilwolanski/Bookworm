@@ -23,7 +23,7 @@ export default function GenreFilter({
   onChange,
 }: Props) {
   const genresList = bookGenres.map((genre) => ({
-    value: genre.id,
+    value: genre.slug,
     label: genre.name,
   }));
 
@@ -45,12 +45,14 @@ export default function GenreFilter({
 
           <AccordionContent>
             <div className="mb-2">
-              {value.map((id) => {
-                const option = bookGenres.find((g) => g.id === id);
+              {value.map((slug) => {
+                console.log('value', value)
+                const option = bookGenres.find((g) => g.slug === slug);
+                console.log('option', option)
                 if (!option) return null;
 
                 return (
-                  <Badge key={id} className="mb-3 mx-1 cursor-pointer" onClick={() => removeSelected(id)}>
+                  <Badge key={slug} className="mb-3 mx-1 cursor-pointer" onClick={() => removeSelected(slug)}>
                     {option.name}
 
                     <XCircle

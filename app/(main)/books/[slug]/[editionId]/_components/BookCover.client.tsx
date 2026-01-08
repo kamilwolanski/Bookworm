@@ -27,8 +27,6 @@ export default function BookCoverImage({
         loader={cloudinaryBookCoverLoader}
         src={getCloudinaryPublicId(coverUrl)}
         alt="Book cover"
-        width={width ?? 320}
-        height={height ?? 450}
         fill
         sizes={
           sizes ??
