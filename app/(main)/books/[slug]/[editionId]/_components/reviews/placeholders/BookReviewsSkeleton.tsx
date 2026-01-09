@@ -3,7 +3,7 @@ import BookReviewSkeleton from "./BookReviewSkeleton";
 
 const BookReviewsSkeleton = () => {
   return (
-    <div className="bg-sidebar shadow-lg rounded-xl p-4 sm:p-8">
+    <div className="bg-sidebar shadow-lg rounded-xl p-3 sm:p-8">
       <div className="flex items-center justify-between mb-6">
         <Skeleton className="h-5 w-32" />
         <Skeleton className="h-9 w-36 rounded-md" />

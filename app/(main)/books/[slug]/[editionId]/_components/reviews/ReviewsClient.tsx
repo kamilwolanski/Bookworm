@@ -79,7 +79,7 @@ export default function ReviewsClient({
   });
 
   return (
-    <div className="bg-sidebar shadow-lg rounded-xl p-4 sm:p-8">
+    <div className="bg-sidebar shadow-lg rounded-xl p-3 sm:p-8">
       <div className="flex items-center justify-between mb-6">
         <h3 className="font-semibold">Opinie ({paginationData.total})</h3>
         {isLogIn ? (
