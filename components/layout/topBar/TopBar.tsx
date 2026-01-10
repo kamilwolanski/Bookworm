@@ -57,7 +57,7 @@ export default function Topbar() {
         <ModeToggle />
       </div>
 
-      <div className="lg:hidden flex items-center gap-2 w-47.5">
+      <div className="lg:hidden flex items-center gap-2 w-47.5 justify-end">
         <ModeToggle />
         <Suspense fallback={<Skeleton className="rounded-full w-10 h-10" />}>
           <UserLoginInfo />
