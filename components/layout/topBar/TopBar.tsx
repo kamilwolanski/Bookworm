@@ -9,6 +9,7 @@ import { Suspense } from "react";
 import DropdownMenuClient from "./DropdownMenuClient";
 import DesktopNav from "./DesktopNav";
 import MobileSheet from "./MobileSheet";
+import { Skeleton } from "@/components/ui/skeleton";
 
 async function UserLoginInfo() {
   const session = await getUserSession();
@@ -33,7 +34,6 @@ async function MobileSheetSessionWrapper() {
 export default function Topbar() {
   return (
     <header className="flex items-center justify-between gap-4 px-4 py-3 lg:px-8 lg:py-4 border-b border-border bg-card backdrop-blur">
-      {/* Left: logo */}
       <Link href="/" className="flex items-center gap-3 shrink-0">
         <Image
           src={logo}
@@ -47,20 +47,20 @@ export default function Topbar() {
         </span>
       </Link>
 
-      {/* Desktop nav */}
       <div className="hidden lg:flex items-center gap-4">
         <DesktopNav />
 
-        <Suspense>
+        <Suspense
+          fallback={<Skeleton className="rounded-full w-10 h-10" />}
+        >
           <UserLoginInfo />
         </Suspense>
         <ModeToggle />
       </div>
 
-      {/* Mobile: ModeToggle + avatar/logout/login + hamburger */}
       <div className="lg:hidden flex items-center gap-2">
         <ModeToggle />
-        <Suspense>
+        <Suspense fallback={<Skeleton className="rounded-full w-10 h-10" />}>
           <UserLoginInfo />
         </Suspense>
         <Suspense>
