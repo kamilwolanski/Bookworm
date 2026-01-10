@@ -10,6 +10,7 @@ import DropdownMenuClient from "./DropdownMenuClient";
 import DesktopNav from "./DesktopNav";
 import MobileSheet from "./MobileSheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Menu } from "lucide-react";
 
 async function UserLoginInfo() {
   const session = await getUserSession();
@@ -50,9 +51,7 @@ export default function Topbar() {
       <div className="hidden lg:flex items-center gap-4">
         <DesktopNav />
 
-        <Suspense
-          fallback={<Skeleton className="rounded-full w-10 h-10" />}
-        >
+        <Suspense fallback={<Skeleton className="rounded-full w-10 h-10" />}>
           <UserLoginInfo />
         </Suspense>
         <ModeToggle />
@@ -63,7 +62,13 @@ export default function Topbar() {
         <Suspense fallback={<Skeleton className="rounded-full w-10 h-10" />}>
           <UserLoginInfo />
         </Suspense>
-        <Suspense>
+        <Suspense
+          fallback={
+            <Button variant="ghost" size="icon" disabled>
+              <Menu className=" w-6" />
+            </Button>
+          }
+        >
           <MobileSheetSessionWrapper />
         </Suspense>
       </div>
