@@ -10,7 +10,7 @@ import DropdownMenuClient from "./DropdownMenuClient";
 import DesktopNav from "./DesktopNav";
 import MobileSheet from "./MobileSheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Menu } from "lucide-react";
+import { LogIn, Menu } from "lucide-react";
 
 async function UserLoginInfo() {
   const session = await getUserSession();
@@ -20,7 +20,21 @@ async function UserLoginInfo() {
       {session ? (
         <DropdownMenuClient session={session} />
       ) : (
-        <LoginDialog dialogTriggerBtn={<Button>Zaloguj się</Button>} />
+        <>
+          <div className="lg:hidden">
+            <LoginDialog
+              dialogTriggerBtn={
+                <Button variant="ghost" size="icon" aria-label="Zaloguj się">
+                  <LogIn className="w-5 h-5" />
+                </Button>
+              }
+            />
+          </div>
+
+          <div className="hidden lg:block">
+            <LoginDialog dialogTriggerBtn={<Button>Zaloguj się</Button>} />
+          </div>
+        </>
       )}
     </>
   );
@@ -57,15 +71,19 @@ export default function Topbar() {
         <ModeToggle />
       </div>
 
-      <div className="lg:hidden flex items-center gap-2 w-47.5 justify-end">
+      <div className="lg:hidden flex items-center gap-2 justify-end">
         <ModeToggle />
-        <Suspense fallback={<Skeleton className="rounded-full w-10 h-10" />}>
-          <UserLoginInfo />
-        </Suspense>
+
+        <div className="w-10 flex justify-center">
+          <Suspense fallback={<Skeleton className="w-10 h-10 rounded-full" />}>
+            <UserLoginInfo />
+          </Suspense>
+        </div>
+
         <Suspense
           fallback={
             <Button variant="ghost" size="icon" disabled>
-              <Menu className=" w-6" />
+              <Menu className="w-6" />
             </Button>
           }
         >
