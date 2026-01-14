@@ -35,6 +35,7 @@ export default async function Books({ searchParams }: BooksProps) {
     grid-rows-[auto_1fr]
     sm:gap-x-16
     [grid-template-areas:'filters_header''filters_content']
+    h-full
   "
     >
       <Suspense
@@ -67,7 +68,7 @@ export default async function Books({ searchParams }: BooksProps) {
         </BooksFiltersClientShell>
       </Suspense>
 
-      <div className="[grid-area:content]">
+      <div className="[grid-area:content] flex flex-col justify-between">
         <Suspense>
           <BooksTableSuspense>
             <BooksTableServer searchParams={searchParams} />

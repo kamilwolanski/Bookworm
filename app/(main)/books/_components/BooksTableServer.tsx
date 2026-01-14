@@ -53,14 +53,15 @@ export default async function BooksTable(props: BooksTableProps) {
       ) : (
         <NoResults />
       )}
-
-      {totalCount > ITEMS_PER_PAGE && (
-        <PaginationWithLinks
-          page={currentPage}
-          pageSize={ITEMS_PER_PAGE}
-          totalCount={totalCount}
-        />
-      )}
+      <div className="pb-10 lg:pb-0">
+        {totalCount > ITEMS_PER_PAGE && (
+          <PaginationWithLinks
+            page={currentPage}
+            pageSize={ITEMS_PER_PAGE}
+            totalCount={totalCount}
+          />
+        )}
+      </div>
     </>
   );
 }
