@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from '@vercel/analytics/next';
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import SWRConfigProvider from "../services/SWRConfigProvider";
@@ -72,6 +73,7 @@ export default function RootLayout({
             </SWRConfigProvider>
           </SessionProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
