@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import {
   NavigationMenu,
@@ -10,14 +9,15 @@ import {
 import { usePathname } from "next/navigation";
 
 function DesktopNav() {
-  "use client";
   const pathname = usePathname();
+  console.log("pathname", pathname);
   const isActive = (path: string) => {
+    console.log('path', path)
     if (path === "/") return pathname === "/";
     return pathname.startsWith(path);
   };
 
-  const activeClassNames = "text-link! focus:text-link";
+  const activeClassNames = "!text-link focus:text-link";
 
   return (
     <NavigationMenu viewport={false}>
