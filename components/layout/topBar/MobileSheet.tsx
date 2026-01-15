@@ -16,6 +16,7 @@ import Image from "next/image";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
+import LoginDialog from "@/components/auth/LoginDialog";
 function MobileSheet({ session }: { session: Session | null }) {
   const pathname = usePathname();
 
@@ -93,9 +94,7 @@ function MobileSheet({ session }: { session: Session | null }) {
               </div>
             ) : (
               <SheetClose asChild>
-                <Link href="/login" className="w-full">
-                  <Button className="w-full">Zaloguj się</Button>
-                </Link>
+                <LoginDialog dialogTriggerBtn={<Button className="w-full">Zaloguj się</Button>} />
               </SheetClose>
             )}
           </div>

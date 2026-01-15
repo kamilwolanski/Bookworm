@@ -10,7 +10,7 @@ export default async function LayoutServerWrapper({
   const session = await getUserSession();
 
   if (session?.user.role !== Role.ADMIN) {
-    redirect("/login");
+    redirect("/");
   }
 
   return <SessionProvider session={session}>{children}</SessionProvider>;
