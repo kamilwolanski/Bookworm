@@ -1,97 +1,6 @@
 import prisma from '@/lib/prisma';
-import { Book } from '@prisma/client';
-import { GenreDTO } from './books';
+import { BookBasicDTO } from './types';
 
-export type CreateBookInput = {
-  slug: string;
-  title: string;
-  authorIds: string[];
-  genreIds: string[];
-  firstPublicationDate?: Date | null;
-  description?: string | null;
-};
-
-export type UpdateBookData = {
-  id: string;
-  slug: string;
-  title: string;
-  authorIds: string[];
-  genreIds: string[];
-  firstPublicationDate?: Date | null;
-  description?: string | null;
-};
-
-export type BookBasicDTO = Omit<
-  Book,
-  'averageRating' | 'ratingCount' | 'updatedAt' | 'title_search'
-> & {
-  genres: GenreDTO[];
-  authors: {
-    order: number | null;
-    person: {
-      id: string;
-      name: string;
-      slug: string;
-    };
-  }[];
-};
-
-export async function createBook(input: CreateBookInput) {
-  const { slug, title, authorIds, genreIds, firstPublicationDate } = input;
-
-  return await prisma.book.create({
-    data: {
-      slug,
-      title,
-      firstPublicationDate: firstPublicationDate,
-      authors: {
-        create: authorIds.map((personId, index) => ({
-          order: index + 1,
-          person: { connect: { id: personId } },
-        })),
-      },
-      genres: {
-        create: genreIds.map((genreId) => ({
-          genre: { connect: { id: genreId } },
-        })),
-      },
-    },
-    include: {
-      authors: { include: { person: true }, orderBy: { order: 'asc' } },
-      genres: { include: { genre: true } },
-    },
-  });
-}
-
-export async function updateBook(data: UpdateBookData) {
-  const { id, slug, title, authorIds, genreIds, firstPublicationDate } = data;
-
-  return await prisma.book.update({
-    where: { id },
-    data: {
-      slug,
-      title,
-      firstPublicationDate,
-      authors: {
-        deleteMany: {},
-        create: authorIds.map((personId, index) => ({
-          order: index + 1,
-          person: { connect: { id: personId } },
-        })),
-      },
-      genres: {
-        deleteMany: {},
-        create: genreIds.map((genreId) => ({
-          genre: { connect: { id: genreId } },
-        })),
-      },
-    },
-    include: {
-      authors: { include: { person: true }, orderBy: { order: 'asc' } },
-      genres: { include: { genre: true } },
-    },
-  });
-}
 
 export async function getAllBooksBasic(
   currentPage: number,
@@ -209,16 +118,6 @@ export async function getAllBooksBasic(
   });
 
   return { books: booksDto, totalCount };
-}
-
-export async function deleteBook(bookId: string) {
-  const book = await prisma.book.delete({
-    where: {
-      id: bookId,
-    },
-  });
-
-  return book;
 }
 
 export async function getBookBySlug(slug: string) {

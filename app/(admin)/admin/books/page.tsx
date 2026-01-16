@@ -2,7 +2,7 @@
 import { getBookGenres } from '@/lib/books';
 import AddBookDialog from '../_components/book/AddBookDialog';
 import AdminBooksTable from '../_components/book/AdminBooksTable';
-import { getAllBooksBasic } from '@/lib/adminBooks';
+import { getAllBooksBasic } from '@/lib/admin/books';
 
 type Props = {
   searchParams?: Promise<{

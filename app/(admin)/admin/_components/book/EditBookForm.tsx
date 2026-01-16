@@ -22,7 +22,7 @@ import { searchPersonsAction } from '@/app/(admin)/admin/persons/actions/personA
 import { dedupeByValue } from '@/lib/utils';
 import { useDebounced } from '@/app/hooks/useDebounce';
 import { format } from 'date-fns';
-import { BookBasicDTO } from '@/lib/adminBooks';
+import { BookBasicDTO } from '@/lib/admin/books';
 import { GenreDTO } from '@/lib/books';
 
 const EditBookForm = ({

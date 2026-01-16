@@ -11,7 +11,7 @@ import { getUserSession } from '@/lib/session';
 import { v2 as cloudinary } from 'cloudinary';
 import slugify from 'slugify';
 import { parseFormBookData } from '@/lib/parsers/books';
-import { createBook, CreateBookInput, deleteBook, updateBook, UpdateBookData } from '@/lib/adminBooks';
+import { createBook, CreateBookInput, deleteBook, updateBook, UpdateBookData } from '@/lib/admin/books';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,

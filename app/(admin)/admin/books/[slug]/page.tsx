@@ -1,5 +1,5 @@
 
-import { getBookBySlug } from '@/lib/adminBooks';
+import { getBookBySlug } from '@/lib/admin/books';
 import { getAllEditionsBasic } from '@/lib/admin/editions';
 import AddEditionDialog from '../../_components/edition/AddEditionDialog';
 import AdminEditionsTable from '../../_components/edition/AdminEditionsTable';

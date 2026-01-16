@@ -34,7 +34,7 @@ import { Pencil } from 'lucide-react';
 import { deleteBookAction } from '@/app/(admin)/admin/books/actions/bookActions';
 
 import { Dialog } from '@/components/ui/dialog';
-import { BookBasicDTO } from '@/lib/adminBooks';
+import { BookBasicDTO } from '@/lib/admin/books';
 import { GenreDTO } from '@/lib/books';
 import DeleteDialog from '@/components/shared/DeleteDialog';
 import EditBookDialog from './EditBookDialog';

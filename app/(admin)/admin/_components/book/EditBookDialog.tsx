@@ -4,7 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { BookBasicDTO } from '@/lib/adminBooks';
+import { BookBasicDTO } from '@/lib/admin/books';
 import { GenreDTO } from '@/lib/books';
 import EditBookForm from './EditBookForm';
 
