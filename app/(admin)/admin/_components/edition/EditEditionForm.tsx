@@ -30,7 +30,7 @@ import { updateEditionAction } from '@/app/(admin)/admin/books/[slug]/actions/ed
 import { MultiSelect } from '@/components/ui/multi-select';
 import { useDebounced } from '@/app/hooks/useDebounce';
 import { searchPublishersAction } from '@/app/(admin)/admin/publishers/actions/publisherActions';
-import { EditionDto } from '@/lib/editions';
+import { EditionDto } from '@/lib/admin/editions';
 import { Textarea } from '@/components/ui/textarea';
 import { PublisherOption } from '@/lib/admin/publishers';
 import { GenericCombobox } from '@/components/ui/GenericCombobox';

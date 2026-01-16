@@ -31,7 +31,7 @@ import {
 import { Trash2, Pencil } from "lucide-react";
 import { Dialog } from "@/components/ui/dialog";
 
-import { EditionDto } from "@/lib/editions";
+import { EditionDto } from "@/lib/admin/editions";
 import { deleteEditionAction } from "@/app/(admin)/admin/books/[slug]/actions/editionActions";
 import DeleteDialog from "@/components/shared/DeleteDialog";
 import EditEditionDialog from "./EditEditionDialog";

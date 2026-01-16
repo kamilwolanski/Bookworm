@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { EditionDto } from '@/lib/editions';
+import { EditionDto } from '@/lib/admin/editions';
 import EditEditionForm from './EditEditionForm';
 
 const EditEditionDialog = ({

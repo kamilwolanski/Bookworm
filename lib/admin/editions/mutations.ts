@@ -1,22 +1,5 @@
 import prisma from '@/lib/prisma';
-import { Edition, EditionPublisher } from '@prisma/client';
-
-export type CreateEditionData = Omit<
-  Edition,
-  'id' | 'createdAt' | 'updatedAt' | 'subtitle_search' | 'title_search'
-> & {
-  publisherIds: string[];
-};
-export type UpdateEditionData = Omit<
-  Edition,
-  'createdAt' | 'updatedAt' | 'subtitle_search' | 'title_search'
-> & {
-  publisherIds: string[];
-};
-
-export type EditionDto = Edition & {
-  publishers: EditionPublisher[];
-};
+import { CreateEditionData, UpdateEditionData } from './types';
 
 export async function createEdition(data: CreateEditionData) {
   const {
@@ -111,33 +94,7 @@ export async function updateEdition(data: UpdateEditionData) {
   });
 }
 
-export async function getAllEditionsBasic(bookId: string) {
-  return prisma.edition.findMany({
-    where: {
-      bookId: bookId,
-    },
-    include: {
-      publishers: true,
-    },
-  });
-}
 
-export async function getEdition(editionId: string) {
-  return prisma.edition.findFirst({
-    where: {
-      id: editionId,
-    },
-    select: {
-      id: true,
-      coverPublicId: true,
-      book: {
-        select: {
-          slug: true,
-        },
-      },
-    },
-  });
-}
 
 export async function deleteEdition(editionId: string) {
   const book = await prisma.edition.delete({

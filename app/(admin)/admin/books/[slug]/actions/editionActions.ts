@@ -11,7 +11,7 @@ import { ActionResult } from '@/types/actions';
 import { Prisma, Role } from '@prisma/client';
 import { v2 as cloudinary } from 'cloudinary';
 import { parseFormEditionData } from '@/lib/parsers/editions';
-import { createEdition, CreateEditionData, deleteEdition, getEdition, updateEdition, UpdateEditionData } from '@/lib/editions';
+import { createEdition, CreateEditionData, deleteEdition, getEdition, updateEdition, UpdateEditionData } from '@/lib/admin/editions';
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
