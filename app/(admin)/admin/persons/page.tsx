@@ -1,4 +1,4 @@
-import { getAllPersons } from '@/lib/persons';
+import { getAllPersons } from '@/lib/admin/persons';
 import AddPersonDialog from '../_components/person/AddPersonDialog';
 import AdminPersonsTable from '../_components/person/AdminPersonsTable';
 

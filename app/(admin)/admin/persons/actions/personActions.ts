@@ -13,7 +13,7 @@ import { Role, Prisma } from '@prisma/client';
 import { v2 as cloudinary } from 'cloudinary';
 import slugify from 'slugify';
 import { parseFormPersonData } from '@/lib/parsers/persons';
-import { createPerson, CreatePersonData, deletePerson, getPerson, searchPersons, updatePerson, UpdatePersonData } from '@/lib/persons';
+import { createPerson, CreatePersonData, deletePerson, getPerson, searchPersons, updatePerson, UpdatePersonData } from '@/lib/admin/persons';
 
 
 cloudinary.config({

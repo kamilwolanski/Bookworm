@@ -1,23 +1,6 @@
-import { Person } from '@prisma/client';
 import prisma from '@/lib/prisma';
+import { PersonOption } from './types';
 
-export type CreatePersonData = Omit<
-  Person,
-  | 'id'
-  | 'createdAt'
-  | 'updatedAt'
-  | 'sortName_search'
-  | 'name_search'
-  | 'aliasesSearch'
->;
-export type UpdatePersonData = Omit<
-  Person,
-  | 'createdAt'
-  | 'updatedAt'
-  | 'sortName_search'
-  | 'name_search'
-  | 'aliasesSearch'
->;
 
 export async function findPersonBySlug(slug: string) {
   return prisma.person.findUnique({
@@ -26,20 +9,9 @@ export async function findPersonBySlug(slug: string) {
   });
 }
 
-export async function createPerson(data: CreatePersonData) {
-  return prisma.person.create({
-    data,
-    select: { id: true, name: true, sortName: true, slug: true },
-  });
-}
-
-export async function updatePerson(data: UpdatePersonData) {
-  return prisma.person.update({
-    where: {
-      id: data.id,
-    },
-    data,
-    select: { id: true, name: true, sortName: true, slug: true },
+export async function getPerson(personId: string) {
+  return prisma.person.findFirst({
+    where: { id: personId },
   });
 }
 
@@ -71,24 +43,6 @@ export async function getAllPersons(
   return { persons, totalCount };
 }
 
-export async function getPerson(personId: string) {
-  return prisma.person.findFirst({
-    where: { id: personId },
-  });
-}
-
-export async function deletePerson(personId: string) {
-  const book = await prisma.person.delete({
-    where: {
-      id: personId,
-    },
-  });
-
-  return book;
-}
-
-export type PersonOption = { value: string; label: string };
-
 export async function searchPersons(
   q: string,
   limit = 12
@@ -99,19 +53,19 @@ export async function searchPersons(
     people = await prisma.person.findMany({
       take: 10,
       select: { id: true, name: true },
-      orderBy: { name: 'asc' },
+      orderBy: { name: "asc" },
     });
   } else {
     people = await prisma.person.findMany({
       where: {
         OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { sortName: { contains: query, mode: 'insensitive' } },
+          { name: { contains: query, mode: "insensitive" } },
+          { sortName: { contains: query, mode: "insensitive" } },
           { aliases: { has: query } }, // exact match aliasu
         ],
       },
       take: limit,
-      orderBy: { name: 'asc' },
+      orderBy: { name: "asc" },
       select: { id: true, name: true },
     });
   }

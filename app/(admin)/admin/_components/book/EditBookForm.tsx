@@ -17,7 +17,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { UseFormReturn } from 'react-hook-form';
 import { updateBookAction } from '@/app/(admin)/admin/books/actions/bookActions';
-import { PersonOption } from '@/lib/persons';
+import { PersonOption } from '@/lib/admin/persons';
 import { searchPersonsAction } from '@/app/(admin)/admin/persons/actions/personActions';
 import { dedupeByValue } from '@/lib/utils';
 import { useDebounced } from '@/app/hooks/useDebounce';
