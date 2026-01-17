@@ -94,7 +94,7 @@ function MobileSheet({ session }: { session: Session | null }) {
               </div>
             ) : (
               <SheetClose asChild>
-                <LoginDialog dialogTriggerBtn={<Button className="w-full">Zaloguj się</Button>} />
+                <LoginDialog dialogTriggerBtn={<Button className="w-full cursor-pointer">Zaloguj się</Button>} />
               </SheetClose>
             )}
           </div>

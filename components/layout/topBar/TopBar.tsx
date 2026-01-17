@@ -32,7 +32,7 @@ async function UserLoginInfo() {
           </div>
 
           <div className="hidden lg:block">
-            <LoginDialog dialogTriggerBtn={<Button>Zaloguj się</Button>} />
+            <LoginDialog dialogTriggerBtn={<Button className="cursor-pointer">Zaloguj się</Button>} />
           </div>
         </>
       )}

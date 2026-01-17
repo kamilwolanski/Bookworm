@@ -10,12 +10,13 @@ import {
   LucideIcon,
   XCircle,
 } from 'lucide-react';
+import { ReadingStatus } from '@prisma/client';
 
 const ReadingStatusComponent = () => {
   const form = useFormContext<StatusInput>();
 
   const readingStatuses: {
-    value: 'WANT_TO_READ' | 'READING' | 'READ' | 'ABANDONED';
+    value: ReadingStatus;
     label: string;
     color: string;
     icon: LucideIcon;
