@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { XCircle } from "lucide-react";
 import { FiltersState } from "../../_hooks/useFiltersState";
-import { polishGenres } from "@/app/(admin)/admin/data";
+import { GENRE_LABELS } from "@/lib/constants/genres.pl";
 
 type Props = {
   filters: FiltersState;
@@ -39,7 +39,7 @@ export default function ActiveFilters({
             });
           }}
         >
-          Gatunek: {polishGenres[id] ?? id}
+          Gatunek: {GENRE_LABELS[id] ?? id}
           <XCircle className="ml-2 h-4 w-4 cursor-pointer pointer-events-auto" />
         </Badge>
       ))}

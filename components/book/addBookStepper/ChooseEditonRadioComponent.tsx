@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import { LANGUAGES } from '@/app/(admin)/admin/data';
 import Emoji from '@/components/shared/Emoji';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -10,6 +9,7 @@ import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 import { Check } from 'lucide-react';
 import { UserEditionDto } from '@/lib/user';
 import { EditionDto } from '@/lib/books';
+import { LANGUAGES } from '@/lib/constants/languages';
 
 const ChooseEditonRadioComponent = ({
   editions,
@@ -38,7 +38,6 @@ const ChooseEditonRadioComponent = ({
     ${isSelected ? 'border-primary bg-primary/20' : 'border-muted bg-card/50'}
     ${isDisabled ? 'pointer-events-none' : 'cursor-pointer hover:border-primary/50'}`}
       >
-        {/* BADGES – poza wrapperem z opacity, więc zawsze w 100% widoczne */}
         {isSelected && (
           <div className="absolute top-4 right-4 bg-primary text-white rounded-full p-1 z-10">
             <Check size={14} strokeWidth={3} />
@@ -53,7 +52,6 @@ const ChooseEditonRadioComponent = ({
           </div>
         )}
 
-        {/* WRAPPER – tylko jego dotyczy opacity dla disabled */}
         <div className={isDisabled ? 'opacity-50' : ''}>
           <RadioGroupItem
             id={radioId}

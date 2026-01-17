@@ -1,4 +1,8 @@
-export const genreColorMap: Record<string, string> = {
+import { Genre } from "@prisma/client";
+
+const DEFAULT_GENRE_COLOR = 'bg-slate-500';
+
+export const GENRE_COLOR_MAP: Record<Genre['slug'], string> = {
   FANTASY: 'bg-purple-500',
   SCIENCE_FICTION: 'bg-blue-600',
   THRILLER: 'bg-red-700',
@@ -49,8 +53,9 @@ export const genreColorMap: Record<string, string> = {
   MUSIC: 'bg-pink-500',
   CLASSIC_FICTION: 'bg-gray-700',
   CONTEMPORARY_FICTION: 'bg-cyan-500',
-};
+} as const;
 
-export function getColor(genre: string) {
-  return genreColorMap[genre];
+
+export function getGenreColor(genre: Genre['slug']): string {
+  return GENRE_COLOR_MAP[genre as keyof typeof GENRE_COLOR_MAP] ?? DEFAULT_GENRE_COLOR;
 }

@@ -1,6 +1,6 @@
-import { LANGUAGES } from "@/app/(admin)/admin/data";
 import Emoji from "@/components/shared/Emoji";
 import { getBookSpecs } from "@/lib/books";
+import { LANGUAGES } from "@/lib/constants/languages";
 import { MediaFormat } from "@prisma/client";
 
 export default async function BookSpecs({ editionId }: { editionId: string }) {

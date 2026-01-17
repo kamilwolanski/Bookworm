@@ -20,12 +20,6 @@ import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { format } from 'date-fns';
-import {
-  BOOK_FORMATS,
-  BookFormat,
-  LanguageCode,
-  LANGUAGES,
-} from '@/app/(admin)/admin/data';
 import { updateEditionAction } from '@/app/(admin)/admin/books/[slug]/actions/editionActions';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { useDebounced } from '@/app/hooks/useDebounce';
@@ -34,6 +28,9 @@ import { EditionDto } from '@/lib/admin/editions';
 import { Textarea } from '@/components/ui/textarea';
 import { PublisherOption } from '@/lib/admin/publishers';
 import { GenericCombobox } from '@/components/ui/GenericCombobox';
+import { LanguageCode, LANGUAGES } from '@/lib/constants/languages';
+import { MediaFormat } from '@prisma/client';
+import { BOOK_FORMATS } from '@/lib/constants/book-formats';
 
 export default function EditEditionForm({
   bookId,
@@ -199,7 +196,7 @@ export default function EditEditionForm({
                 <FormItem className="mt-3">
                   <FormLabel>Format</FormLabel>
                   <FormControl>
-                    <GenericCombobox<BookFormat>
+                    <GenericCombobox<MediaFormat>
                       items={BOOK_FORMATS}
                       value={field.value}
                       onChange={field.onChange}

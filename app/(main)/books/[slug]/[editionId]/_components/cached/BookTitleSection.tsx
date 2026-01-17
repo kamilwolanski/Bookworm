@@ -1,7 +1,7 @@
 import { getBookTitleSectionData } from "@/lib/books";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { genreColorMap } from "@/lib/genreColorMap";
+import { getGenreColor } from "@/lib/constants/genre-colors";
 
 export default async function BookTitleSection({ editionId }: { editionId: string }) {
   "use cache";
@@ -35,7 +35,7 @@ export default async function BookTitleSection({ editionId }: { editionId: strin
               <Badge
                 key={genre.slug}
                 className={`${index > 0 ? "ms-2" : ""} ${
-                  genreColorMap[genre.slug]
+                  getGenreColor(genre.slug)
                 }`}
               >
                 {genre.name}

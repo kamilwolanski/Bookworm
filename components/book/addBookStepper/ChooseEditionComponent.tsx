@@ -2,7 +2,6 @@
 
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { LANGUAGES } from '@/app/(admin)/admin/data';
 import Emoji from '@/components/shared/Emoji';
 import { RadioGroup } from '@/components/ui/radio-group';
 import { FormField, FormItem } from '@/components/ui/form';
@@ -11,6 +10,7 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { EditionDto } from '@/lib/books';
 import { UserEditionDto } from '@/lib/user';
+import { LANGUAGES } from '@/lib/constants/languages';
 
 const ChooseEditonComponent = ({
   editions,

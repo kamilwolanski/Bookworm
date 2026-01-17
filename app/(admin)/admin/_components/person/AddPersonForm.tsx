@@ -20,11 +20,11 @@ import { Dispatch, SetStateAction } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { createPersonAction } from "@/app/(admin)/admin/persons/actions/personActions";
 import { format } from "date-fns";
-import { COUNTRIES, CountryCode } from "@/app/(admin)/admin/data";
 import { Textarea } from "@/components/ui/textarea";
 import { AliasesInput } from "@/components/ui/AliasesInput";
 import { GenericCombobox } from "@/components/ui/GenericCombobox";
 import { useRouter } from "next/navigation";
+import { COUNTRIES, CountryCode } from "@/lib/constants/countries";
 
 export default function AddPersonForm({
   setOpen,

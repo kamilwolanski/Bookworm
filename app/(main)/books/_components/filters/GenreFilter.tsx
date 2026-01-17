@@ -46,9 +46,7 @@ export default function GenreFilter({
           <AccordionContent>
             <div className="mb-2">
               {value.map((slug) => {
-                console.log('value', value)
                 const option = bookGenres.find((g) => g.slug === slug);
-                console.log('option', option)
                 if (!option) return null;
 
                 return (

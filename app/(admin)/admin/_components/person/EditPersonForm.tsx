@@ -19,8 +19,9 @@ import { Person } from '@prisma/client';
 import { updatePersonAction } from '@/app/(admin)/admin/persons/actions/personActions';
 import { format } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
-import { CountryCode, CountryCombobox } from '@/components/ui/CountryCombobox';
+import { CountryCombobox } from '@/components/ui/CountryCombobox';
 import { AliasesInput } from '@/components/ui/AliasesInput';
+import { CountryCode } from '@/lib/constants/countries';
 
 const EditPersonForm = ({
   onSuccess,
