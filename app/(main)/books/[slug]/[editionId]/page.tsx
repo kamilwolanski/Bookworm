@@ -1,4 +1,5 @@
-import { getAllBookStaticParams } from "@/lib/books";
+import { getAllBookStaticParams, getEditionDescription, getEditionTitle } from "@/lib/books";
+import { Metadata, ResolvingMetadata } from "next";
 import { Suspense } from "react";
 import StarRatingPlaceholder from "@/components/book/starRating/StarRatingPlaceholder";
 import { Separator } from "@/components/ui/separator";
@@ -20,6 +21,20 @@ export async function generateStaticParams() {
   return getAllBookStaticParams();
 }
 
+export async function generateMetadata(
+  { params }: BookPageProps,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const editionId = (await params).editionId;
+
+  const [editionTitleRes, editionDescriptionRes] = await Promise.all([getEditionTitle(editionId), getEditionDescription(editionId)]);
+  const parentMetadata = await parent;
+  return {
+    title: `${parentMetadata.title?.absolute} | ${editionTitleRes.title}`,
+    description: editionDescriptionRes.description,
+  };
+}
+
 export default async function Page({ params, searchParams }: BookPageProps) {
   const { editionId, slug } = await params;
 
@@ -29,7 +44,7 @@ export default async function Page({ params, searchParams }: BookPageProps) {
         <div className="bg-sidebar shadow-lg rounded-xl p-3 sm:p-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1">
-                <BookCover editionId={editionId} />
+              <BookCover editionId={editionId} />
             </div>
             <div className="lg:col-span-2 space-y-6">
               <div className="relative gap-2 sm:gap-3">
