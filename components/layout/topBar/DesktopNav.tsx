@@ -10,7 +10,9 @@ import { usePathname } from "next/navigation";
 
 function DesktopNav() {
   const pathname = usePathname();
+  console.log("Current pathname:", pathname);
   const isActive = (path: string) => {
+    console.log(`Checking if path "${path}" is active against pathname "${pathname}"`);
     if (path === "/") return pathname === "/";
     return pathname.startsWith(path);
   };
