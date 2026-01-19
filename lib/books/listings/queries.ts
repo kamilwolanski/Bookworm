@@ -1,7 +1,9 @@
 import prisma from "@/lib/prisma";
-import { BookCardDTO } from "./types";
+import { BookCardDTO, EditionDto, GetBooksAllResponse, RatingFilter } from "./types";
 import { subDays } from "date-fns";
 import { unstable_cache } from "next/cache";
+import { normalizeForSearch } from "@/lib/utils";
+import { Prisma, ReadingStatus } from "@prisma/client";
 
 export const getTheNewestEditionsCached = unstable_cache(
   async () => {
@@ -279,4 +281,252 @@ export async function getBestRatedBooks(take: number = 5) {
   });
 
   return items;
+}
+
+export async function getBooksAll({
+  currentPage,
+  booksPerPage,
+  genres,
+  myShelf,
+  userRatings,
+  statuses,
+  rating,
+  search,
+  userId,
+  authorSlug,
+}: {
+  currentPage: number;
+  booksPerPage: number;
+  genres: string[];
+  myShelf: boolean;
+  userRatings: string[];
+  statuses: ReadingStatus[];
+  rating?: string;
+  search?: string;
+  userId?: string;
+  authorSlug?: string;
+}): Promise<GetBooksAllResponse> {
+  const skip = (currentPage - 1) * booksPerPage;
+
+  const includeUnrated = userRatings.includes("none");
+  const numericRatings = userRatings.filter((r) => r !== "none").map(Number);
+  const ratingFilters: RatingFilter[] = [];
+  const normalized = search?.trim() ? normalizeForSearch(search) : "";
+
+  if (numericRatings.length > 0 && userId) {
+    ratingFilters.push({
+      editions: {
+        some: {
+          reviews: { some: { userId, rating: { in: numericRatings } } },
+        },
+      },
+    });
+  }
+  if (includeUnrated && userId) {
+    ratingFilters.push({
+      editions: {
+        none: { reviews: { some: { userId } } },
+      },
+    });
+  }
+
+  const searchConditions = normalized
+    ? {
+        OR: [
+          // Tytuł książki
+          { title_search: { contains: normalized } },
+
+          // Polskie tytuły / podtytuły edycji
+          {
+            editions: {
+              some: {
+                language: "pl",
+                OR: [
+                  { title_search: { contains: normalized } },
+                  { subtitle_search: { contains: normalized } },
+                ],
+              },
+            },
+          },
+
+          // Autorzy: name / sortName / aliases (znormalizowane)
+          {
+            authors: {
+              some: {
+                person: {
+                  OR: [
+                    { name_search: { contains: normalized } },
+                    { sortName_search: { contains: normalized } },
+                    { aliasesSearch: { has: normalized } }, // szybkie sprawdzenie w tablicy
+                  ],
+                },
+              },
+            },
+          },
+
+          // Gatunki (polskie tłumaczenia)
+          {
+            genres: {
+              some: {
+                genre: {
+                  OR: [
+                    {
+                      slug: {
+                        contains: normalized,
+                        mode: Prisma.QueryMode.insensitive,
+                      },
+                    },
+                    {
+                      translations: {
+                        some: {
+                          language: "pl",
+                          name_search: { contains: normalized },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      }
+    : {};
+
+  const where = {
+    ...searchConditions,
+    ...(genres.length > 0 && {
+      genres: { some: { genre: { slug: { in: genres } } } },
+    }),
+    ...(myShelf && userId && { userEditions: { some: { userId } } }),
+    ...(ratingFilters.length > 0 && { OR: ratingFilters }),
+    ...(rating && {
+      averageRating: {
+        gte: Number(rating),
+      },
+    }),
+    ...(statuses.length > 0 &&
+      userId && {
+        userEditions: { some: { userId, readingStatus: { in: statuses } } },
+      }),
+    ...(authorSlug && {
+      authors: {
+        some: {
+          person: {
+            slug: authorSlug,
+          },
+        },
+      },
+    }),
+  };
+
+  // --- query ---
+  const [books, totalCount] = await Promise.all([
+    prisma.book.findMany({
+      skip,
+      take: booksPerPage,
+      where,
+      orderBy: { addedAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        firstPublicationDate: true,
+        averageRating: true,
+        ratingCount: true,
+        authors: {
+          select: {
+            personId: true,
+            order: true,
+            person: { select: { id: true, name: true } },
+          },
+        },
+        genres: {
+          select: {
+            genre: {
+              select: {
+                translations: {
+                  where: { language: "pl" },
+                  select: { name: true },
+                },
+              },
+            },
+          },
+        },
+        editions: {
+          orderBy: {
+            publicationDate: "desc",
+          },
+          select: {
+            id: true,
+            language: true,
+            publicationDate: true,
+            title: true,
+            subtitle: true,
+            coverUrl: true,
+            isbn13: true,
+            isbn10: true,
+            publishers: {
+              include: {
+                publisher: true,
+              },
+            },
+          },
+        },
+      },
+    }),
+    prisma.book.count({ where }),
+  ]);
+
+  if (books.length === 0) {
+    return { items: [], totalCount };
+  }
+
+  function pickBestEdition(editions: EditionDto[]) {
+    return editions.reduce((best, edition) => {
+      // Todo: zmienic w bazie publicationDate wymagane
+      if (best.publicationDate && edition.publicationDate) {
+        return edition.publicationDate > best.publicationDate ? edition : best;
+      }
+
+      return edition;
+    });
+  }
+
+  const items: BookCardDTO[] = books.map((b) => {
+    // representative edition
+    const best = pickBestEdition(b.editions);
+
+    return {
+      book: {
+        id: b.id,
+        title: b.title,
+        slug: b.slug ?? "",
+        authors: b.authors
+          .sort((a, c) => (a.order ?? 0) - (c.order ?? 0))
+          .map((a) => ({ id: a.person.id, name: a.person.name })),
+        genres: b.genres.flatMap((g) =>
+          g.genre.translations.map((t) => t.name),
+        ),
+        firstPublicationDate: b.firstPublicationDate
+          ? b.firstPublicationDate
+          : null,
+        editions: b.editions,
+      },
+      representativeEdition: {
+        id: best.id,
+        language: best.language,
+        publicationDate: best.publicationDate ? best.publicationDate : null,
+        title: best.title,
+        subtitle: best.subtitle,
+        coverUrl: best.coverUrl,
+      },
+      ratings: {
+        bookAverage: b.averageRating ?? null,
+        bookRatingCount: b.ratingCount ?? null,
+      },
+    };
+  });
+
+  return { items, totalCount };
 }

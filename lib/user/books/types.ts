@@ -34,3 +34,11 @@ export type UserBookStatus = {
   isOnShelf: boolean;
   readingStatus: ReadingStatus | null;
 };
+
+export type AddBookToShelfPayload = {
+  bookId: string;
+  editionId: string;
+  readingStatus: ReadingStatus;
+  rating?: number;
+  body?: string;
+};

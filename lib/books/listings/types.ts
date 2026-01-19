@@ -34,3 +34,35 @@ export type BookCardDTO = {
     bookRatingCount: number | null;
   };
 };
+
+export interface RatingFilter {
+  editions?:
+    | {
+        some: {
+          reviews: {
+            some: {
+              userId: string;
+              rating: {
+                in: number[];
+              };
+            };
+          };
+        };
+      }
+    | {
+        none: {
+          reviews: {
+            some: {
+              userId: string;
+            };
+          };
+        };
+      };
+}
+
+
+
+export type GetBooksAllResponse = {
+  items: BookCardDTO[];
+  totalCount: number;
+};

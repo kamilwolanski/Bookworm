@@ -1,5 +1,5 @@
+import { getBooksAll } from '@/lib/books';
 import { getUserSession } from '@/lib/session';
-import { getBooksAll } from '@/lib/userbooks';
 import { ReadingStatus } from '@prisma/client';
 
 export async function GET(req: Request) {
