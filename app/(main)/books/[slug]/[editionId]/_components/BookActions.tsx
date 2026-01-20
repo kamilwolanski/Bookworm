@@ -49,6 +49,7 @@ export default async function BookActions({
         bookSlug={bookSlug}
         bookId={bookId}
         editionId={editionId}
+        isLogIn={isLogIn}
       />
       <div className="mt-5 flex gap-3 flex-wrap">
         <ToggleToShelf
@@ -70,6 +71,7 @@ export default async function BookActions({
       </div>
 
       <BookDetailsBadges
+        isLogIn={isLogIn}
         userBookStatusFromServer={userBookStatus}
         bookSlug={bookSlug}
         editionId={editionId}

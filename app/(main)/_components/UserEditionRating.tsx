@@ -17,9 +17,9 @@ export default async function UserEditionRating({
     ? await getUserBookReview(userId, editionId)
     : null;
 
-
   return (
     <UserEditionRatingClient
+      isLogIn={Boolean(userId)}
       editionId={editionId}
       userEditionRatingFromServer={responseUserEditionRating}
     />

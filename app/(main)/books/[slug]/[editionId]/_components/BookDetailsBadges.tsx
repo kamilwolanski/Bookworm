@@ -10,25 +10,32 @@ import {
   LucideIcon,
   XCircle,
 } from "lucide-react";
-import React from "react";
+import React, { useMemo } from "react";
 import useSWR from "swr";
 
 export default function BookDetailsBadges({
   userBookStatusFromServer,
   bookSlug,
   editionId,
+  isLogIn,
 }: {
   userBookStatusFromServer: UserBookStatus | null;
   bookSlug: string;
   editionId: string;
+  isLogIn: boolean;
 }) {
+  const shouldFetch = isLogIn;
+  const key = useMemo(
+    () =>
+      shouldFetch
+        ? `/api/books/${bookSlug}/editions/${editionId}/userBook/me`
+        : null,
+    [bookSlug, editionId, shouldFetch],
+  );
   const { data: userBookStatus = userBookStatusFromServer } =
-    useSWR<UserBookStatus | null>(
-      `/api/books/${bookSlug}/editions/${editionId}/userBook/me`,
-      {
-        fallbackData: userBookStatusFromServer,
-      }
-    );
+    useSWR<UserBookStatus | null>(key, {
+      fallbackData: userBookStatusFromServer,
+    });
 
   const isOnShelf = userBookStatus?.isOnShelf;
   const readingStatus = userBookStatus?.readingStatus;

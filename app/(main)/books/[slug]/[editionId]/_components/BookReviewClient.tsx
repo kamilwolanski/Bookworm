@@ -6,6 +6,7 @@ import RateBookDialog from "@/components/book/ratebook/RateBookDialog";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import LoginDialog from "@/components/auth/LoginDialog";
+import { useMemo } from "react";
 
 export default function BookReviewClient({
   isLogIn,
@@ -22,8 +23,16 @@ export default function BookReviewClient({
   userReviewFromServer: UserBookReview | null;
   editionTitle: string | null;
 }) {
+    const shouldFetch = isLogIn;
+    const key = useMemo(
+      () =>
+        shouldFetch
+          ? `/api/editions/${editionId}/reviews/me`
+          : null,
+      [editionId, shouldFetch],
+    );
   const { data: userReview = userReviewFromServer } =
-    useSWR<UserBookReview | null>(`/api/editions/${editionId}/reviews/me`, {
+    useSWR<UserBookReview | null>(key, {
       fallbackData: userReviewFromServer,
     });
 

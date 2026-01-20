@@ -3,7 +3,7 @@
 import { changeBookStatusAction } from "@/app/(main)/books/actions/bookActions";
 import { UserBookStatus } from "@/lib/user";
 import { ReadingStatus } from "@prisma/client";
-import { useTransition } from "react";
+import { useMemo, useTransition } from "react";
 import {
   Select,
   SelectTrigger,
@@ -18,17 +18,26 @@ export default function UserBookStatusClient({
   bookSlug,
   bookId,
   editionId,
+  isLogIn,
 }: {
   userBookStatusFromServer: UserBookStatus | null;
   bookSlug: string;
   bookId: string;
   editionId: string;
+  isLogIn: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
-
+  const shouldFetch = isLogIn;
+  const key = useMemo(
+    () =>
+      shouldFetch
+        ? `/api/books/${bookSlug}/editions/${editionId}/userBook/me`
+        : null,
+    [bookSlug, editionId, shouldFetch],
+  );
   const { data: userBookStatus = userBookStatusFromServer, mutate } =
     useSWR<UserBookStatus | null>(
-      `/api/books/${bookSlug}/editions/${editionId}/userBook/me`,
+      key,
       {
         fallbackData: userBookStatusFromServer,
       }

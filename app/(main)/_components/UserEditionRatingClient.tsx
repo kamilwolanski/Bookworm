@@ -4,16 +4,24 @@ import userIcon from "@/app/assets/icons/user.svg";
 import { Star } from "lucide-react";
 import useSWR from "swr";
 import { UserBookReview } from "@/lib/user";
+import { useMemo } from "react";
 
 export default function UserEditionRatingClient({
   editionId,
   userEditionRatingFromServer,
+  isLogIn,
 }: {
   editionId: string;
   userEditionRatingFromServer: UserBookReview | null;
+  isLogIn: boolean;
 }) {
+  const shouldFetch = isLogIn;
+  const key = useMemo(
+    () => (shouldFetch ? `/api/editions/${editionId}/reviews/me` : null),
+    [editionId, shouldFetch],
+  );
   const { data: userEditionRating = userEditionRatingFromServer } =
-    useSWR<UserBookReview | null>(`/api/editions/${editionId}/reviews/me`, {
+    useSWR<UserBookReview | null>(key, {
       fallbackData: userEditionRatingFromServer,
       revalidateOnMount: false,
     });
