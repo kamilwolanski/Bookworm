@@ -28,7 +28,7 @@ export default function BookDetailsBadges({
   const key = useMemo(
     () =>
       shouldFetch
-        ? `/api/books/${bookSlug}/editions/${editionId}/userBook/me`
+        ? `/api/me/books/${bookSlug}/editions/${editionId}`
         : null,
     [bookSlug, editionId, shouldFetch],
   );

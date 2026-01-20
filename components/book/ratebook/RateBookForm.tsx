@@ -59,7 +59,7 @@ const RateBookForm = ({
     if (result.status === "success") {
       await Promise.all([
         globalMutate(`/api/books/${bookSlug}/rating`),
-        globalMutate(`/api/editions/${editionId}/reviews/me`),
+        globalMutate(`/api/me/editions/${editionId}/reviews`),
         globalMutate(getReviewsKey(bookSlug, currentPage)),
       ]);
       afterSuccess();

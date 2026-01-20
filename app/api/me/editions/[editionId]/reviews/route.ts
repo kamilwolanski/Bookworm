@@ -1,5 +1,5 @@
 import { getUserSession } from "@/lib/session";
-import { getTheUserInformationForEdition } from "@/lib/user";
+import { getUserBookReview } from "@/lib/user";
 import { NextResponse } from "next/server";
 
 type Params = {
@@ -22,10 +22,10 @@ export async function GET(req: Request, { params }: Params) {
       return NextResponse.json({ error: "Missing editionId" }, { status: 400 });
     }
 
-    const response = await getTheUserInformationForEdition(userId, editionId);
+    const response = await getUserBookReview(userId, editionId);
     return NextResponse.json(response);
   } catch (err) {
-    console.error("API /api/editions/[editionId]/userBooks/me error", err);
+    console.error("API /api/me/editions/[editionId]/reviews error", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

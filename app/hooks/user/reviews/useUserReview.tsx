@@ -12,7 +12,7 @@ export const useUserReview = (
     isLoading,
     mutate,
   } = useSWR<UserBookReview | null>(
-    `/api/editions/${editionId}/reviews/me`,
+    `/api/me/editions/${editionId}/reviews`,
     {
       fallbackData: userBookReviewFromServer,
       revalidateOnMount: false

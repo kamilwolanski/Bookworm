@@ -27,7 +27,7 @@ export default function BookReviewClient({
     const key = useMemo(
       () =>
         shouldFetch
-          ? `/api/editions/${editionId}/reviews/me`
+          ? `/api/me/editions/${editionId}/reviews`
           : null,
       [editionId, shouldFetch],
     );

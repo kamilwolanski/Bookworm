@@ -52,7 +52,7 @@ const AddBookForm = ({
   const { mutate: globalMutate } = useSWRConfig();
   const { data: userReviews, mutate: mutateUserReviews } = useSWR<
     UserBookReview[]
-  >(`/api/books/${bookSlug}/reviews/me`, fetcher);
+  >(`/api/me/books/${bookSlug}/reviews`, fetcher);
   const [isPendingMutations, setIsPendingMutations] = useState(false);
   const boundAction = addBookToShelfAction.bind(null, bookId);
   const stepper = useStepper();
@@ -71,9 +71,9 @@ const AddBookForm = ({
       const editionId = form.getValues("editionId");
       await Promise.all([
         mutateUserReviews(),
-        globalMutate(`/api/editions/${editionId}/reviews/me`),
+        globalMutate(`/api/me/editions/${editionId}/reviews`),
         globalMutate(`/api/books/${bookSlug}/rating`),
-        globalMutate(`/api/editions/${editionId}/userBooks/me`)
+        globalMutate(`/api/me/editions/${editionId}/userBooks`)
       ]);
       afterSuccess();
     },

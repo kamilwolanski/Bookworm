@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
 import { getUserSession } from '@/lib/session';
-import { getTheUserInformationForReviews } from '@/lib/user';
+import { getUserBookReviewsVotes } from '@/lib/user';
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
@@ -19,11 +19,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const response = await getTheUserInformationForReviews(userId, reviewIds);
+    const response = await getUserBookReviewsVotes(userId, reviewIds);
 
     return NextResponse.json(response);
   } catch (err) {
-    console.error('API /api/user/reviews error', err);
+    console.error('API /api/me/reviews/user-votes', err);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

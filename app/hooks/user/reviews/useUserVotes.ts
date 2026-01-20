@@ -10,7 +10,7 @@ export const useUserVotes = (
 ) => {
   const shouldFetch = Boolean(userId && reviewIds.length > 0);
   const key = useMemo(
-    () => (shouldFetch ? ['/api/user/reviews/user-votes', reviewIds] : null),
+    () => (shouldFetch ? ['/api/me/reviews/user-votes', reviewIds] : null),
     [shouldFetch, reviewIds]
   );
 

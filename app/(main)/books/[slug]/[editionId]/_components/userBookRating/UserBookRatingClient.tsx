@@ -20,7 +20,7 @@ export default function UserBookRatingClient({
   userReviewFromServer: UserBookReview | null;
 }) {
   const { data: userReview, mutate } = useSWR<UserBookReview | null>(
-    `/api/editions/${editionId}/reviews/me`,
+    `/api/me/editions/${editionId}/reviews`,
     {
       fallbackData: userReviewFromServer,
     }

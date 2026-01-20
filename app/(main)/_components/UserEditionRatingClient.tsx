@@ -17,7 +17,7 @@ export default function UserEditionRatingClient({
 }) {
   const shouldFetch = isLogIn;
   const key = useMemo(
-    () => (shouldFetch ? `/api/editions/${editionId}/reviews/me` : null),
+    () => (shouldFetch ? `/api/me/editions/${editionId}/reviews` : null),
     [editionId, shouldFetch],
   );
   const { data: userEditionRating = userEditionRatingFromServer } =

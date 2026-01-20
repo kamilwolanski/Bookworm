@@ -46,7 +46,7 @@ const RateBookStepperForm = ({
   afterSuccess: () => void;
 }) => {
   const { data: userReviews, mutate } = useSWR<UserBookReview[]>(
-    `/api/books/${bookSlug}/reviews/me`,
+    `/api/me/books/${bookSlug}/reviews`,
     fetcher
   );
   const { mutate: globalMutate } = useSWRConfig();
@@ -70,7 +70,7 @@ const RateBookStepperForm = ({
         await Promise.all([
           await mutate(),
           await globalMutate(`/api/books/${bookSlug}/rating`),
-          await globalMutate(`/api/editions/${editionId}/reviews/me`),
+          await globalMutate(`/api/me/editions/${editionId}/reviews`),
         ]);
         afterSuccess();
         return;

@@ -24,7 +24,7 @@ export default function UserBookSectionClient({
   const [isPending, startTransition] = useTransition();
   const { data: userBookStatus = userBookStatusFromServer, mutate } =
     useSWR<UserBookStatus | null>(
-      `/api/books/${bookSlug}/editions/${editionId}/userBook/me`,
+      `/api/me/books/${bookSlug}/editions/${editionId}`,
       {
         fallbackData: userBookStatusFromServer,
       }

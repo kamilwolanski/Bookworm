@@ -24,7 +24,7 @@ export default function UserBookOverlayClient({
 
   const { data: editionUserResponse = editionUserResponseFromServer } =
     useSWR<EditionUserResponseItem>(
-      `/api/editions/${representativeEditionId}/userBooks/me`,
+      `/api/me/editions/${representativeEditionId}/userBooks`,
       {
         fallbackData: editionUserResponseFromServer,
         revalidateOnMount: false,

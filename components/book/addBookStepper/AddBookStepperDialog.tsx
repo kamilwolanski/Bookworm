@@ -94,7 +94,7 @@ const AddBookStepperDialog = ({
         <DialogTrigger asChild>
           <button
             className="bg-badge-new text-secondary-foreground hover:bg-badge-new-hover px-3 py-1 rounded-2xl cursor-pointer"
-            onMouseEnter={() => preload(`/api/books/${bookSlug}/reviews/me`, fetcher)}
+            onMouseEnter={() => preload(`/api/me/books/${bookSlug}/reviews`, fetcher)}
           >
             <div className="flex items-center gap-2">
               <span className="text-xs sm:text-sm font-medium">Dodaj</span>

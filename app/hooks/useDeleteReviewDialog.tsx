@@ -52,7 +52,7 @@ export function useDeleteReviewDialog(
         await Promise.all([
           mutate(getReviewsKey(bookSlug, currentPage)),
           mutate(`/api/books/${bookSlug}/rating`),
-          mutate(`/api/editions/${editionId}/reviews/me`),
+          mutate(`/api/me/editions/${editionId}/reviews`),
         ]);
         setDeleteReviewId(null);
       }
