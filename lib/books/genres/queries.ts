@@ -9,7 +9,7 @@ export const getBookGenresCached = (language: "pl" | "en") =>
     },
     ["book-genres", language],
     {
-      revalidate: 60 * 60 * 24 * 30, // 30 days
+      revalidate: 60 * 10, // 10 min
     }
   )();
 
