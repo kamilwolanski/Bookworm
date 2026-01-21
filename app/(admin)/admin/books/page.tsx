@@ -21,7 +21,7 @@ export default async function BooksPage({ searchParams }: Props) {
     ? await searchParams
     : {};
   const currentPage = parseInt(page || '1', 10);
-  const genresParams = genre?.toLocaleUpperCase().split(',') ?? [];
+  const genresParams = genre?.split(',') ?? [];
   const ratings = rating?.split(',') ?? [];
   const response = await getAllBooksBasic(
     currentPage,

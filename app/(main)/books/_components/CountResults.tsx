@@ -17,7 +17,7 @@ type Props = {
 export default async function CountResults({ searchParams }: Props) {
   const { search, genre, userrating, status, myshelf, rating } =
     searchParams ? await searchParams : {};
-  const genresParams = genre?.toLocaleUpperCase().split(",") ?? [];
+  const genresParams = genre?.split(",") ?? [];
   const userRatings = userrating?.split(",") ?? [];
   const statuses = (status?.toUpperCase().split(",") as ReadingStatus[]) ?? {};
   const myShelf = Boolean(myshelf);
