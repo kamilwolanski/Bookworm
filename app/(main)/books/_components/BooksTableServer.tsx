@@ -25,7 +25,7 @@ export default async function BooksTable(props: BooksTableProps) {
     props.searchParams ? await props.searchParams : {};
 
   const currentPage = parseInt(page || "1", 10);
-  const genresParams = genre?.toLocaleUpperCase().split(",") ?? [];
+  const genresParams = genre?.split(",") ?? [];
   const userRatings = userrating?.split(",") ?? [];
   const statuses = (status?.toUpperCase().split(",") as ReadingStatus[]) ?? {};
   const myShelf = Boolean(myshelf);
