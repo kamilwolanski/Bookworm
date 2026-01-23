@@ -258,9 +258,9 @@ export default function BookForm({
                       items={LANGUAGES}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Wybierz format..."
+                      placeholder="Wybierz język..."
                       searchPlaceholder="Szukaj język..."
-                      emptyText="Brak formatów."
+                      emptyText="Brak języków."
                       className="w-full"
                     />
                   </FormControl>
