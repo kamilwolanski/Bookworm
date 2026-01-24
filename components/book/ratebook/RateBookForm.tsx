@@ -38,7 +38,6 @@ const RateBookForm = ({
   const {
     form,
     submit,
-    isPending: isPendingAction,
   } = useAsyncActionForm({
     action: (formData) => rateBookAction(bookId, pathname, formData),
     schema: addEditionReviewSchema,

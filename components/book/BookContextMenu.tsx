@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useState } from "react";
 import { BookPlus, MoreVertical, Star } from "lucide-react";
 import LoginDialog from "../auth/LoginDialog";
 import RateBookStepperDialog from "./ratebook/RateBookStepperDialog";

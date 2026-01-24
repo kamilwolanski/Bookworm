@@ -7,15 +7,12 @@ type AuthorBooksProps = {
     page?: string;
   }>;
 };
-const ITEMS_PER_PAGE = 8;
 
 export default async function AuthorBooks({
   authorSlug,
-  searchParams,
+  // searchParams,
 }: AuthorBooksProps) {
-  const { page } = searchParams ? await searchParams : {};
-  const currentPage = parseInt(page || "1", 10);
-  const { authorbooks, totalCount } = await getAuthorsBooksCached(authorSlug);
+  const { authorbooks } = await getAuthorsBooksCached(authorSlug);
   return (
     <div className="bg-sidebar shadow-lg rounded-xl p-3 sm:p-8">
       <h3 className="font-semibold mb-6">Książki autora</h3>
