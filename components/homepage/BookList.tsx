@@ -1,5 +1,5 @@
 import { BookCardDTO } from "@/lib/books/listings";
-import { BookCard } from "../book/BookCard";
+import { BookCard } from "../book/bookCard/BookCard";
 
 
 async function BookList({

@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import Link from "next/link";
 import { BookCardDTO } from "@/lib/books/listings";
 import { Suspense } from "react";
-import { UserBookOverlay } from "./UserBookOverlay";
+import { UserBookOverlay } from "../UserBookOverlay";
 import UserEditionRating from "@/app/(main)/_components/UserEditionRating";
 import AverageRating from "@/app/(main)/_components/averageRating/AverageRating";
 import BookCoverImage from "@/app/(main)/books/[slug]/[editionId]/_components/BookCover.client";
