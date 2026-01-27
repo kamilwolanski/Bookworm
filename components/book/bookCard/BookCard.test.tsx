@@ -15,7 +15,7 @@ vi.mock(
   "@/app/(main)/books/[slug]/[editionId]/_components/BookCover.client",
   () => ({
     default: () => <div data-testid="cover-image" />,
-  })
+  }),
 );
 describe("BookCard", () => {
   const fakeBookItem: BookCardDTO = {
@@ -51,15 +51,21 @@ describe("BookCard", () => {
 
     //title
     expect(
-      screen.getByRole("heading", { name: /Example Book Title/i })
+      screen.getByRole("heading", { name: /Example Book Title/i }),
     ).toBeInTheDocument();
 
     //authors
-    expect(
-      screen.getByText(/Author One, Author Two/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Author One, Author Two/i)).toBeInTheDocument();
 
     //cover fallback
     expect(screen.getByText(/Brak okładki/i)).toBeInTheDocument();
+  });
+
+  it("renders UserBookOverlay, UserEditionRating and AverageRating components", () => {
+    render(<BookCard bookItem={fakeBookItem} />);
+
+    expect(screen.getByTestId("user-overlay")).toBeInTheDocument();
+    expect(screen.getByTestId("user-rating")).toBeInTheDocument();
+    expect(screen.getByTestId("avg-rating")).toBeInTheDocument();
   });
 });
