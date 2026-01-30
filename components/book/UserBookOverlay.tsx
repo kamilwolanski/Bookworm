@@ -3,7 +3,7 @@ import { getTheUserInformationForEdition } from "@/lib/user";
 import LoginDialog from "../auth/LoginDialog";
 import { Plus } from "lucide-react";
 import { getUserSession } from "@/lib/session";
-import BookContextMenu from "./BookContextMenu";
+import BookContextMenu from "./bookContextMenu/BookContextMenu";
 import UserBookOverlayClient from "./UserBookOverlayClient";
 
 export async function UserBookOverlay({

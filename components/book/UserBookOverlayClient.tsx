@@ -3,7 +3,7 @@
 import { EditionUserResponseItem } from "@/lib/user";
 import AddBookStepperDialog from "@/components/book/addBookStepper/AddBookStepperDialog";
 import { BookCardDTO } from "@/lib/books";
-import BookContextMenu from "./BookContextMenu";
+import BookContextMenu from "./bookContextMenu/BookContextMenu";
 import useSWR from "swr";
 import { useState } from "react";
 

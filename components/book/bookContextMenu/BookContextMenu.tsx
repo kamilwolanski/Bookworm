@@ -9,12 +9,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { BookPlus, MoreVertical, Star } from "lucide-react";
-import LoginDialog from "../auth/LoginDialog";
-import RateBookStepperDialog from "./ratebook/RateBookStepperDialog";
+import LoginDialog from "../../auth/LoginDialog";
+import RateBookStepperDialog from "../ratebook/RateBookStepperDialog";
 import { BookCardDTO } from "@/lib/books";
-import AddBookStepperDialog from "./addBookStepper/AddBookStepperDialog";
+import AddBookStepperDialog from "../addBookStepper/AddBookStepperDialog";
 import { UserEditionDto } from "@/lib/user";
-
 
 function BookContextMenu({
   logIn,
@@ -113,3 +112,4 @@ function BookContextMenu({
 }
 
 export default BookContextMenu;
+export { BookContextMenu };
