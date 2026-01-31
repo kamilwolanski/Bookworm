@@ -3,11 +3,11 @@
 import { EditionUserResponseItem } from "@/lib/user";
 import AddBookStepperDialog from "@/components/book/addBookStepper/AddBookStepperDialog";
 import { BookCardDTO } from "@/lib/books";
-import BookContextMenu from "./bookContextMenu/BookContextMenu";
+import BookContextMenu from "../bookContextMenu/BookContextMenu";
 import useSWR from "swr";
 import { useState } from "react";
 
-type UserBookOverlayClientProps = {
+export type UserBookOverlayClientProps = {
   editionUserResponseFromServer: EditionUserResponseItem;
   representativeEditionId: string;
   book: BookCardDTO["book"];

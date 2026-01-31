@@ -82,7 +82,6 @@ describe("BookContextMenu", () => {
     );
     const menuButton = screen.getByRole("button");
     await user.click(menuButton);
-    screen.debug();
 
     expect(screen.getByText("Wszystkie wydania")).toBeInTheDocument();
     expect(screen.getByText("Oceń")).toBeInTheDocument();
