@@ -1,10 +1,10 @@
 import { BookCardDTO } from "@/lib/books/listings";
 import { getTheUserInformationForEdition } from "@/lib/user";
-import LoginDialog from "../auth/LoginDialog";
+import LoginDialog from "../../auth/LoginDialog";
 import { Plus } from "lucide-react";
 import { getUserSession } from "@/lib/session";
-import BookContextMenu from "./bookContextMenu/BookContextMenu";
-import UserBookOverlayClient from "./userBookOverlayClient/UserBookOverlayClient";
+import BookContextMenu from "../bookContextMenu/BookContextMenu";
+import UserBookOverlayClient from "../userBookOverlayClient/UserBookOverlayClient";
 
 export async function UserBookOverlay({
   editionId,

@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { BookCard } from "./BookCard";
 import { BookCardDTO } from "@/lib/books";
 
-vi.mock("../UserBookOverlay", () => ({
+vi.mock("../userBookOverlay/UserBookOverlay", () => ({
   UserBookOverlay: () => <div data-testid="user-overlay" />,
 }));
 vi.mock("@/app/(main)/_components/UserEditionRating", () => ({
