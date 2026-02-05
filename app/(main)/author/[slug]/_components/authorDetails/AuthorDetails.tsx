@@ -4,7 +4,7 @@ import { getAuthor } from "@/lib/author";
 import { BookOpen, Calendar } from "lucide-react";
 import Emoji from "@/components/shared/Emoji";
 import { Separator } from "@/components/ui/separator";
-import AuthorAvatar from "./AuthorAvatar.client";
+import AuthorAvatar from "../AuthorAvatar.client";
 import { COUNTRIES } from "@/lib/constants/countries";
 
 export default async function AuthorDetails({ slug }: { slug: string }) {

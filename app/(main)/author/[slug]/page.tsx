@@ -1,6 +1,6 @@
 import { getAllAuthorSlugs, getAuthor } from "@/lib/author";
 import { Metadata, ResolvingMetadata } from "next";
-import AuthorDetails from "./_components/AuthorDetails";
+import AuthorDetails from "./_components/authorDetails/AuthorDetails";
 import AuthorBooks from "./_components/AuthorBooks";
 
 interface AuthorPageProps {
