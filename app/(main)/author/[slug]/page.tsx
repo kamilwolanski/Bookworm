@@ -1,7 +1,7 @@
 import { getAllAuthorSlugs, getAuthor } from "@/lib/author";
 import { Metadata, ResolvingMetadata } from "next";
 import AuthorDetails from "./_components/authorDetails/AuthorDetails";
-import AuthorBooks from "./_components/AuthorBooks";
+import AuthorBooks from "./_components/authorBooks/AuthorBooks";
 
 interface AuthorPageProps {
   params: Promise<{ slug: string }>;

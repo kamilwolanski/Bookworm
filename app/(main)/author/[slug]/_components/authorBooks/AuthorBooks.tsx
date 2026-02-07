@@ -1,7 +1,7 @@
 import BookList from "@/components/homepage/BookList";
 import { getAuthorsBooksCached } from "@/lib/author";
 
-type AuthorBooksProps = {
+export type AuthorBooksProps = {
   authorSlug: string;
   searchParams?: Promise<{
     page?: string;
