@@ -40,7 +40,7 @@ export default async function Books({ searchParams }: BooksProps) {
     >
       <Suspense
         fallback={
-          <div className="hidden lg:block">
+          <div className="[grid-area:filters] hidden lg:block">
             <div className="lg:w-100">
               <div className="space-y-6">
                 <Skeleton className="w-full h-28 shadow-xl rounded-xl px-5" />
@@ -68,7 +68,7 @@ export default async function Books({ searchParams }: BooksProps) {
         </BooksFiltersClientShell>
       </Suspense>
 
-      <div className="[grid-area:content] flex flex-col justify-between">
+      <div className="[grid-area:content] flex flex-col justify-between ">
         <Suspense
           fallback={
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 gap-2 3xl:gap-10">
