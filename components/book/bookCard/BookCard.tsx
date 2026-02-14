@@ -12,7 +12,7 @@ export function BookCard({ bookItem }: { bookItem: BookCardDTO }) {
   const { book, representativeEdition } = bookItem;
 
   return (
-    <Card className="relative cursor-pointer border-none h-full shadow-md hover:shadow-xl p-1 rounded-xl">
+    <Card className="relative cursor-pointer border-none h-full shadow-md hover:shadow-xl p-1 rounded-xl" data-testid="book-card">
       <div className="relative aspect-230/320 w-full">
         {bookItem.representativeEdition.coverUrl ? (
           <BookCoverImage

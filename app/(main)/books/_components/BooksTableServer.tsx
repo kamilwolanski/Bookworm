@@ -46,7 +46,7 @@ export default async function BooksTable(props: BooksTableProps) {
   return (
     <>
       {items.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 gap-2 3xl:gap-10">
+        <div data-testid="books-list" className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 gap-2 3xl:gap-10">
           <BookList books={items} />
         </div>
       ) : (
