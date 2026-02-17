@@ -4,13 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:test": "dotenv -e .env.test -- next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "db:seed:test": "dotenv -e .env.test -- tsx prisma/seed-test-book.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -73,6 +75,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5.1.2",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.0",
     "jsdom": "^27.4.0",

@@ -37,12 +37,6 @@ export default defineConfig({
     {
       name: "setup",
       testMatch: /auth\.setup\.ts/,
-      use: {
-        ...devices["Desktop Chrome"],
-        launchOptions: {
-          args: ["--disable-blink-features=AutomationControlled"],
-        },
-      },
     },
     {
       name: "chrome",
@@ -66,9 +60,9 @@ export default defineConfig({
       name: "webkit",
       use: {
         ...devices["Desktop Safari"],
-        storageState: "tests/.auth/user.json",
+        // storageState: "tests/.auth/user.json",
       },
-      dependencies: ["setup"],
+      // dependencies: ["setup"],
     },
 
     /* Test against mobile viewports. */
@@ -94,7 +88,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "npm run start",
+    command: "npm run dev:test",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
   },

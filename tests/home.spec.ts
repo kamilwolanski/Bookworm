@@ -23,11 +23,11 @@ test("A user can search for a book and open its details.", async ({ page }) => {
 
   await page.getByPlaceholder(
     "Wpisz tytuł książki, autora lub wydawnictwo...",
-  ).fill("tolkien");
+  ).fill("Test Book Edition");
 
   await page.getByRole("button", { name: "Szukaj" }).click();
 
-  await expect(page).toHaveURL(/\/books\?search=tolkien/);
+  await expect(page).toHaveURL(/\/books\?search=Test%20Book%20Edition/);
 
   const booksList = page.getByTestId("books-list");
   await expect(booksList).toBeVisible();

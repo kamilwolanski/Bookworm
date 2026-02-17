@@ -1,20 +1,61 @@
-import { test as setup, expect } from "@playwright/test";
+import { test as setup } from "@playwright/test";
+import { PrismaClient } from "@prisma/client";
+import { encode } from "next-auth/jwt";
+import dotenv from "dotenv";
+import path from "path";
 
-setup("login via google", async ({ page }) => {
-  await page.goto("/");
+dotenv.config({
+  path: path.resolve(__dirname, "../.env.test"),
+});
 
-  await page.getByRole("button", { name: /zaloguj się/i }).click();
+const prisma = new PrismaClient();
 
-  await page.getByRole("button", { name: /Kontynuuj z Google/i }).click();
+const authFile = "tests/.auth/user.json";
 
+setup("authenticate", async ({ page }) => {
+  const email = "e2e@test.com";
 
-  await page.waitForURL("http://localhost:3000/");
+  // 1. znajdź lub utwórz usera
+  let user = await prisma.user.findUnique({
+    where: { email },
+  });
 
-  await page.getByRole("button", { name: "Menu użytkownika" }).first().click();
-  await expect(page.getByRole("menuitem", { name: /wyloguj się/i })).toBeVisible();
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        email,
+        name: "E2E User",
+        role: "USER",
+      },
+    });
+  }
 
-  // zapisz sesję
+  // 2. utwórz JWT token NextAuth
+  const token = await encode({
+    token: {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    },
+    secret: process.env.AUTH_SECRET!,
+    salt: "next-auth.salt",
+  });
+
+  // 3. ustaw cookie
+  await page.context().addCookies([
+    {
+      name: "authjs.session-token",
+      value: token,
+      domain: "localhost",
+      path: "/",
+      httpOnly: true,
+      sameSite: "Lax",
+      secure: false,
+    },
+  ]);
+
+  // 4. zapisz session
   await page.context().storageState({
-    path: "playwright/.auth/user.json",
+    path: authFile,
   });
 });

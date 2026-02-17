@@ -1,0 +1,15 @@
+{
+  "cookies": [
+    {
+      "name": "authjs.session-token",
+      "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiSzhGT193OXphdGhZdGZWTGEwcVFpXzZ1eXdpWWpaM2pFT1V3SDNWbUR4U0RmdVV3dXUxQ1JUSi1EOXpGVDdsemZNRHEwZHJzRjJ3MlVGdGVlS0RkN0EifQ..skQ3PEW2I41cjPfwKtfpeg.dpJYvFHVQImFCEQ3LBKeKnRWztgon5NS35phh2ubcW3AiNyYF8zRQYkW5hoo0C3EP7Srz-G9Rj10ce_B4uIwICAouqpzRtHJi00jh0W5o1870o8qoP491_dBt4GPSeVS9Cs6b0tQzHIlZC11Qo8G4pYQoLGEGRBBwDSopA-trrOexTMt94X3svL7pHIMH3pXMhZfkco5JUqZfYRJdDEefOKESQZkuEFwAZzQfJM94tQ.7wzbJoHoJib3PynTMu1qvc5J8MZLAYQQ7DUeJNeyZDk",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": []
+}
