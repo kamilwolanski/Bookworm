@@ -21,9 +21,11 @@ test.describe("Homepage", () => {
 test("A user can search for a book and open its details.", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByPlaceholder(
-    "Wpisz tytuł książki, autora lub wydawnictwo...",
-  ).fill("Test Book Edition");
+  const searchInput = page.getByTestId("search-input");
+
+  await expect(searchInput).toBeVisible();
+
+  await searchInput.fill("Test Book Edition");
 
   await page.getByRole("button", { name: "Szukaj" }).click();
 

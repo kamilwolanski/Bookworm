@@ -42,6 +42,7 @@ export function HeroSection() {
 
                   <Input
                     placeholder="Wpisz tytuł książki, autora lub wydawnictwo..."
+                    data-testid="search-input"
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
                     className="pl-10 pr-12 py-5 text-sm md:text-base"

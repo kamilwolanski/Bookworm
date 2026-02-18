@@ -1,12 +1,11 @@
 import { test as setup } from "@playwright/test";
 import { PrismaClient } from "@prisma/client";
 import { encode } from "next-auth/jwt";
-import dotenv from "dotenv";
-import path from "path";
+import { loadEnvConfig } from '@next/env'
 
-dotenv.config({
-  path: path.resolve(__dirname, "../.env.test"),
-});
+const projectDir = process.cwd()
+loadEnvConfig(projectDir)
+
 
 const prisma = new PrismaClient();
 

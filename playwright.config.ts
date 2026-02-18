@@ -1,5 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
+import { loadEnvConfig } from '@next/env'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(process.env as any).NODE_ENV = "test";
+
+const projectDir = process.cwd()
+loadEnvConfig(projectDir)
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -88,7 +94,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "npm run dev:test",
+    command: "npm run build && npm run start",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
   },
